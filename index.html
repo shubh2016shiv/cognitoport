@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shubham Singh - Generative AI Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Premium Font Stack -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A; 
+            color: #E5E7EB; 
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Satoshi', sans-serif;
+        }
+        .font-mono-tech {
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* Electric Cyan Accent */
+        .text-cyan-neon { color: #00F0FF; }
+        .border-cyan-neon { border-color: #00F0FF; }
+
+        .section-title {
+            @apply text-3xl md:text-5xl font-bold mb-3 text-white tracking-tight font-heading;
+        }
+        
+        /* Typing animation */
+        .typed-cursor {
+            opacity: 1;
+            animation: blink 0.7s infinite;
+            color: #00F0FF;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Scroll Reveal Animation Styles */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-50 { transition-delay: 50ms; }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-150 { transition-delay: 150ms; }
+        .delay-200 { transition-delay: 200ms; }
+
+        /* Hide scrollbar for carousel */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+
+<body class="relative">
+
+    <!-- Modular Background Containers (Fixed at Z-index -1) -->
+    
+    <!-- 1 & 2: Canvas for Neural Net and Bokeh -->
+    <canvas id="bg-canvas" class="fixed inset-0 w-full h-full z-[-1] pointer-events-none transition-opacity duration-700"></canvas>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[60] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header -->
+    <header id="header" class="bg-[#0A0A0A]/90 backdrop-blur-md fixed w-full top-0 z-50 transition-all duration-300 border-b border-transparent">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center relative">
+            <a href="#" class="text-2xl font-bold text-white font-mono-tech nav-link hover:text-cyan-neon transition-colors z-20">SS.</a>
+            
+            <!-- Apple Aero Glass Toggle (Desktop Top Middle) -->
+            <div class="absolute left-1/2 -translate-x-1/2 z-20 hidden md:flex items-center">
+                <div class="flex items-center p-1 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-full relative shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+                    <div id="bg-active-pill" class="absolute h-[calc(100%-8px)] w-20 bg-white/[0.08] border border-white/20 rounded-full shadow-sm transition-transform duration-300 ease-out left-1 translate-x-0"></div>
+                    <button onclick="setBg('bokeh')" id="btn-bokeh" class="relative z-10 w-20 py-1.5 text-xs font-semibold text-white transition-colors tracking-wide outline-none cursor-pointer">Bokeh</button>
+                    <button onclick="setBg('neural')" id="btn-neural" class="relative z-10 w-20 py-1.5 text-xs font-semibold text-gray-400 hover:text-white transition-colors tracking-wide outline-none cursor-pointer">Neural</button>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex space-x-8 items-center text-sm font-medium z-20">
+                <a href="#about" class="nav-link text-gray-400 hover:text-white transition-colors">About</a>
+                <a href="#projects" class="nav-link text-gray-400 hover:text-white transition-colors">Projects</a>
+                <a href="#experience" class="nav-link text-gray-400 hover:text-white transition-colors">Experience</a>
+                <a href="#arsenal" class="nav-link text-gray-400 hover:text-white transition-colors">Arsenal</a>
+                <a href="resume.pdf" class="mock-download border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-2 rounded-lg transition-all duration-300">Resume</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-cyan-neon focus:outline-none p-2 z-20">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-[#111111] border-b border-white/10 shadow-xl px-6 py-4 space-y-4">
+             <!-- Apple Aero Glass Toggle (Mobile) -->
+             <div class="flex items-center p-1 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-xl relative w-full mb-4 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+                 <div id="mobile-bg-active-pill" class="absolute h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white/[0.08] border border-white/20 rounded-lg shadow-sm transition-transform duration-300 ease-out left-1 translate-x-0"></div>
+                 <button onclick="setBg('bokeh')" id="mobile-btn-bokeh" class="relative z-10 w-1/2 py-2.5 text-sm font-semibold text-white transition-colors tracking-wide outline-none cursor-pointer">Bokeh</button>
+                 <button onclick="setBg('neural')" id="mobile-btn-neural" class="relative z-10 w-1/2 py-2.5 text-sm font-semibold text-gray-400 hover:text-white transition-colors tracking-wide outline-none cursor-pointer">Neural</button>
+             </div>
+             <a href="#about" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">About</a>
+             <a href="#projects" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Projects</a>
+             <a href="#experience" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Experience</a>
+             <a href="#arsenal" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Arsenal</a>
+             <a href="resume.pdf" class="mock-download block border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-3 rounded-lg transition-all text-center w-full">Resume</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="min-h-screen flex items-center pt-20 relative">
+            <div class="container mx-auto px-6 text-center reveal relative z-10">
+                <h1 class="text-4xl md:text-7xl font-bold mb-4 text-white font-heading">Shubham Singh</h1>
+                <h2 class="text-xl md:text-3xl font-medium mb-6 text-gray-400 reveal delay-100 font-mono-tech">
+                    I build <span id="typed-text" class="text-white"></span><span class="typed-cursor">|</span>
+                </h2>
+                <p class="max-w-2xl mx-auto mb-10 text-[#AAAAAA] reveal delay-200 text-lg">
+                    A passionate engineer specializing in creating intelligent, production-grade solutions with Generative AI and Machine Learning.
+                </p>
+                <div class="flex justify-center space-x-6 mb-10 reveal delay-300">
+                    <a href="#" class="mock-link text-gray-500 hover:text-cyan-neon hover:scale-110 transition-all"><i data-lucide="github" class="w-7 h-7"></i></a>
+                    <a href="#" class="mock-link text-gray-500 hover:text-cyan-neon hover:scale-110 transition-all"><i data-lucide="linkedin" class="w-7 h-7"></i></a>
+                    <a href="#" class="mock-link text-gray-500 hover:text-cyan-neon hover:scale-110 transition-all"><i data-lucide="twitter" class="w-7 h-7"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Me Section -->
+        <section id="about" class="py-24 overflow-hidden border-t border-white/5 bg-transparent">
+            <div class="container mx-auto px-6 max-w-5xl">
+                <div class="flex flex-col md:flex-row items-center gap-16">
+                    <div class="md:w-1/3 reveal">
+                        <div class="relative">
+                            <div class="absolute inset-0 border border-white/10 rounded-2xl transform rotate-3 scale-105"></div>
+                            <img src="https://placehold.co/400x400/111111/FFFFFF?text=SS" alt="Shubham Singh" loading="lazy" class="rounded-2xl shadow-2xl border border-white/10 relative z-10 w-full grayscale hover:grayscale-0 transition-all duration-500">
+                        </div>
+                    </div>
+                    <div class="md:w-2/3 reveal delay-100">
+                        <h2 class="section-title">About Me</h2>
+                        <h3 class="text-xl text-cyan-neon font-medium mb-6 font-mono-tech">Finance Tech to the Frontier of AI</h3>
+                        <p class="text-[#AAAAAA] mb-4 leading-relaxed">
+                            Hello! I'm Shubham, a Generative AI Engineer with a strong foundation in core software development. My career began at Citibank, where I honed my skills building robust, scalable solutions for the financial sector. This experience hardwired me to write reliable, production-ready code.
+                        </p>
+                        <p class="text-[#AAAAAA] leading-relaxed">
+                           Driven by a passion for artificial intelligence, I pursued a Master's degree in the UK, pivoting fully into machine learning and GenAI. From developing battery technology algorithms at Faraday to my current role, I thrive on applying cutting-edge LLMs and vector infrastructure to create impactful applications.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-24 bg-white/[0.01] overflow-hidden relative border-t border-white/5">
+            <div class="container mx-auto px-6 max-w-7xl">
+                <div class="text-center md:text-left mb-12 reveal">
+                    <h2 class="section-title">Featured Projects</h2>
+                    <p class="text-[#AAAAAA] font-mono-tech text-sm">Deployed systems and prototypes.</p>
+                </div>
+                
+                <div class="relative group reveal delay-100">
+                    <button id="prevBtn" class="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 bg-[#0A0A0A] text-white p-3 rounded-full shadow-lg hover:text-cyan-neon border border-white/10 hover:border-cyan-neon transition-all hidden md:block">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+
+                    <div id="carouselTrack" class="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar py-4 px-2 scroll-smooth">
+                        
+                        <div class="snap-center shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-[#0A0A0A] rounded-xl overflow-hidden shadow-lg border border-white/10 hover:border-cyan-neon/50 hover:shadow-[0_0_30px_-8px_#00F0FF] transform transition-all duration-300 flex flex-col group">
+                            <div class="h-48 bg-[#1A1A1A] flex items-center justify-center border-b border-white/5 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-transparent"></div>
+                                <i data-lucide="file-text" class="w-16 h-16 text-gray-600 group-hover:text-cyan-neon transition-colors duration-300 relative z-10"></i>
+                            </div>
+                            <div class="p-6 flex-grow flex flex-col">
+                                <h3 class="text-xl font-bold mb-2 text-white group-hover:text-cyan-neon transition-colors font-heading">AI Document Analyzer</h3>
+                                <p class="text-[#AAAAAA] text-sm mb-6 flex-grow leading-relaxed">Extracts key insights, summarizes large PDFs, and answers complex queries using advanced RAG techniques.</p>
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <span class="text-[#AAAAAA] text-xs border border-white/10 px-2 py-1 rounded">LangChain</span>
+                                    <span class="text-[#AAAAAA] text-xs border border-white/10 px-2 py-1 rounded">Pinecone</span>
+                                </div>
+                                <div class="flex justify-between items-center mt-auto pt-4 border-t border-white/10">
+                                    <a href="#" class="mock-link text-white hover:text-cyan-neon text-sm font-medium flex items-center gap-1 transition-colors">Live Demo <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                                    <a href="#" class="mock-link text-gray-500 hover:text-white"><i data-lucide="github" class="w-5 h-5"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="snap-center shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-[#0A0A0A] rounded-xl overflow-hidden shadow-lg border border-white/10 hover:border-cyan-neon/50 hover:shadow-[0_0_30px_-8px_#00F0FF] transform transition-all duration-300 flex flex-col group">
+                            <div class="h-48 bg-[#1A1A1A] flex items-center justify-center border-b border-white/5 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-transparent"></div>
+                                <i data-lucide="book-open" class="w-16 h-16 text-gray-600 group-hover:text-cyan-neon transition-colors duration-300 relative z-10"></i>
+                            </div>
+                            <div class="p-6 flex-grow flex flex-col">
+                                <h3 class="text-xl font-bold mb-2 text-white group-hover:text-cyan-neon transition-colors font-heading">Dynamic Story Generator</h3>
+                                <p class="text-[#AAAAAA] text-sm mb-6 flex-grow leading-relaxed">A web app utilizing the Gemini API to construct intricate short stories from minimal user prompts.</p>
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <span class="text-[#AAAAAA] text-xs border border-white/10 px-2 py-1 rounded">Gemini API</span>
+                                    <span class="text-[#AAAAAA] text-xs border border-white/10 px-2 py-1 rounded">Flask</span>
+                                </div>
+                                <div class="flex justify-between items-center mt-auto pt-4 border-t border-white/10">
+                                    <a href="#" class="mock-link text-white hover:text-cyan-neon text-sm font-medium flex items-center gap-1 transition-colors">Live Demo <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                                    <a href="#" class="mock-link text-gray-500 hover:text-white"><i data-lucide="github" class="w-5 h-5"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="snap-center shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] bg-[#0A0A0A] rounded-xl overflow-hidden shadow-lg border border-white/10 hover:border-cyan-neon/50 hover:shadow-[0_0_30px_-8px_#00F0FF] transform transition-all duration-300 flex flex-col group">
+                            <div class="h-48 bg-[#1A1A1A] flex items-center justify-center border-b border-white/5 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-transparent"></div>
+                                <i data-lucide="image" class="w-16 h-16 text-gray-600 group-hover:text-cyan-neon transition-colors duration-300 relative z-10"></i>
+                            </div>
+                            <div class="p-6 flex-grow flex flex-col">
+                                <h3 class="text-xl font-bold mb-2 text-white group-hover:text-cyan-neon transition-colors font-heading">Image Synthesizer</h3>
+                                <p class="text-[#AAAAAA] text-sm mb-6 flex-grow leading-relaxed">Leverages Stable Diffusion to generate high-fidelity, controllable images from complex text descriptions.</p>
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <span class="text-[#AAAAAA] text-xs border border-white/10 px-2 py-1 rounded">PyTorch</span>
+                                    <span class="text-[#AAAAAA] text-xs border border-white/10 px-2 py-1 rounded">Gradio</span>
+                                </div>
+                                <div class="flex justify-between items-center mt-auto pt-4 border-t border-white/10">
+                                    <a href="#" class="mock-link text-white hover:text-cyan-neon text-sm font-medium flex items-center gap-1 transition-colors">Live Demo <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+                                    <a href="#" class="mock-link text-gray-500 hover:text-white"><i data-lucide="github" class="w-5 h-5"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="nextBtn" class="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 bg-[#0A0A0A] text-white p-3 rounded-full shadow-lg hover:text-cyan-neon border border-white/10 hover:border-cyan-neon transition-all hidden md:block">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Premium "Technical Arsenal" Section -->
+        <section id="arsenal" class="py-24 border-t border-white/5 relative bg-transparent">
+            <div class="container mx-auto px-6 max-w-7xl">
+                
+                <div class="mb-16 reveal flex flex-col items-start">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-3 text-white tracking-tight font-heading">Technical Arsenal</h2>
+                    <p class="text-[#AAAAAA] text-sm md:text-base tracking-wide">The exact stack I ship production-grade GenAI systems with every day</p>
+                </div>
+
+                <div class="space-y-16">
+                    
+                    <!-- Category 1: GenAI & LLMs -->
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-6 bg-cyan-neon"></div>
+                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">GenAI & LLMs</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">LangChain</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">LlamaIndex</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Gemini & OpenAI APIs</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-200 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Hugging Face</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 2: Machine Learning -->
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-6 bg-cyan-neon"></div>
+                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Machine Learning</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">PyTorch</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">TensorFlow</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Scikit-Learn</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 3: Vector & Data Infra -->
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-6 bg-cyan-neon"></div>
+                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Vector & Data Infra</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Pinecone</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Milvus</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Pandas / NumPy</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 4: Core Languages -->
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-6 bg-cyan-neon"></div>
+                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Core Languages</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Python</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">JavaScript / TS</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Java (Citibank)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category 5: Cloud & Deployment -->
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-1 h-6 bg-cyan-neon"></div>
+                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Cloud & Deployment</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Docker</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">GCP (Vertex AI)</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">FastAPI / Flask</p>
+                            </div>
+                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-200 flex items-center justify-center md:justify-start text-center md:text-left">
+                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">CI/CD & Git</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="py-24 bg-white/[0.01] border-t border-white/5 relative">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="section-title font-heading">Career Journey</h2>
+                    <p class="text-[#AAAAAA] font-mono-tech text-sm">Professional experience and education.</p>
+                </div>
+                
+                <div class="relative border-l border-white/10 ml-4 md:ml-8 space-y-12">
+                    <div class="pl-8 relative reveal">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-cyan-neon rounded-full shadow-[0_0_10px_#00F0FF]"></div>
+                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">Aug 2024 - Present</p>
+                        <h4 class="font-bold text-xl text-white">Generative AI Engineer</h4>
+                        <p class="text-gray-400 text-sm mb-2">Pune, India</p>
+                        <p class="text-[#AAAAAA] text-sm leading-relaxed">Architecting and deploying LLM-based solutions, optimizing RAG pipelines, and building scalable AI applications for enterprise use cases.</p>
+                    </div>
+
+                    <div class="pl-8 relative reveal delay-50">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-white/30 rounded-full"></div>
+                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">Mar 2023 - Jun 2024</p>
+                        <h4 class="font-bold text-xl text-white">Machine Learning Engineer</h4>
+                        <p class="text-gray-400 text-sm mb-2">Faraday Battery Private Limited • Birmingham, UK</p>
+                        <p class="text-[#AAAAAA] text-sm leading-relaxed">Developed and optimized predictive models using Python. Contributed to data engineering and backend integration for research tools.</p>
+                    </div>
+
+                    <div class="pl-8 relative reveal delay-100">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-white/30 rounded-full"></div>
+                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">Sep 2022 - Aug 2023</p>
+                        <h4 class="font-bold text-xl text-white">M.Sc in Artificial Intelligence</h4>
+                        <p class="text-gray-400 text-sm mb-2">Birmingham City University, UK</p>
+                    </div>
+
+                    <div class="pl-8 relative reveal delay-150">
+                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-white/30 rounded-full"></div>
+                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">2016 - 2022</p>
+                        <h4 class="font-bold text-xl text-white">Software Developer</h4>
+                        <p class="text-gray-400 text-sm mb-2">Citibank • Pune, India</p>
+                        <p class="text-[#AAAAAA] text-sm leading-relaxed">Engineered robust, secure backend systems handling high-volume financial data. Gained deep expertise in Java, enterprise architecture, and scalable design patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- Contact Section -->
+        <section id="contact" class="py-24 bg-transparent border-t border-white/5 relative">
+            <div class="container mx-auto px-6 max-w-2xl text-center">
+                <h2 class="section-title reveal font-heading">Get In Touch</h2>
+                <p class="text-[#AAAAAA] mb-10 reveal delay-100">
+                    Currently open to new opportunities and collaborations in the AI space. Feel free to send me a message!
+                </p>
+                <form id="contactForm" class="space-y-6 reveal delay-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <input type="text" placeholder="Your Name" required class="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-cyan-neon focus:bg-white/[0.05] transition-all">
+                        <input type="email" placeholder="Your Email" required class="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-cyan-neon focus:bg-white/[0.05] transition-all">
+                    </div>
+                    <textarea placeholder="Your Message" rows="4" required class="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-cyan-neon focus:bg-white/[0.05] transition-all"></textarea>
+                    <button type="submit" class="bg-white text-black font-semibold py-3 px-8 rounded-full transition-all duration-300 hover:bg-cyan-neon hover:shadow-[0_0_20px_rgba(0,240,255,0.3)]">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/[0.02] py-8 border-t border-white/5 backdrop-blur-md relative z-10">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+             <div class="flex justify-center space-x-6 mb-4 reveal">
+                <a href="#" class="mock-link hover:text-cyan-neon transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                <a href="#" class="mock-link hover:text-cyan-neon transition-colors"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                <a href="#" class="mock-link hover:text-cyan-neon transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+            </div>
+            <p class="reveal delay-100">&copy; 2026 Shubham Singh. Built for the AI era.</p>
+        </div>
+    </footer>
+    
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" class="hidden fixed bottom-8 right-8 bg-white/10 border border-white/20 hover:border-cyan-neon hover:text-cyan-neon text-white p-3 rounded-full shadow-lg transition-all duration-300 z-50 focus:outline-none backdrop-blur-md">
+        <i data-lucide="arrow-up" class="w-5 h-5"></i>
+    </button>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        lucide.createIcons();
+
+        // --- Custom Toast Notification ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-[#111] text-cyan-neon border border-cyan-neon px-6 py-3 rounded shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all duration-300 opacity-0 translate-y-[-20px] font-mono-tech text-sm';
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-[-20px]');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Event Delegation for Links ---
+        document.addEventListener('click', function(e) {
+            const navLink = e.target.closest('.nav-link');
+            const mockDownload = e.target.closest('.mock-download');
+            const mockLink = e.target.closest('.mock-link');
+
+            if (navLink) {
+                e.preventDefault();
+                const targetId = navLink.getAttribute('href');
+                if(targetId === '#') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+                document.getElementById('mobile-menu').classList.add('hidden');
+            } else if (mockDownload) {
+                e.preventDefault();
+                showToast("Resume download initiated...");
+                document.getElementById('mobile-menu').classList.add('hidden');
+            } else if (mockLink) {
+                e.preventDefault();
+                showToast("Opening external link...");
+            }
+        });
+
+        // --- Mobile Menu Toggle ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // --- Carousel Logic ---
+        const track = document.getElementById('carouselTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let autoScrollInterval;
+
+        const getScrollAmount = () => track ? track.querySelector('.snap-center').offsetWidth + 24 : 0;
+        const scrollCarousel = (direction) => {
+            if(!track) return;
+            const scrollAmount = getScrollAmount();
+            if (direction === 'next') {
+                if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
+                    track.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            } else {
+                track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            }
+        };
+
+        const startAutoScroll = () => autoScrollInterval = setInterval(() => scrollCarousel('next'), 4000);
+        const stopAutoScroll = () => clearInterval(autoScrollInterval);
+
+        nextBtn?.addEventListener('click', () => { scrollCarousel('next'); stopAutoScroll(); startAutoScroll(); });
+        prevBtn?.addEventListener('click', () => { scrollCarousel('prev'); stopAutoScroll(); startAutoScroll(); });
+        track?.addEventListener('mouseenter', stopAutoScroll);
+        track?.addEventListener('mouseleave', startAutoScroll);
+        track?.addEventListener('touchstart', stopAutoScroll, {passive: true});
+        track?.addEventListener('touchend', startAutoScroll);
+        if(track) startAutoScroll();
+
+        // --- Scroll Reveal ---
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else {
+                    entry.target.classList.remove('active');
+                }
+            });
+        }, { root: null, threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // --- Typing effect ---
+        const typedTextSpan = document.getElementById("typed-text");
+        const textArray = ["Intelligent Systems.", "Agentic Workflows.", "Production GenAI."];
+        let textArrayIndex = 0;
+        let charIndex = 0;
+
+        function type() {
+            if(!typedTextSpan) return;
+            if (charIndex < textArray[textArrayIndex].length) {
+                typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(type, 80);
+            } else {
+                setTimeout(erase, 2500);
+            }
+        }
+
+        function erase() {
+            if(!typedTextSpan) return;
+            if (charIndex > 0) {
+                typedTextSpan.textContent = textArray[textArrayIndex].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(erase, 40);
+            } else {
+                textArrayIndex++;
+                if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+                setTimeout(type, 500);
+            }
+        }
+        document.addEventListener("DOMContentLoaded", () => { if (textArray.length) setTimeout(type, 2250); });
+
+        // --- Header shadow ---
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('border-white/10');
+                header.classList.remove('border-transparent');
+            } else {
+                header.classList.remove('border-white/10');
+                header.classList.add('border-transparent');
+            }
+        });
+
+        // --- Scroll to Top ---
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) scrollToTopBtn.classList.remove('hidden');
+            else scrollToTopBtn.classList.add('hidden');
+        });
+        scrollToTopBtn?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        const contactForm = document.getElementById('contactForm');
+        contactForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showToast('Thank you for your message! I will get back to you soon.');
+            contactForm.reset();
+        });
+
+        // ==========================================
+        // FIXED BACKGROUND ANIMATIONS SYSTEM
+        // ==========================================
+        const bgCanvas = document.getElementById('bg-canvas');
+        const ctx = bgCanvas?.getContext('2d');
+        let activeBgInstance = null;
+
+        function resizeBgCanvas() {
+            if(!bgCanvas) return;
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeBgCanvas);
+        resizeBgCanvas();
+
+        // 1. Neural Network 
+        class NeuralNetwork {
+            constructor() {
+                this.particles = [];
+                const numParticles = window.innerWidth < 768 ? 20 : 45;
+                for(let i = 0; i < numParticles; i++) {
+                    this.particles.push({
+                        x: Math.random() * bgCanvas.width,
+                        y: Math.random() * bgCanvas.height,
+                        vx: (Math.random() - 0.5) * 0.35,
+                        vy: (Math.random() - 0.5) * 0.35,
+                        radius: Math.random() * 1.5 + 0.5,
+                        color: Math.random() > 0.5 ? '#00F0FF' : '#6B21A8'
+                    });
+                }
+            }
+            draw() {
+                for(let i = 0; i < this.particles.length; i++) {
+                    let p1 = this.particles[i];
+                    p1.x += p1.vx;
+                    p1.y += p1.vy;
+                    if(p1.x < 0 || p1.x > bgCanvas.width) p1.vx *= -1;
+                    if(p1.y < 0 || p1.y > bgCanvas.height) p1.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p1.color;
+                    ctx.globalAlpha = 0.8; // Increased visibility
+                    ctx.fill();
+
+                    for(let j = i + 1; j < this.particles.length; j++) {
+                        let p2 = this.particles[j];
+                        let dx = p1.x - p2.x;
+                        let dy = p1.y - p2.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        let maxDist = 130;
+                        if(dist < maxDist) {
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            let alpha = (1 - dist/maxDist) * 0.25; // Increased line visibility
+                            ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Faint Data-Flow Bokeh
+        class DataBokeh {
+            constructor() {
+                this.particles = [];
+                const numParticles = window.innerWidth < 768 ? 15 : 25;
+                for(let i = 0; i < numParticles; i++) {
+                    this.particles.push({
+                        x: Math.random() * bgCanvas.width,
+                        y: Math.random() * bgCanvas.height,
+                        vx: (Math.random() - 0.5) * 0.1, 
+                        vy: -(Math.random() * 0.15 + 0.05), 
+                        radius: Math.random() * 25 + 10,
+                        alpha: Math.random() * 0.15 + 0.05 // Increased visibility (5% to 20%)
+                    });
+                }
+            }
+            draw() {
+                for(let i = 0; i < this.particles.length; i++) {
+                    let p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    
+                    if(p.y + p.radius < 0) {
+                        p.y = bgCanvas.height + p.radius;
+                        p.x = Math.random() * bgCanvas.width;
+                    }
+
+                    let gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+                    gradient.addColorStop(0, `rgba(0, 240, 255, ${p.alpha * 1.5})`);
+                    gradient.addColorStop(0.5, `rgba(0, 240, 255, ${p.alpha})`);
+                    gradient.addColorStop(1, 'rgba(0, 240, 255, 0)');
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Single, unbreakable animation loop
+        function runBgAnimation() {
+            try {
+                if(ctx) ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+                if(activeBgInstance) {
+                    activeBgInstance.draw();
+                }
+            } catch(e) { console.error(e); }
+            requestAnimationFrame(runBgAnimation);
+        }
+
+        function setBg(type) {
+            // Update active background instance
+            if(type === 'neural') {
+                activeBgInstance = new NeuralNetwork();
+            } else if(type === 'bokeh') {
+                activeBgInstance = new DataBokeh();
+            }
+
+            // UI Elements
+            const pill = document.getElementById('bg-active-pill');
+            const btnBokeh = document.getElementById('btn-bokeh');
+            const btnNeural = document.getElementById('btn-neural');
+            
+            const mPill = document.getElementById('mobile-bg-active-pill');
+            const mBtnBokeh = document.getElementById('mobile-btn-bokeh');
+            const mBtnNeural = document.getElementById('mobile-btn-neural');
+
+            if(type === 'neural') {
+                // Slide pills to right
+                if(pill) pill.style.transform = 'translateX(100%)';
+                if(mPill) mPill.style.transform = 'translateX(100%)';
+                
+                // Update text colors
+                if(btnBokeh) { btnBokeh.classList.remove('text-white'); btnBokeh.classList.add('text-gray-400'); }
+                if(btnNeural) { btnNeural.classList.remove('text-gray-400'); btnNeural.classList.add('text-white'); }
+                
+                if(mBtnBokeh) { mBtnBokeh.classList.remove('text-white'); mBtnBokeh.classList.add('text-gray-400'); }
+                if(mBtnNeural) { mBtnNeural.classList.remove('text-gray-400'); mBtnNeural.classList.add('text-white'); }
+            } else {
+                // Slide pills to left
+                if(pill) pill.style.transform = 'translateX(0)';
+                if(mPill) mPill.style.transform = 'translateX(0)';
+                
+                // Update text colors
+                if(btnBokeh) { btnBokeh.classList.remove('text-gray-400'); btnBokeh.classList.add('text-white'); }
+                if(btnNeural) { btnNeural.classList.remove('text-white'); btnNeural.classList.add('text-gray-400'); }
+                
+                if(mBtnBokeh) { mBtnBokeh.classList.remove('text-gray-400'); mBtnBokeh.classList.add('text-white'); }
+                if(mBtnNeural) { mBtnNeural.classList.remove('text-white'); mBtnNeural.classList.add('text-gray-400'); }
+            }
+        }
+
+        // Initialize animation loop and set default to Data Bokeh
+        runBgAnimation(); 
+        setBg('bokeh');
+    </script>
+</body>
+
+</html>
