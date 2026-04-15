@@ -1006,6 +1006,7 @@ function animateChipsOut(stageData) {
 let currentStage   = -1;
 let stageAnimated  = [false, false, false, false];
 let lastProgress   = -1;
+const MOBILE_STAGE_MODE = -2;
 
 function getScrollProgress() {
     const section = document.getElementById('arsenal');
@@ -1062,8 +1063,57 @@ function updateHeaderLabel(stageIdx) {
     if (label) label.textContent = LABELS[stageIdx];
 }
 
+function activateMobileStages() {
+    setAccentColor(ACCENTS[0]);
+    updateHeaderLabel(0);
+    updateProgressIndicator(0, 0);
+
+    ARSENAL_DATA.forEach((cat, idx) => {
+        const stageEl = document.getElementById(`stage-${cat.id}`);
+        if (stageEl) {
+            stageEl.classList.add('as-visible');
+            stageEl.style.opacity = '1';
+        }
+
+        if (!stageAnimated[idx]) {
+            stageAnimated[idx] = true;
+            animateChipsIn(cat);
+        }
+    });
+
+    // Connector canvas is hidden in mobile CSS, so keep its RAF loop off.
+    stopConnectors();
+}
+
+function resetDesktopStages() {
+    ARSENAL_DATA.forEach((cat, idx) => {
+        stageAnimated[idx] = false;
+        animateChipsOut(cat);
+
+        const stageEl = document.getElementById(`stage-${cat.id}`);
+        if (stageEl) {
+            stageEl.classList.remove('as-visible');
+            stageEl.style.opacity = '0';
+        }
+    });
+
+    stopConnectors();
+    lastProgress = -1;
+}
+
 function onScrollTick() {
-    if (window.innerWidth < 768) return;
+    if (window.innerWidth < 768) {
+        if (currentStage !== MOBILE_STAGE_MODE) {
+            activateMobileStages();
+            currentStage = MOBILE_STAGE_MODE;
+        }
+        return;
+    }
+
+    if (currentStage === MOBILE_STAGE_MODE) {
+        resetDesktopStages();
+        currentStage = -1;
+    }
 
     const progress = getScrollProgress();
     if (Math.abs(progress - lastProgress) < 0.001) return;
@@ -1112,6 +1162,7 @@ function initArsenal() {
     window.addEventListener('resize', () => {
         sizeConnectorCanvas();
         buildConnectorNodes();
+        onScrollTick();
     });
 
     onScrollTick();
