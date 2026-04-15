@@ -11,6 +11,7 @@
     <!-- Premium Font Stack -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -33,16 +34,90 @@
             @apply text-3xl md:text-5xl font-bold mb-3 text-white tracking-tight font-heading;
         }
         
-        /* Typing animation */
-        .typed-cursor {
-            opacity: 1;
-            animation: blink 0.7s infinite;
-            color: #00F0FF;
+        /* =============================================
+           CLI TERMINAL HERO
+        ============================================= */
+        .cli-hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+        .cli-terminal {
+            width: 100%;
+            max-width: 720px;
+            padding: 0;
+        }
+        .cli-chrome {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 28px;
+            opacity: 0;
+            animation: cli-fadein 0.5s ease 0.5s forwards;
+        }
+        .cli-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .cli-dot--close { background: #3a1a1a; border: 1px solid #5a2a2a; }
+        .cli-dot--min   { background: #2a2a1a; border: 1px solid #4a4a2a; }
+        .cli-dot--max   { background: #1a2a1a; border: 1px solid #2a4a2a; }
+        .cli-chrome__label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #333;
+            letter-spacing: 0.12em;
+            margin-left: 4px;
+            user-select: none;
+        }
+        #cli-output {
+            opacity: 0;
+            animation: cli-fadein 0.4s ease 0.8s forwards;
+        }
+        .cli-line {
+            margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 2.6vw, 13.5px);
+            line-height: 1.75;
+            min-height: 1.75em;
+            word-break: break-word;
+        }
+        .cli-prompt-glyph {
+            color: #00c8b4;
+            user-select: none;
+        }
+        .cli-cmd   { color: #e0e0e0; }
+        .cli-resp  { color: #888; }
+        .cli-resp--bright { color: #c0c0c0; }
+        .cli-cursor {
+            display: inline-block;
+            width: 7px;
+            height: 13px;
+            background: #00c8b4;
+            margin-left: 1px;
+            vertical-align: text-bottom;
+            animation: cli-blink 1s step-end infinite;
+        }
+        .cli-gap    { height: 20px; }
+        .cli-gap-sm { height: 8px; }
+        @keyframes cli-blink {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0; }
+        }
+        @keyframes cli-fadein { to { opacity: 1; } }
+        /* Reduced motion: skip animation, show immediately */
+        @media (prefers-reduced-motion: reduce) {
+            .cli-chrome, #cli-output { animation: none; opacity: 1; }
+            .cli-cursor { animation: none; opacity: 1; }
+        }
+        /* Mobile tweaks */
+        @media (max-width: 480px) {
+            .cli-chrome { margin-bottom: 18px; }
+            .cli-gap    { height: 14px; }
         }
 
         /* Scroll Reveal Animation Styles */
@@ -543,22 +618,49 @@
     </header>
 
     <main>
-        <!-- Hero Section -->
-        <section id="home" class="min-h-screen flex items-center pt-20 relative">
-            <div class="container mx-auto px-6 text-center reveal relative z-10">
-                <h1 class="text-4xl md:text-7xl font-bold mb-4 text-white font-heading">Shubham Singh</h1>
-                <h2 class="text-xl md:text-3xl font-medium mb-6 text-gray-400 reveal delay-100 font-mono-tech">
-                    I build <span id="typed-text" class="text-white"></span><span class="typed-cursor">|</span>
-                </h2>
-                <p class="max-w-2xl mx-auto mb-10 text-[#AAAAAA] reveal delay-200 text-lg">
-                    A passionate engineer specializing in creating intelligent, production-grade solutions with Generative AI and Machine Learning.
-                </p>
-                <div class="flex justify-center space-x-6 mb-10 reveal delay-300">
-                    <a href="#" class="mock-link text-gray-500 hover:text-cyan-neon hover:scale-110 transition-all"><i data-lucide="github" class="w-7 h-7"></i></a>
-                    <a href="#" class="mock-link text-gray-500 hover:text-cyan-neon hover:scale-110 transition-all"><i data-lucide="linkedin" class="w-7 h-7"></i></a>
-                    <a href="#" class="mock-link text-gray-500 hover:text-cyan-neon hover:scale-110 transition-all"><i data-lucide="twitter" class="w-7 h-7"></i></a>
+        <!-- Hero Section: CLI Terminal -->
+        <section id="home" class="min-h-screen flex items-center pt-20 pb-10 relative">
+            <div class="container mx-auto px-6 relative z-10 cli-hero">
+                <div class="cli-terminal" role="main" aria-label="Automated terminal session introducing Shubham Singh">
+                    <div class="cli-chrome" aria-hidden="true">
+                        <div class="cli-dot cli-dot--close"></div>
+                        <div class="cli-dot cli-dot--min"></div>
+                        <div class="cli-dot cli-dot--max"></div>
+                        <span class="cli-chrome__label">claude — zsh — 82×28</span>
+                    </div>
+                    <div id="cli-output"></div>
                 </div>
             </div>
+            <!-- Reduced-motion static fallback -->
+            <template id="cli-static-fallback">
+                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude inspect ./shubham-singh --depth=production --honest</span></div>
+                <div class="cli-gap-sm"></div>
+                <div class="cli-line cli-resp">Alright. Honest mode.</div>
+                <div class="cli-gap-sm"></div>
+                <div class="cli-line cli-resp">He builds AI systems — LangChain, LangGraph, agentic RAG, the full stack.</div>
+                <div class="cli-line cli-resp cli-resp--bright">Not the kind that get demoed once and archived. The kind that ship and stay running.</div>
+                <div class="cli-line cli-resp">Thinks about latency, fallbacks, cost, trust. The unglamorous parts.</div>
+                <div class="cli-gap"></div>
+                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude --skeptic "every AI engineer says production-grade"</span></div>
+                <div class="cli-gap-sm"></div>
+                <div class="cli-line cli-resp">Fair. Most stop at the API call.</div>
+                <div class="cli-line cli-resp cli-resp--bright">He wires the retrieval pipeline, structured output layer, multi-agent fallback.</div>
+                <div class="cli-line cli-resp">Pydantic contracts, vector stores that actually get reindexed, evals before deploy.</div>
+                <div class="cli-line cli-resp">The difference between a demo and a system is about 40 decisions nobody sees.</div>
+                <div class="cli-gap"></div>
+                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude --flag weakness --no-sugar</span></div>
+                <div class="cli-gap-sm"></div>
+                <div class="cli-line cli-resp">He goes too deep. Rabbit holes are a documented hazard.</div>
+                <div class="cli-line cli-resp cli-resp--bright">Spends a day on a retrieval edge case most people would ship around.</div>
+                <div class="cli-line cli-resp">Upside: he comes back with things others miss. Downside: deadlines notice.</div>
+                <div class="cli-gap"></div>
+                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude --summarize --format=brief</span></div>
+                <div class="cli-gap-sm"></div>
+                <div class="cli-line cli-resp cli-resp--bright">I could keep going but the work says it better.</div>
+                <div class="cli-line cli-resp">Scroll down. That's the actual argument.</div>
+                <div class="cli-gap"></div>
+                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cursor"></span></div>
+            </template>
         </section>
 
         <!-- About Me Section -->
@@ -902,36 +1004,125 @@
         }, { root: null, threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // --- Typing effect ---
-        const typedTextSpan = document.getElementById("typed-text");
-        const textArray = ["Intelligent Systems.", "Agentic Workflows.", "Production GenAI."];
-        let textArrayIndex = 0;
-        let charIndex = 0;
+        // --- CLI Terminal Hero Animation ---
+        (function() {
+            'use strict';
+            const cliOutput = document.getElementById('cli-output');
+            if (!cliOutput) return;
 
-        function type() {
-            if(!typedTextSpan) return;
-            if (charIndex < textArray[textArrayIndex].length) {
-                typedTextSpan.textContent += textArray[textArrayIndex].charAt(charIndex);
-                charIndex++;
-                setTimeout(type, 80);
-            } else {
-                setTimeout(erase, 2500);
-            }
-        }
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        function erase() {
-            if(!typedTextSpan) return;
-            if (charIndex > 0) {
-                typedTextSpan.textContent = textArray[textArrayIndex].substring(0, charIndex - 1);
-                charIndex--;
-                setTimeout(erase, 40);
-            } else {
-                textArrayIndex++;
-                if (textArrayIndex >= textArray.length) textArrayIndex = 0;
-                setTimeout(type, 500);
+            // Reduced motion: render static fallback immediately
+            if (prefersReducedMotion) {
+                const tmpl = document.getElementById('cli-static-fallback');
+                if (tmpl) cliOutput.appendChild(tmpl.content.cloneNode(true));
+                return;
             }
-        }
-        document.addEventListener("DOMContentLoaded", () => { if (textArray.length) setTimeout(type, 2250); });
+
+            // Session script
+            const CLI_SCRIPT = [
+                { type: 'gap' },
+                { type: 'cmd',  text: 'claude inspect ./shubham-singh --depth=production --honest' },
+                { type: 'gap-sm' },
+                { type: 'resp', text: 'Alright. Honest mode.' },
+                { type: 'gap-sm' },
+                { type: 'resp', text: 'He builds AI systems — LangChain, LangGraph, agentic RAG, the full stack.' },
+                { type: 'resp', text: 'Not the kind that get demoed once and archived. The kind that ship and stay running.', bright: true },
+                { type: 'resp', text: 'Thinks about latency, fallbacks, cost, trust. The unglamorous parts.' },
+                { type: 'gap' },
+                { type: 'cmd',  text: 'claude --skeptic "every AI engineer says production-grade"' },
+                { type: 'gap-sm' },
+                { type: 'resp', text: 'Fair. Most stop at the API call.' },
+                { type: 'resp', text: 'He wires the retrieval pipeline, structured output layer, multi-agent fallback.', bright: true },
+                { type: 'resp', text: 'Pydantic contracts, vector stores that actually get reindexed, evals before deploy.' },
+                { type: 'resp', text: 'The difference between a demo and a system is about 40 decisions nobody sees.' },
+                { type: 'gap' },
+                { type: 'cmd',  text: 'claude --flag weakness --no-sugar' },
+                { type: 'gap-sm' },
+                { type: 'resp', text: 'He goes too deep. Rabbit holes are a documented hazard.' },
+                { type: 'resp', text: 'Spends a day on a retrieval edge case most people would ship around.', bright: true },
+                { type: 'resp', text: 'Upside: he comes back with things others miss. Downside: deadlines notice.' },
+                { type: 'gap' },
+                { type: 'cmd',  text: 'claude --summarize --format=brief' },
+                { type: 'gap-sm' },
+                { type: 'resp', text: 'I could keep going but the work says it better.', bright: true },
+                { type: 'resp', text: "Scroll down. That's the actual argument." },
+                { type: 'gap' },
+                { type: 'cursor-final' },
+            ];
+
+            function cliSleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+            function cliJitter(base, v) { return base + (Math.random() * v) - (v * 0.3); }
+
+            function cliEl(tag, cls) {
+                const el = document.createElement(tag);
+                if (cls) el.className = cls;
+                cliOutput.appendChild(el);
+                return el;
+            }
+
+            async function cliTypeCmd(text) {
+                await cliSleep(cliJitter(460, 120));
+                const line = cliEl('div', 'cli-line');
+                const glyph = document.createElement('span');
+                glyph.className = 'cli-prompt-glyph';
+                glyph.textContent = '\u276F ';
+                line.appendChild(glyph);
+                const cmd = document.createElement('span');
+                cmd.className = 'cli-cmd';
+                line.appendChild(cmd);
+                const cur = document.createElement('span');
+                cur.className = 'cli-cursor';
+                line.appendChild(cur);
+                for (let i = 0; i < text.length; i++) {
+                    cmd.textContent += text[i];
+                    let d = cliJitter(43, 16);
+                    if (text[i] === ' ') d += Math.random() * 28;
+                    if (text[i] === '-') d += Math.random() * 10;
+                    await cliSleep(d);
+                }
+                await cliSleep(cliJitter(190, 70));
+                cur.remove();
+                await cliSleep(cliJitter(300, 90));
+            }
+
+            async function cliStreamResp(text, bright) {
+                await cliSleep(cliJitter(88, 28));
+                const line = cliEl('div', 'cli-line cli-resp' + (bright ? ' cli-resp--bright' : ''));
+                const words = text.split(' ');
+                for (let i = 0; i < words.length; i++) {
+                    line.textContent += (i === 0 ? '' : ' ') + words[i];
+                    let d = cliJitter(22, 18);
+                    const w = words[i];
+                    if (w.endsWith('.') || w.endsWith(',') || w.endsWith('\u2014')) d += Math.random() * 32;
+                    await cliSleep(d);
+                }
+            }
+
+            function cliFinalCursor() {
+                const line = cliEl('div', 'cli-line');
+                const glyph = document.createElement('span');
+                glyph.className = 'cli-prompt-glyph';
+                glyph.textContent = '\u276F ';
+                line.appendChild(glyph);
+                const cur = document.createElement('span');
+                cur.className = 'cli-cursor';
+                line.appendChild(cur);
+            }
+
+            async function cliRun() {
+                await cliSleep(1000);
+                for (const item of CLI_SCRIPT) {
+                    if (item.type === 'gap')           { cliEl('div', 'cli-gap'); await cliSleep(70); }
+                    else if (item.type === 'gap-sm')   { cliEl('div', 'cli-gap-sm'); }
+                    else if (item.type === 'cmd')      { await cliTypeCmd(item.text); }
+                    else if (item.type === 'resp')     { await cliStreamResp(item.text, item.bright); }
+                    else if (item.type === 'cursor-final') { await cliSleep(280); cliFinalCursor(); }
+                }
+            }
+
+            cliRun();
+        })();
 
         // --- Header shadow ---
         const header = document.getElementById('header');
