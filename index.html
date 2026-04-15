@@ -168,24 +168,6 @@
             line-height: 1.6;
             margin-bottom: 2rem;
         }
-        .arsenal-category-label {
-            font-family: 'Satoshi', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--arsenal-accent, #00F0FF);
-            transition: color 0.5s ease, opacity 0.3s ease;
-            opacity: 1;
-        }
-        .arsenal-tagline {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.48);
-            margin-top: 0.25rem;
-            letter-spacing: 0.02em;
-            transition: opacity 0.4s ease;
-        }
 
         /* --- Stages Column --- */
         .arsenal-stages-col {
@@ -243,12 +225,15 @@
             transform: translateY(-3px);
         }
         .stage-label {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.98rem;
-            letter-spacing: 0.18em;
+            font-family: 'Satoshi', sans-serif;
+            font-size: clamp(1.35rem, 2.1vw, 1.75rem);
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            line-height: 1.1;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.55);
-            margin-bottom: 2rem;
+            color: var(--arsenal-accent, #00F0FF);
+            text-shadow: 0 0 14px rgba(255,255,255,0.14);
+            margin-bottom: 1.5rem;
         }
 
         /* ---- GenAI: Network Build ---- */
@@ -623,8 +608,6 @@
                     <p class="arsenal-eyebrow">My Stack</p>
                     <h2 class="arsenal-title">Technical<br>Arsenal</h2>
                     <p class="arsenal-sub">The exact tools I ship<br>production-grade AI with.</p>
-                    <div class="arsenal-category-label" id="arsenal-category-label">Generative AI</div>
-                    <div class="arsenal-tagline" id="arsenal-tagline">Collaborative · Fluid · Emergent</div>
                 </div>
 
                 <!-- Right: Animated Stages -->
@@ -633,25 +616,25 @@
                     <!-- Stage 1: GenAI -->
                     <div class="arsenal-stage as-visible" id="stage-genai">
                         <canvas id="genai-connector-canvas"></canvas>
-                        <p class="stage-label">01 — Generative AI, RAG &amp; Agentic Systems</p>
+                        <p class="stage-label" id="arsenal-category-label">Generative AI</p>
                         <div class="chip-grid" id="genai-chip-grid"></div>
                     </div>
 
                     <!-- Stage 2: Machine Learning -->
                     <div class="arsenal-stage" id="stage-ml">
-                        <p class="stage-label">02 — Machine Learning</p>
+                        <p class="stage-label">Machine Learning</p>
                         <div class="chip-grid" id="ml-chip-grid"></div>
                     </div>
 
                     <!-- Stage 3: NLP -->
                     <div class="arsenal-stage" id="stage-nlp">
-                        <p class="stage-label">03 — Natural Language Processing</p>
+                        <p class="stage-label">Natural Language Processing</p>
                         <div class="chip-grid" id="nlp-chip-grid"></div>
                     </div>
 
                     <!-- Stage 4: Cloud -->
                     <div class="arsenal-stage" id="stage-cloud">
-                        <p class="stage-label">04 — Cloud Computing &amp; MLOps</p>
+                        <p class="stage-label">Cloud Computing &amp; MLOps</p>
                         <div class="chip-grid" id="cloud-chip-grid"></div>
                     </div>
 

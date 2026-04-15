@@ -427,7 +427,6 @@ function getStageOpacity(stageIdx, progress) {
 
 const ACCENTS = ARSENAL_DATA.map(d => d.accentColor);
 const LABELS  = ARSENAL_DATA.map(d => d.label);
-const TAGLINES = ARSENAL_DATA.map(d => d.tagline);
 
 function setAccentColor(color) {
     document.documentElement.style.setProperty('--arsenal-accent', color);
@@ -445,10 +444,8 @@ function updateProgressIndicator(progress, activeStage) {
 }
 
 function updateHeaderLabel(stageIdx) {
-    const label   = document.getElementById('arsenal-category-label');
-    const tagline = document.getElementById('arsenal-tagline');
+    const label = document.getElementById('arsenal-category-label');
     if (label) label.textContent = LABELS[stageIdx];
-    if (tagline) tagline.textContent = TAGLINES[stageIdx];
 }
 
 function onScrollTick() {
