@@ -382,6 +382,43 @@
         /* Accent color CSS var */
         :root { --arsenal-accent: #00F0FF; }
 
+        /* Career Journey timeline and drawer */
+        @keyframes career-latest-strobe {
+            0%, 100% {
+                background: #22c55e;
+                box-shadow: 0 0 6px rgba(34, 197, 94, 0.8), 0 0 18px rgba(34, 197, 94, 0.45);
+                transform: scale(1);
+            }
+            50% {
+                background: #4ade80;
+                box-shadow: 0 0 14px rgba(74, 222, 128, 1), 0 0 28px rgba(34, 197, 94, 0.7);
+                transform: scale(1.18);
+            }
+        }
+        .career-item {
+            border: 1px solid transparent;
+            transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+        }
+        .career-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateX(4px);
+        }
+        .career-checkpoint {
+            position: absolute;
+            left: -5px;
+            top: 0.7rem;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+        }
+        .career-checkpoint-latest {
+            animation: career-latest-strobe 1.05s ease-in-out infinite;
+        }
+        .career-checkpoint-past {
+            background: #f97316;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
+        }
         /* Mobile: collapse scrollmation to simple stack */
         @media (max-width: 767px) {
             .arsenal-scroll-root { height: auto; }
@@ -650,40 +687,27 @@
                     <p class="text-[#AAAAAA] font-mono-tech text-sm">Professional experience and education.</p>
                 </div>
                 
-                <div class="relative border-l border-white/10 ml-4 md:ml-8 space-y-12">
-                    <div class="pl-8 relative reveal">
-                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-cyan-neon rounded-full shadow-[0_0_10px_#00F0FF]"></div>
-                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">Aug 2024 - Present</p>
-                        <h4 class="font-bold text-xl text-white">Generative AI Engineer</h4>
-                        <p class="text-gray-400 text-sm mb-2">Pune, India</p>
-                        <p class="text-[#AAAAAA] text-sm leading-relaxed">Architecting and deploying LLM-based solutions, optimizing RAG pipelines, and building scalable AI applications for enterprise use cases.</p>
-                    </div>
-
-                    <div class="pl-8 relative reveal delay-50">
-                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-white/30 rounded-full"></div>
-                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">Mar 2023 - Jun 2024</p>
-                        <h4 class="font-bold text-xl text-white">Machine Learning Engineer</h4>
-                        <p class="text-gray-400 text-sm mb-2">Faraday Battery Private Limited • Birmingham, UK</p>
-                        <p class="text-[#AAAAAA] text-sm leading-relaxed">Developed and optimized predictive models using Python. Contributed to data engineering and backend integration for research tools.</p>
-                    </div>
-
-                    <div class="pl-8 relative reveal delay-100">
-                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-white/30 rounded-full"></div>
-                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">Sep 2022 - Aug 2023</p>
-                        <h4 class="font-bold text-xl text-white">M.Sc in Artificial Intelligence</h4>
-                        <p class="text-gray-400 text-sm mb-2">Birmingham City University, UK</p>
-                    </div>
-
-                    <div class="pl-8 relative reveal delay-150">
-                        <div class="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-white/30 rounded-full"></div>
-                        <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">2016 - 2022</p>
-                        <h4 class="font-bold text-xl text-white">Software Developer</h4>
-                        <p class="text-gray-400 text-sm mb-2">Citibank • Pune, India</p>
-                        <p class="text-[#AAAAAA] text-sm leading-relaxed">Engineered robust, secure backend systems handling high-volume financial data. Gained deep expertise in Java, enterprise architecture, and scalable design patterns.</p>
-                    </div>
-                </div>
+                <div id="career-timeline" class="relative border-l border-white/10 ml-4 md:ml-8 space-y-8"></div>
             </div>
         </section>
+
+        <div id="career-drawer-backdrop" class="fixed inset-0 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 z-[70]"></div>
+        <aside id="career-drawer" class="fixed top-0 right-0 h-full w-full max-w-xl bg-[#080808] border-l border-white/10 shadow-[-10px_0_32px_rgba(0,0,0,0.55)] backdrop-blur-xl translate-x-full transition-transform duration-300 z-[80]">
+            <div class="h-full flex flex-col">
+                <div class="flex items-center justify-between px-6 py-5 border-b border-white/10">
+                    <h3 class="text-white text-xl font-semibold font-heading">Journey Details</h3>
+                    <button id="career-drawer-close" type="button" aria-label="Close details panel" class="text-gray-400 hover:text-white transition-colors text-sm font-mono-tech tracking-wide uppercase">
+                        Close
+                    </button>
+                </div>
+                <div class="px-6 py-6 overflow-y-auto">
+                    <p id="career-drawer-period" class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-2"></p>
+                    <h4 id="career-drawer-title" class="text-white text-2xl font-bold mb-2"></h4>
+                    <p id="career-drawer-company" class="text-gray-300 text-sm mb-5"></p>
+                    <div id="career-drawer-content" class="text-[#AAAAAA] text-sm leading-relaxed space-y-3"></div>
+                </div>
+            </div>
+        </aside>
 
          <!-- Contact Section -->
         <section id="contact" class="py-24 bg-transparent border-t border-white/5 relative">
@@ -724,6 +748,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="summary.js"></script>
     <script src="skills.js"></script>
+    <script src="career_journey.js"></script>
 
     <script>
         lucide.createIcons();
