@@ -63,6 +63,373 @@
         /* Hide scrollbar for carousel */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* =============================================
+           TECHNICAL ARSENAL — APPLE SCROLLMATION
+        ============================================= */
+
+        /* The tall section that creates scroll room */
+        .arsenal-scroll-root {
+            height: 400vh;
+            position: relative;
+        }
+
+        /* Sticky viewport-height frame */
+        .arsenal-sticky-frame {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            padding: 0 1.5rem;
+        }
+
+        /* --- Progress Track (left edge) --- */
+        .arsenal-progress-track {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            z-index: 20;
+            height: 120px;
+        }
+        .arsenal-progress-line {
+            width: 2px;
+            height: 120px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        .arsenal-progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: var(--arsenal-accent, #00F0FF);
+            border-radius: 2px;
+            transition: height 0.15s linear, background 0.6s ease;
+            box-shadow: 0 0 8px var(--arsenal-accent, #00F0FF);
+        }
+        .arsenal-dot-row {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: transparent;
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            cursor: default;
+        }
+        .arsenal-dot-row.dot-active {
+            background: var(--arsenal-accent, #00F0FF);
+            border-color: var(--arsenal-accent, #00F0FF);
+            box-shadow: 0 0 10px var(--arsenal-accent, #00F0FF);
+        }
+        .arsenal-dot-row:nth-of-type(1) { top: -5px; }
+        .arsenal-dot-row:nth-of-type(2) { top: calc(50% - 5px); }
+        .arsenal-dot-row:nth-of-type(3) { bottom: -5px; }
+
+        /* --- Header Column --- */
+        .arsenal-header-col {
+            flex-shrink: 0;
+            width: 280px;
+            padding-left: 2.5rem;
+            z-index: 10;
+        }
+        .arsenal-eyebrow {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.86rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 0.75rem;
+        }
+        .arsenal-title {
+            font-family: 'Satoshi', sans-serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+        .arsenal-sub {
+            font-size: 0.96rem;
+            color: rgba(255,255,255,0.56);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        .arsenal-category-label {
+            font-family: 'Satoshi', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--arsenal-accent, #00F0FF);
+            transition: color 0.5s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+        .arsenal-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.48);
+            margin-top: 0.25rem;
+            letter-spacing: 0.02em;
+            transition: opacity 0.4s ease;
+        }
+
+        /* --- Stages Column --- */
+        .arsenal-stages-col {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Individual stage panel */
+        .arsenal-stage {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 1.5rem 2rem 2rem;
+            opacity: 0;
+            pointer-events: none;
+            will-change: opacity;
+        }
+        .arsenal-stage.as-visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+
+
+        /* Chip grid */
+        .chip-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Base chip */
+        .skill-chip {
+            position: relative;
+            padding: 0.78rem 1.48rem;
+            border-radius: 999px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            backdrop-filter: blur(8px);
+            white-space: nowrap;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: default;
+        }
+        .skill-chip:hover {
+            transform: translateY(-3px);
+        }
+        .stage-label {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.98rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 2rem;
+        }
+
+        /* ---- GenAI: Network Build ---- */
+        .chip-genai {
+            opacity: 0;
+            transform: translateY(16px) scale(0.95);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .chip-genai.genai-in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .chip-genai.genai-glow {
+            border-color: rgba(0, 240, 255, 0.55);
+            box-shadow: 0 0 18px -4px rgba(0, 240, 255, 0.6);
+            color: #00F0FF;
+        }
+
+        /* GenAI connector canvas */
+        #genai-connector-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        #stage-genai.as-visible #genai-connector-canvas {
+            opacity: 1;
+        }
+
+        /* ============================================
+           ML — PRECISION ASSEMBLY
+           Heavy spring-bounce from below.
+           A per-chip purple glow fires once after landing.
+           ml-glow is a CSS animation triggered by JS;
+           the transition handles the movement separately.
+        ============================================ */
+        .chip-ml {
+            opacity: 0;
+            transform: translateY(90px) scale(0.85);
+            transition: opacity 0.35s ease,
+                        transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .chip-ml.ml-in {
+            opacity: 1;
+            transform: translateY(0px) scale(1);
+        }
+        @keyframes ml-land-glow {
+            0%   { border-color: rgba(168,85,247,1);    box-shadow: 0 0 32px -2px rgba(168,85,247,1);   color: #d8b4fe; }
+            45%  { border-color: rgba(168,85,247,0.5);  box-shadow: 0 0 16px -4px rgba(168,85,247,0.5); color: #e9d5ff; }
+            100% { border-color: rgba(255,255,255,0.12); box-shadow: none; color: #fff; }
+        }
+        /* ml-glow is added/removed by JS, doesn't affect opacity/transform */
+        .chip-ml.ml-glow {
+            animation: ml-land-glow 1s ease-out forwards;
+        }
+        @keyframes ml-cadence {
+            0%   { transform: translateY(0) scale(1); box-shadow: none; border-color: rgba(255,255,255,0.12); color: #fff; }
+            40%  { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 24px -6px rgba(168, 85, 247, 0.9); border-color: rgba(168, 85, 247, 0.7); color: #d8b4fe; }
+            100% { transform: translateY(0) scale(1); box-shadow: none; border-color: rgba(255,255,255,0.12); color: #fff; }
+        }
+        .chip-ml.ml-cadence {
+            animation: ml-cadence 0.72s ease-out;
+        }
+        .chip-ml:hover {
+            border-color: rgba(168, 85, 247, 0.55);
+            box-shadow: 0 0 24px -4px rgba(168, 85, 247, 0.65);
+        }
+
+        /* ============================================
+           NLP — SEMANTIC WAVE
+           Fast left-to-right cascade, then a green
+           wave sweeps across chips in a continuous loop.
+           Key: nlp-wave-active uses animation-fill-mode: none
+           so it resets cleanly for the next cycle.
+        ============================================ */
+        .chip-nlp {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+        }
+        .chip-nlp.nlp-in {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        @keyframes nlp-signal {
+            0%   { border-color: rgba(255,255,255,0.12); box-shadow: none;                               color: #fff;    }
+            35%  { border-color: rgba(52,211,153,0.85);  box-shadow: 0 0 24px -3px rgba(52,211,153,0.8); color: #34D399; }
+            100% { border-color: rgba(255,255,255,0.12); box-shadow: none;                               color: #fff;    }
+        }
+        /* fill-mode: none so the class can be toggled repeatedly */
+        .chip-nlp.nlp-wave {
+            animation: nlp-signal 0.68s cubic-bezier(0.22, 1, 0.36, 1) none;
+        }
+        .chip-nlp:hover {
+            border-color: rgba(52, 211, 153, 0.55);
+            box-shadow: 0 0 24px -4px rgba(52, 211, 153, 0.6);
+        }
+
+        /* ============================================
+           CLOUD — BOOT SEQUENCE
+           Each chip flickers on like a server booting.
+           IMPORTANT: opacity is controlled by JS inline
+           style after animation ends — NOT by CSS fill.
+           This prevents the 'text disappear' bug.
+        ============================================ */
+        .chip-cloud {
+            opacity: 0; /* JS sets opacity:1 after animation */
+        }
+        @keyframes cloud-boot {
+            0%   { opacity: 0;   filter: brightness(0);   transform: scale(1.05); border-color: rgba(251,191,36,0);    box-shadow: none; }
+            10%  { opacity: 1;   filter: brightness(4.5); transform: scale(1.1);  border-color: rgba(251,191,36,0.95); box-shadow: 0 0 40px -2px rgba(251,191,36,0.95); color: #FBBF24; }
+            28%  { opacity: 0.3; filter: brightness(0.2); transform: scale(0.97); }
+            48%  { opacity: 1;   filter: brightness(3);   border-color: rgba(251,191,36,0.75); color: #FBBF24; }
+            70%  { opacity: 1;   filter: brightness(0.5); border-color: rgba(255,255,255,0.15); color: #fff; }
+            88%  { opacity: 1;   filter: brightness(1.4); }
+            100% { opacity: 1;   filter: brightness(1);   transform: scale(1);    border-color: rgba(255,255,255,0.12); box-shadow: none; color: #fff; }
+        }
+        /* cloud-booting: animation only — JS sets opacity:1 on animationend */
+        .chip-cloud.cloud-booting {
+            animation: cloud-boot 1.2s ease-out;
+        }
+        /* Gentle amber heartbeat after boot: opacity explicitly 1 */
+        @keyframes cloud-pulse {
+            0%,100% { box-shadow: none;                              border-color: rgba(255,255,255,0.12); }
+            50%     { box-shadow: 0 0 18px -5px rgba(251,191,36,0.55); border-color: rgba(251,191,36,0.35); }
+        }
+        .chip-cloud.cloud-idle {
+            opacity: 1; /* Always keep visible */
+            animation: cloud-pulse 3.5s ease-in-out infinite;
+        }
+        @keyframes cloud-sync {
+            0%   { transform: translateY(0) scale(1); box-shadow: none; border-color: rgba(255,255,255,0.12); color: #fff; }
+            30%  { transform: translateY(-1px) scale(1.01); box-shadow: 0 0 22px -5px rgba(251,191,36,0.85); border-color: rgba(251,191,36,0.75); color: #fde68a; }
+            100% { transform: translateY(0) scale(1); box-shadow: none; border-color: rgba(255,255,255,0.12); color: #fff; }
+        }
+        .chip-cloud.cloud-sync {
+            animation: cloud-sync 0.78s ease-out;
+        }
+        .chip-cloud:hover {
+            border-color: rgba(251, 191, 36, 0.55);
+            box-shadow: 0 0 24px -4px rgba(251, 191, 36, 0.6);
+        }
+
+        /* Accent color CSS var */
+        :root { --arsenal-accent: #00F0FF; }
+
+        /* Mobile: collapse scrollmation to simple stack */
+        @media (max-width: 767px) {
+            .arsenal-scroll-root { height: auto; }
+            .arsenal-sticky-frame {
+                position: relative;
+                height: auto;
+                flex-direction: column;
+                padding: 5rem 1rem 3rem;
+                align-items: flex-start;
+            }
+            .arsenal-progress-track { display: none; }
+            .arsenal-header-col {
+                width: 100%;
+                padding-left: 0;
+                margin-bottom: 2rem;
+            }
+            .arsenal-stages-col {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            .arsenal-stage {
+                position: relative;
+                opacity: 1 !important;
+                pointer-events: all !important;
+                padding: 0 0 2.5rem 0;
+            }
+            .chip-genai, .chip-ml, .chip-nlp, .chip-cloud {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+            #genai-connector-canvas { display: none; }
+        }
     </style>
 </head>
 
@@ -149,13 +516,7 @@
                     </div>
                     <div class="md:w-2/3 reveal delay-100">
                         <h2 class="section-title">About Me</h2>
-                        <h3 class="text-xl text-cyan-neon font-medium mb-6 font-mono-tech">Finance Tech to the Frontier of AI</h3>
-                        <p class="text-[#AAAAAA] mb-4 leading-relaxed">
-                            Hello! I'm Shubham, a Generative AI Engineer with a strong foundation in core software development. My career began at Citibank, where I honed my skills building robust, scalable solutions for the financial sector. This experience hardwired me to write reliable, production-ready code.
-                        </p>
-                        <p class="text-[#AAAAAA] leading-relaxed">
-                           Driven by a passion for artificial intelligence, I pursued a Master's degree in the UK, pivoting fully into machine learning and GenAI. From developing battery technology algorithms at Faraday to my current role, I thrive on applying cutting-edge LLMs and vector infrastructure to create impactful applications.
-                        </p>
+                        <div id="summary-container"></div>
                     </div>
                 </div>
             </div>
@@ -241,116 +602,57 @@
             </div>
         </section>
 
-        <!-- New Premium "Technical Arsenal" Section -->
-        <section id="arsenal" class="py-24 border-t border-white/5 relative bg-transparent">
-            <div class="container mx-auto px-6 max-w-7xl">
-                
-                <div class="mb-16 reveal flex flex-col items-start">
-                    <h2 class="text-3xl md:text-5xl font-bold mb-3 text-white tracking-tight font-heading">Technical Arsenal</h2>
-                    <p class="text-[#AAAAAA] text-sm md:text-base tracking-wide">The exact stack I ship production-grade GenAI systems with every day</p>
+        <!-- Technical Arsenal: Apple Scrollmation -->
+        <section id="arsenal" class="arsenal-scroll-root border-t border-white/5">
+
+            <div class="arsenal-sticky-frame" id="arsenal-sticky-frame">
+
+                <!-- Progress Track -->
+                <div class="arsenal-progress-track">
+                    <div class="arsenal-progress-line">
+                        <div class="arsenal-progress-fill" id="arsenal-progress-fill"></div>
+                    </div>
+                    <div class="arsenal-dot-row dot-active" id="dot-0" style="top:-5px"></div>
+                    <div class="arsenal-dot-row" id="dot-1" style="top:calc(50% - 5px)"></div>
+                    <div class="arsenal-dot-row" id="dot-2" style="top:calc(100% - 5px)"></div>
+                    <div class="arsenal-dot-row" id="dot-3" style="bottom:-5px"></div>
                 </div>
 
-                <div class="space-y-16">
-                    
-                    <!-- Category 1: GenAI & LLMs -->
-                    <div class="reveal">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-1 h-6 bg-cyan-neon"></div>
-                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">GenAI & LLMs</h3>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">LangChain</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">LlamaIndex</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Gemini & OpenAI APIs</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-200 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Hugging Face</p>
-                            </div>
-                        </div>
+                <!-- Left: Permanent Header -->
+                <div class="arsenal-header-col">
+                    <p class="arsenal-eyebrow">My Stack</p>
+                    <h2 class="arsenal-title">Technical<br>Arsenal</h2>
+                    <p class="arsenal-sub">The exact tools I ship<br>production-grade AI with.</p>
+                    <div class="arsenal-category-label" id="arsenal-category-label">Generative AI</div>
+                    <div class="arsenal-tagline" id="arsenal-tagline">Collaborative · Fluid · Emergent</div>
+                </div>
+
+                <!-- Right: Animated Stages -->
+                <div class="arsenal-stages-col">
+
+                    <!-- Stage 1: GenAI -->
+                    <div class="arsenal-stage as-visible" id="stage-genai">
+                        <canvas id="genai-connector-canvas"></canvas>
+                        <p class="stage-label">01 — Generative AI, RAG &amp; Agentic Systems</p>
+                        <div class="chip-grid" id="genai-chip-grid"></div>
                     </div>
 
-                    <!-- Category 2: Machine Learning -->
-                    <div class="reveal">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-1 h-6 bg-cyan-neon"></div>
-                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Machine Learning</h3>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">PyTorch</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">TensorFlow</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Scikit-Learn</p>
-                            </div>
-                        </div>
+                    <!-- Stage 2: Machine Learning -->
+                    <div class="arsenal-stage" id="stage-ml">
+                        <p class="stage-label">02 — Machine Learning</p>
+                        <div class="chip-grid" id="ml-chip-grid"></div>
                     </div>
 
-                    <!-- Category 3: Vector & Data Infra -->
-                    <div class="reveal">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-1 h-6 bg-cyan-neon"></div>
-                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Vector & Data Infra</h3>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Pinecone</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Milvus</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Pandas / NumPy</p>
-                            </div>
-                        </div>
+                    <!-- Stage 3: NLP -->
+                    <div class="arsenal-stage" id="stage-nlp">
+                        <p class="stage-label">03 — Natural Language Processing</p>
+                        <div class="chip-grid" id="nlp-chip-grid"></div>
                     </div>
 
-                    <!-- Category 4: Core Languages -->
-                    <div class="reveal">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-1 h-6 bg-cyan-neon"></div>
-                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Core Languages</h3>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Python</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">JavaScript / TS</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Java (Citibank)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Category 5: Cloud & Deployment -->
-                    <div class="reveal">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-1 h-6 bg-cyan-neon"></div>
-                            <h3 class="text-2xl font-semibold text-white tracking-tight font-heading uppercase">Cloud & Deployment</h3>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-50 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">Docker</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-100 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">GCP (Vertex AI)</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-150 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">FastAPI / Flask</p>
-                            </div>
-                            <div class="group bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-5 hover:-translate-y-1 hover:border-[#00F0FF]/40 hover:shadow-[0_0_25px_-5px_#00F0FF] hover:bg-white/[0.06] transition-all duration-300 reveal delay-200 flex items-center justify-center md:justify-start text-center md:text-left">
-                                <p class="text-white group-hover:text-cyan-neon text-base md:text-lg font-semibold transition-colors duration-300">CI/CD & Git</p>
-                            </div>
-                        </div>
+                    <!-- Stage 4: Cloud -->
+                    <div class="arsenal-stage" id="stage-cloud">
+                        <p class="stage-label">04 — Cloud Computing &amp; MLOps</p>
+                        <div class="chip-grid" id="cloud-chip-grid"></div>
                     </div>
 
                 </div>
@@ -437,6 +739,8 @@
     </button>
 
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="summary.js"></script>
+    <script src="skills.js"></script>
 
     <script>
         lucide.createIcons();
