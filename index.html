@@ -419,6 +419,41 @@
             background: #f97316;
             box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
         }
+        .career-hover-cue {
+            position: absolute;
+            top: 0.7rem;
+            right: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .career-item:hover .career-hover-cue {
+            opacity: 1;
+        }
+        .career-hover-arrow {
+            font-size: 0.72rem;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 600;
+            opacity: 0;
+            animation: career-arrow-pulse 1.1s ease-in-out infinite;
+        }
+        .career-hover-arrow.latest {
+            color: #4ade80;
+        }
+        .career-hover-arrow.past {
+            color: #f97316;
+        }
+        .career-hover-arrow.delay-1 { animation-delay: 0s; }
+        .career-hover-arrow.delay-2 { animation-delay: 0.18s; }
+        .career-hover-arrow.delay-3 { animation-delay: 0.36s; }
+        @keyframes career-arrow-pulse {
+            0%, 100% { opacity: 0; transform: translateX(0); }
+            40% { opacity: 1; transform: translateX(1px); }
+            70% { opacity: 0; transform: translateX(0); }
+        }
         /* Mobile: collapse scrollmation to simple stack */
         @media (max-width: 767px) {
             .arsenal-scroll-root { height: auto; }

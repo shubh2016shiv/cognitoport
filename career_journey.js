@@ -84,18 +84,23 @@ function renderCareerTimeline() {
     timeline.innerHTML = CAREER_JOURNEY.map((career, index) => {
         const checkpointClass = index === 0 ? 'career-checkpoint-latest' : 'career-checkpoint-past';
         const isLatest = index === 0;
+        const cueColorClass = isLatest ? 'latest' : 'past';
         const latestTag = isLatest
             ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] tracking-wider uppercase font-mono-tech bg-green-500/15 text-green-300 border border-green-500/25 ml-2">Latest</span>'
             : '';
 
         return `
-            <button type="button" data-career-id="${career.id}" class="career-item w-full text-left pl-8 pr-4 py-2 rounded-xl relative">
+            <button type="button" data-career-id="${career.id}" class="career-item w-full text-left pl-8 pr-14 py-2 rounded-xl relative">
                 <span class="career-checkpoint ${checkpointClass}"></span>
                 <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">${career.period}</p>
                 <h4 class="font-bold text-xl text-white mb-1">${career.role}${latestTag}</h4>
                 <p class="text-gray-400 text-sm mb-2">${career.company} - ${career.location}</p>
                 <p class="text-[#AAAAAA] text-sm leading-relaxed">${career.blurb}</p>
-                <span class="inline-block mt-3 text-[11px] uppercase tracking-wider font-mono-tech text-cyan-neon">Open details panel</span>
+                <span class="career-hover-cue" aria-hidden="true">
+                    <span class="career-hover-arrow ${cueColorClass} delay-1">&gt;</span>
+                    <span class="career-hover-arrow ${cueColorClass} delay-2">&gt;</span>
+                    <span class="career-hover-arrow ${cueColorClass} delay-3">&gt;</span>
+                </span>
             </button>
         `;
     }).join('');
