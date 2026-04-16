@@ -726,21 +726,11 @@ const nlpEaseIO  = t => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
 const NLP_W = 1100;
 const NLP_DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-// Computed per-row card width (widest tool determines uniform width)
-const nlpRowMaxLen = NLP_ROWS.map(row => Math.max(...row.tools.map(t => t.length)));
-const nlpRowCardW  = nlpRowMaxLen.map(ml => Math.ceil(ml * NLP_CHAR_W) + NLP_CARD_PX * 2);
-
-// Block Y positions
-const nlpBlockYs = [];
-(function() {
-    let cy = NLP_PAD_T;
-    NLP_ROWS.forEach(() => {
-        nlpBlockYs.push(cy);
-        cy += NLP_CAT_H + NLP_CAT_MARGIN + NLP_CARD_H + NLP_BLOCK_GAP;
-    });
-})();
-
-const NLP_H = nlpBlockYs[nlpBlockYs.length - 1] + NLP_CAT_H + NLP_CAT_MARGIN + NLP_CARD_H + NLP_PAD_B;
+let nlpRowMaxLen = [];
+let nlpRowCardW  = [];
+let nlpBlockYs   = [];
+let nlpBlockGapCurrent = NLP_BLOCK_GAP;
+let nlpCanvasLogicalH = 0;
 
 // Animation timing
 const NLP_CARD_CYCLE  = 6200;
@@ -749,6 +739,9 @@ const NLP_CHAR_SET_D  = 42;
 const NLP_HOLD_DUR    = 2000;
 const NLP_CHAR_UNSET  = 32;
 const NLP_STAGGER     = 300;
+const NLP_MOBILE_PAIR_SIZE = 2;
+const NLP_MOBILE_HOLD_MS = 5000;
+const NLP_MOBILE_FALL_MS = 900;
 
 // State
 let nlpCanvas   = null;
@@ -757,6 +750,244 @@ let nlpCards    = [];
 let nlpRAF      = null;
 let nlpActive   = false;
 let nlpT0       = null;
+let nlpMobileCycleEl = null;
+let nlpMobileCycleTimer = null;
+let nlpMobileCycleRunning = false;
+let nlpMobilePairIdx = 0;
+let nlpMobileScrambleTimers = [];
+
+function rebuildNLPLayout() {
+    nlpBlockGapCurrent = isMobileViewport() ? (NLP_BLOCK_GAP + 16) : NLP_BLOCK_GAP;
+    nlpRowMaxLen = NLP_ROWS.map(row => Math.max(...row.tools.map(t => t.length)));
+    nlpRowCardW  = nlpRowMaxLen.map(ml => Math.ceil(ml * NLP_CHAR_W) + NLP_CARD_PX * 2);
+
+    nlpBlockYs = [];
+    let cy = NLP_PAD_T;
+    NLP_ROWS.forEach(() => {
+        nlpBlockYs.push(cy);
+        cy += NLP_CAT_H + NLP_CAT_MARGIN + NLP_CARD_H + nlpBlockGapCurrent;
+    });
+    nlpCanvasLogicalH = nlpBlockYs[nlpBlockYs.length - 1] + NLP_CAT_H + NLP_CAT_MARGIN + NLP_CARD_H + NLP_PAD_B;
+}
+
+function sizeNLPCanvasForViewport() {
+    if (!nlpCanvas || !nlpCtx) return;
+
+    rebuildNLPLayout();
+    nlpCanvas.width  = NLP_W * NLP_DPR;
+    nlpCanvas.height = nlpCanvasLogicalH * NLP_DPR;
+
+    if (isMobileViewport()) {
+        nlpCanvas.style.width = '100%';
+        nlpCanvas.style.height = 'auto';
+    } else {
+        nlpCanvas.style.width = NLP_W + 'px';
+        nlpCanvas.style.height = nlpCanvasLogicalH + 'px';
+    }
+
+    nlpCtx.setTransform(NLP_DPR, 0, 0, NLP_DPR, 0, 0);
+    nlpBuildCards();
+}
+
+function initNLPMobileCycle() {
+    nlpMobileCycleEl = document.getElementById('nlp-mobile-cycle');
+}
+
+function stopNLPMobileCycleTimer() {
+    if (nlpMobileCycleTimer) {
+        clearTimeout(nlpMobileCycleTimer);
+        nlpMobileCycleTimer = null;
+    }
+}
+
+function clearNLPMobileScrambleTimers() {
+    nlpMobileScrambleTimers.forEach(id => clearTimeout(id));
+    nlpMobileScrambleTimers = [];
+}
+
+function nlpEscapeHTML(text) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function nlpMobileRndChar() {
+    return NLP_POOL[Math.floor(Math.random() * NLP_POOL.length)];
+}
+
+function nlpMobileCharHTML(ch, className = '') {
+    if (ch === ' ') return `<span class="nlp-mobile-char${className ? ` ${className}` : ''}">&nbsp;</span>`;
+    return `<span class="nlp-mobile-char${className ? ` ${className}` : ''}">${nlpEscapeHTML(ch)}</span>`;
+}
+
+function nlpRenderMobilePillText(pill, finalText, settledCount = 0, glowIdx = -1) {
+    const textEl = pill.querySelector('.nlp-mobile-pill-text');
+    if (!textEl) return;
+
+    const html = Array.from(finalText || '').map((ch, idx) => {
+        if (idx < settledCount) {
+            const settledClass = idx === glowIdx ? 'settled glow' : 'settled';
+            return nlpMobileCharHTML(ch, settledClass);
+        }
+        return nlpMobileCharHTML(nlpMobileRndChar());
+    }).join('');
+
+    textEl.innerHTML = html;
+}
+
+function nlpNumberTokenFromText(text) {
+    const sizeHint = (text || '').length;
+    const count = Math.max(4, Math.min(9, Math.round(sizeHint / 6) + 2));
+    const values = Array.from({ length: count }, () => {
+        const v = (Math.random() * 2) - 1; // [-1, 1]
+        return v.toFixed(2);
+    });
+    return `[${values.join(', ')}]`;
+}
+
+function nlpMobilePairCount() {
+    return Math.max(1, Math.ceil(NLP_ROWS.length / NLP_MOBILE_PAIR_SIZE));
+}
+
+function nlpGetMobilePair(pairIdx) {
+    const count = nlpMobilePairCount();
+    const safePair = ((pairIdx % count) + count) % count;
+    const start = safePair * NLP_MOBILE_PAIR_SIZE;
+    return NLP_ROWS.slice(start, start + NLP_MOBILE_PAIR_SIZE);
+}
+
+function renderNLPMobilePair(pairIdx) {
+    if (!nlpMobileCycleEl) return;
+    clearNLPMobileScrambleTimers();
+
+    const rows = nlpGetMobilePair(pairIdx);
+    const html = rows.map((row) => {
+        const toolsHtml = row.tools.map((tool) => {
+            const escapedFinal = nlpEscapeHTML(tool);
+            return `<span class="nlp-mobile-pill is-scrambling" data-final-text="${escapedFinal}"><span class="nlp-mobile-pill-text" aria-hidden="true"></span></span>`;
+        }).join('');
+        return `
+            <div class="nlp-mobile-group">
+                <div class="nlp-mobile-cat-wrap">
+                    <p class="nlp-mobile-cat-title">${nlpEscapeHTML(row.cat)}</p>
+                    <span class="nlp-mobile-cat-line" aria-hidden="true"></span>
+                </div>
+                <div class="nlp-mobile-pill-stack">${toolsHtml}</div>
+            </div>
+        `;
+    }).join('');
+
+    nlpMobileCycleEl.innerHTML = html;
+    requestAnimationFrame(() => {
+        nlpMobileCycleEl?.querySelectorAll('.nlp-mobile-group').forEach((group) => {
+            group.classList.add('in-view');
+        });
+        nlpMobileCycleEl?.querySelectorAll('.nlp-mobile-pill').forEach((pill) => {
+            pill.classList.add('in-view');
+        });
+        runNLPMobilePillScrambleReveal();
+    });
+}
+
+function runNLPMobilePillScrambleReveal() {
+    if (!nlpMobileCycleEl) return;
+    const pills = Array.from(nlpMobileCycleEl.querySelectorAll('.nlp-mobile-pill'));
+
+    pills.forEach((pill, idx) => {
+        const finalText = pill.getAttribute('data-final-text') || pill.textContent || '';
+        const charCount = finalText.length;
+        const startDelay = idx * NLP_STAGGER;
+        const scrambleStartId = setTimeout(() => {
+            pill.classList.add('is-scrambling');
+            pill.classList.remove('is-settling', 'is-settled');
+            nlpRenderMobilePillText(pill, finalText, 0);
+
+            const scrambleUntil = performance.now() + NLP_PH_SCRAM;
+            const scrambleTick = () => {
+                if (!nlpMobileCycleRunning) return;
+                if (performance.now() >= scrambleUntil) return;
+                nlpRenderMobilePillText(pill, finalText, 0);
+                const nextId = setTimeout(scrambleTick, NLP_CHAR_SET_D);
+                nlpMobileScrambleTimers.push(nextId);
+            };
+            scrambleTick();
+
+            Array.from(finalText).forEach((_, charIdx) => {
+                const settleId = setTimeout(() => {
+                    if (!nlpMobileCycleRunning) return;
+                    const settledCount = charIdx + 1;
+                    pill.classList.add('is-settling');
+                    nlpRenderMobilePillText(pill, finalText, settledCount, charIdx);
+                    if (settledCount >= charCount) {
+                        pill.classList.remove('is-scrambling', 'is-settling');
+                        pill.classList.add('is-settled');
+                    }
+                }, NLP_PH_SCRAM + (charIdx * NLP_CHAR_SET_D));
+                nlpMobileScrambleTimers.push(settleId);
+            });
+        }, startDelay);
+
+        nlpMobileScrambleTimers.push(scrambleStartId);
+    });
+}
+
+function triggerNLPMobileFallAndNext() {
+    if (!nlpMobileCycleRunning || !nlpMobileCycleEl) return;
+
+    const titles = Array.from(nlpMobileCycleEl.querySelectorAll('.nlp-mobile-cat-title'));
+    const lines = Array.from(nlpMobileCycleEl.querySelectorAll('.nlp-mobile-cat-line'));
+    const pills = Array.from(nlpMobileCycleEl.querySelectorAll('.nlp-mobile-pill'));
+    titles.forEach((title, idx) => {
+        title.textContent = nlpNumberTokenFromText(title.textContent || '');
+        title.style.animationDelay = `${idx * 55}ms`;
+        title.classList.add('number-fall');
+    });
+    lines.forEach((line, idx) => {
+        line.style.animationDelay = `${idx * 55}ms`;
+        line.classList.add('line-fall');
+    });
+    pills.forEach((pill, idx) => {
+        pill.textContent = nlpNumberTokenFromText(pill.textContent || '');
+        pill.style.animationDelay = `${(Math.max(titles.length, lines.length) * 55) + idx * 45}ms`;
+        pill.classList.add('number-fall');
+    });
+
+    const cycleDelay = NLP_MOBILE_FALL_MS + Math.max(titles.length, lines.length) * 55 + pills.length * 45 + 120;
+    stopNLPMobileCycleTimer();
+    nlpMobileCycleTimer = setTimeout(() => {
+        if (!nlpMobileCycleRunning) return;
+        nlpMobilePairIdx = (nlpMobilePairIdx + 1) % nlpMobilePairCount();
+        runNLPMobileCycleStep();
+    }, cycleDelay);
+}
+
+function runNLPMobileCycleStep() {
+    if (!nlpMobileCycleRunning || !nlpMobileCycleEl) return;
+    renderNLPMobilePair(nlpMobilePairIdx);
+    stopNLPMobileCycleTimer();
+    nlpMobileCycleTimer = setTimeout(() => {
+        triggerNLPMobileFallAndNext();
+    }, NLP_MOBILE_HOLD_MS);
+}
+
+function startNLPMobileCycle() {
+    if (!nlpMobileCycleEl) return;
+    stopNLPCanvas();
+    clearNLPMobileScrambleTimers();
+    nlpMobileCycleRunning = true;
+    nlpMobilePairIdx = 0;
+    runNLPMobileCycleStep();
+}
+
+function stopNLPMobileCycle() {
+    nlpMobileCycleRunning = false;
+    stopNLPMobileCycleTimer();
+    clearNLPMobileScrambleTimers();
+    if (nlpMobileCycleEl) nlpMobileCycleEl.innerHTML = '';
+}
 
 function nlpBuildCards() {
     nlpCards = [];
@@ -858,7 +1089,7 @@ function nlpFrame(ts) {
     if (!nlpT0) nlpT0 = ts;
     const now = ts - nlpT0;
 
-    nlpCtx.clearRect(0, 0, NLP_W, NLP_H);
+    nlpCtx.clearRect(0, 0, NLP_W, nlpCanvasLogicalH);
 
     // Update char states
     nlpCards.forEach(card => {
@@ -927,7 +1158,7 @@ function nlpFrame(ts) {
 
         // Section separator
         if (ri < NLP_ROWS.length - 1) {
-            const sepY = by + NLP_CAT_H + NLP_CAT_MARGIN + NLP_CARD_H + NLP_BLOCK_GAP / 2;
+            const sepY = by + NLP_CAT_H + NLP_CAT_MARGIN + NLP_CARD_H + nlpBlockGapCurrent / 2;
             nlpSeg(NLP_PAD_L - 20, sepY, NLP_W - 36, sepY, NLP_wa(1), 0.025, 0.5);
         }
     });
@@ -939,15 +1170,11 @@ function initNLPCanvas() {
     nlpCanvas = document.getElementById('nlp-scramble-canvas');
     if (!nlpCanvas) return;
     nlpCtx = nlpCanvas.getContext('2d');
-    nlpCanvas.width  = NLP_W * NLP_DPR;
-    nlpCanvas.height = NLP_H * NLP_DPR;
-    nlpCanvas.style.width  = NLP_W + 'px';
-    nlpCanvas.style.height = NLP_H + 'px';
-    nlpCtx.scale(NLP_DPR, NLP_DPR);
-    nlpBuildCards();
+    sizeNLPCanvasForViewport();
 }
 
 function startNLPCanvas() {
+    stopNLPMobileCycle();
     if (nlpRAF) return;
     nlpActive = true;
     nlpT0     = null;
@@ -965,7 +1192,7 @@ function stopNLPCanvas() {
     if (nlpRAF) { cancelAnimationFrame(nlpRAF); nlpRAF = null; }
     nlpT0 = null;
     if (nlpCtx && nlpCanvas) {
-        nlpCtx.clearRect(0, 0, NLP_W, NLP_H);
+        nlpCtx.clearRect(0, 0, NLP_W, nlpCanvasLogicalH);
     }
 }
 
@@ -991,9 +1218,10 @@ function animateChipsIn(stageData, onDone) {
         return;
     }
 
-    // NLP uses the scramble canvas — not chips
+    // NLP uses the scramble canvas.
     if (stageData.useCanvas) {
-        startNLPCanvas();
+        if (isMobileViewport()) startNLPMobileCycle();
+        else startNLPCanvas();
         if (onDone) setTimeout(onDone, 200);
         return;
     }
@@ -1081,6 +1309,7 @@ function animateChipsOut(stageData) {
     // NLP uses the scramble canvas
     if (stageData.useCanvas) {
         stopNLPCanvas();
+        stopNLPMobileCycle();
         return;
     }
 
@@ -1162,6 +1391,12 @@ function updateHeaderLabel(stageIdx) {
 function onScrollTick() {
     const isMobile = isMobileViewport();
     if (isMobile !== lastIsMobileViewport) {
+        ARSENAL_DATA.forEach((cat, idx) => {
+            if (stageAnimated[idx]) {
+                animateChipsOut(cat);
+                stageAnimated[idx] = false;
+            }
+        });
         lastProgress = -1;
         lastIsMobileViewport = isMobile;
     }
@@ -1210,12 +1445,17 @@ function initArsenal() {
     initConnectorCanvas();
     initMLTree();
     initNLPCanvas();
+    initNLPMobileCycle();
 
     window.addEventListener('scroll', onScrollTick, { passive: true });
     window.addEventListener('resize', () => {
         sizeConnectorCanvas();
         buildConnectorNodes();
         sizeMLTreeCanvasForViewport();
+        sizeNLPCanvasForViewport();
+        if (nlpMobileCycleRunning && isMobileViewport()) {
+            runNLPMobileCycleStep();
+        }
         onScrollTick();
     });
 
