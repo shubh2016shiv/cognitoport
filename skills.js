@@ -1079,7 +1079,6 @@ function onScrollTick() {
     setAccentColor(ACCENTS[active]);
     updateHeaderLabel(active);
     updateProgressIndicator(progress, active);
-    if (isMobile) stopConnectors();
 
     ARSENAL_DATA.forEach((cat, idx) => {
         const stageEl = document.getElementById(`stage-${cat.id}`);
@@ -1095,7 +1094,7 @@ function onScrollTick() {
         if (idx === active && !stageAnimated[idx] && opacity > 0.3) {
             stageAnimated[idx] = true;
             animateChipsIn(cat, () => {
-                if (idx === 0 && !isMobile) startConnectors();
+                if (idx === 0) startConnectors();
             });
         }
 
