@@ -558,6 +558,20 @@
             #ml-tree-wrap { width: 100%; }
             #ml-tree-canvas { width: 100%; height: auto; }
             #nlp-scramble-canvas { width: 100%; height: auto; }
+
+            /* Career Journey: mobile uses JS-driven active state instead of hover */
+            .career-hover-cue {
+                opacity: 0;
+                right: 0.4rem;
+            }
+            .career-item.is-mobile-active {
+                background: rgba(255, 255, 255, 0.03);
+                border-color: rgba(255, 255, 255, 0.12);
+                transform: translateX(4px);
+            }
+            .career-item.is-mobile-active .career-hover-cue {
+                opacity: 1;
+            }
         }
     </style>
 </head>

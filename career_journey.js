@@ -73,6 +73,146 @@ const CAREER_JOURNEY = [
     }
 ];
 
+const CAREER_MOBILE_BREAKPOINT = 768;
+let mobileCareerFocusRaf = null;
+let mobileCareerObserver = null;
+let mobileCareerVisibility = new Map();
+let mobileCareerObservedItems = [];
+
+function isCareerMobileMode() {
+    return window.innerWidth < CAREER_MOBILE_BREAKPOINT;
+}
+
+function clearMobileCareerActiveState() {
+    document
+        .querySelectorAll('#career-timeline .career-item.is-mobile-active')
+        .forEach((item) => item.classList.remove('is-mobile-active'));
+}
+
+function setMobileCareerActiveItem(target) {
+    const timeline = document.getElementById('career-timeline');
+    if (!timeline) return;
+    const items = Array.from(timeline.querySelectorAll('.career-item'));
+    items.forEach((item) => item.classList.toggle('is-mobile-active', item === target));
+}
+
+function getMobileFocusTarget(items) {
+    const header = document.getElementById('header');
+    const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+    const anchorY = Math.max(headerBottom + 36, window.innerHeight * 0.42);
+
+    let bestVisible = null;
+    let bestVisibleDist = Number.POSITIVE_INFINITY;
+    let bestAny = null;
+    let bestAnyDist = Number.POSITIVE_INFINITY;
+
+    items.forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        const dist = Math.abs(centerY - anchorY);
+        const isVisible = rect.bottom > headerBottom + 8 && rect.top < window.innerHeight - 12;
+
+        if (isVisible && dist < bestVisibleDist) {
+            bestVisibleDist = dist;
+            bestVisible = item;
+        }
+        if (dist < bestAnyDist) {
+            bestAnyDist = dist;
+            bestAny = item;
+        }
+    });
+
+    return bestVisible || bestAny;
+}
+
+function updateMobileCareerActiveState() {
+    const timeline = document.getElementById('career-timeline');
+    if (!timeline) return;
+
+    const items = Array.from(timeline.querySelectorAll('.career-item'));
+    if (!items.length) return;
+
+    if (!isCareerMobileMode()) {
+        clearMobileCareerActiveState();
+        return;
+    }
+
+    const target = getMobileFocusTarget(items);
+    setMobileCareerActiveItem(target);
+}
+
+function scheduleMobileCareerActiveStateUpdate() {
+    if (mobileCareerFocusRaf) return;
+    mobileCareerFocusRaf = requestAnimationFrame(() => {
+        mobileCareerFocusRaf = null;
+        updateMobileCareerActiveState();
+    });
+}
+
+function teardownMobileCareerObserver() {
+    if (mobileCareerObserver) {
+        mobileCareerObserver.disconnect();
+        mobileCareerObserver = null;
+    }
+    mobileCareerVisibility = new Map();
+    mobileCareerObservedItems = [];
+}
+
+function applyMobileCareerObserverFocus() {
+    if (!mobileCareerObservedItems.length) return;
+
+    let bestItem = null;
+    let bestRatio = -1;
+    mobileCareerObservedItems.forEach((item) => {
+        const ratio = mobileCareerVisibility.get(item) || 0;
+        if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestItem = item;
+        }
+    });
+
+    if (bestItem && bestRatio > 0) {
+        setMobileCareerActiveItem(bestItem);
+    } else {
+        scheduleMobileCareerActiveStateUpdate();
+    }
+}
+
+function setupMobileCareerObserver() {
+    teardownMobileCareerObserver();
+
+    if (!isCareerMobileMode()) return;
+
+    const timeline = document.getElementById('career-timeline');
+    if (!timeline) return;
+
+    mobileCareerObservedItems = Array.from(timeline.querySelectorAll('.career-item'));
+    if (!mobileCareerObservedItems.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+        scheduleMobileCareerActiveStateUpdate();
+        return;
+    }
+
+    mobileCareerObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                mobileCareerVisibility.set(entry.target, entry.intersectionRatio);
+            } else {
+                mobileCareerVisibility.delete(entry.target);
+            }
+        });
+        applyMobileCareerObserverFocus();
+    }, {
+        root: null,
+        threshold: [0.12, 0.25, 0.4, 0.6, 0.8],
+        rootMargin: '-16% 0px -38% 0px'
+    });
+
+    mobileCareerObservedItems.forEach((item) => mobileCareerObserver.observe(item));
+    scheduleMobileCareerActiveStateUpdate();
+}
+
 function getCareerById(careerId) {
     return CAREER_JOURNEY.find((career) => career.id === careerId);
 }
@@ -168,11 +308,25 @@ function bindCareerEvents() {
             closeCareerDrawer();
         }
     });
+
+    window.addEventListener('scroll', scheduleMobileCareerActiveStateUpdate, { passive: true });
+    document.addEventListener('scroll', scheduleMobileCareerActiveStateUpdate, { passive: true, capture: true });
+    window.addEventListener('touchmove', scheduleMobileCareerActiveStateUpdate, { passive: true });
+    window.addEventListener('resize', () => {
+        setupMobileCareerObserver();
+        scheduleMobileCareerActiveStateUpdate();
+    });
+    window.addEventListener('orientationchange', () => {
+        setupMobileCareerObserver();
+        scheduleMobileCareerActiveStateUpdate();
+    });
 }
 
 function initCareerJourney() {
     renderCareerTimeline();
     bindCareerEvents();
+    setupMobileCareerObserver();
+    scheduleMobileCareerActiveStateUpdate();
 }
 
 if (document.readyState === 'loading') {
