@@ -513,36 +513,51 @@
             40% { opacity: 1; transform: translateX(1px); }
             70% { opacity: 0; transform: translateX(0); }
         }
-        /* Mobile: collapse scrollmation to simple stack */
+        /* Mobile: keep Apple-style scrollmation, one stage at a time */
         @media (max-width: 767px) {
-            .arsenal-scroll-root { height: auto; }
+            .arsenal-scroll-root { height: 520vh; }
             .arsenal-sticky-frame {
-                position: relative;
-                height: auto;
+                position: sticky;
+                top: 0;
+                height: 100vh;
                 flex-direction: column;
-                padding: 5rem 1rem 3rem;
+                justify-content: flex-start;
+                padding: 5rem 1rem 1.25rem;
+                gap: 1rem;
                 align-items: flex-start;
             }
             .arsenal-progress-track { display: none; }
             .arsenal-header-col {
                 width: 100%;
                 padding-left: 0;
-                margin-bottom: 2rem;
+                margin-bottom: 0;
             }
             .arsenal-stages-col {
                 position: relative;
                 width: 100%;
-                height: auto;
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
             }
             .arsenal-stage {
-                position: relative;
-                opacity: 1 !important;
-                pointer-events: all !important;
-                padding: 0 0 2.5rem 0;
+                position: absolute;
+                inset: 0;
+                justify-content: flex-start;
+                padding: 0.25rem 0.15rem 0 0;
+                overflow: hidden;
+            }
+            .stage-label {
+                font-size: clamp(1.85rem, 9vw, 2.4rem);
+                margin-bottom: 1.1rem;
+            }
+            .skill-chip {
+                font-size: clamp(1rem, 4.5vw, 1.2rem);
+                padding: 0.72rem 1.2rem;
             }
             #genai-connector-canvas { display: none; }
             #ml-tree-wrap { width: 100%; }
             #ml-tree-canvas { width: 100%; height: auto; }
+            #nlp-scramble-canvas { width: 100%; height: auto; }
         }
     </style>
 </head>

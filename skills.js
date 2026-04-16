@@ -1006,7 +1006,7 @@ function animateChipsOut(stageData) {
 let currentStage   = -1;
 let stageAnimated  = [false, false, false, false];
 let lastProgress   = -1;
-const MOBILE_STAGE_MODE = -2;
+let lastIsMobileViewport = window.innerWidth < 768;
 
 function getScrollProgress() {
     const section = document.getElementById('arsenal');
@@ -1063,56 +1063,11 @@ function updateHeaderLabel(stageIdx) {
     if (label) label.textContent = LABELS[stageIdx];
 }
 
-function activateMobileStages() {
-    setAccentColor(ACCENTS[0]);
-    updateHeaderLabel(0);
-    updateProgressIndicator(0, 0);
-
-    ARSENAL_DATA.forEach((cat, idx) => {
-        const stageEl = document.getElementById(`stage-${cat.id}`);
-        if (stageEl) {
-            stageEl.classList.add('as-visible');
-            stageEl.style.opacity = '1';
-        }
-
-        if (!stageAnimated[idx]) {
-            stageAnimated[idx] = true;
-            animateChipsIn(cat);
-        }
-    });
-
-    // Connector canvas is hidden in mobile CSS, so keep its RAF loop off.
-    stopConnectors();
-}
-
-function resetDesktopStages() {
-    ARSENAL_DATA.forEach((cat, idx) => {
-        stageAnimated[idx] = false;
-        animateChipsOut(cat);
-
-        const stageEl = document.getElementById(`stage-${cat.id}`);
-        if (stageEl) {
-            stageEl.classList.remove('as-visible');
-            stageEl.style.opacity = '0';
-        }
-    });
-
-    stopConnectors();
-    lastProgress = -1;
-}
-
 function onScrollTick() {
-    if (window.innerWidth < 768) {
-        if (currentStage !== MOBILE_STAGE_MODE) {
-            activateMobileStages();
-            currentStage = MOBILE_STAGE_MODE;
-        }
-        return;
-    }
-
-    if (currentStage === MOBILE_STAGE_MODE) {
-        resetDesktopStages();
-        currentStage = -1;
+    const isMobile = window.innerWidth < 768;
+    if (isMobile !== lastIsMobileViewport) {
+        lastProgress = -1;
+        lastIsMobileViewport = isMobile;
     }
 
     const progress = getScrollProgress();
@@ -1124,12 +1079,15 @@ function onScrollTick() {
     setAccentColor(ACCENTS[active]);
     updateHeaderLabel(active);
     updateProgressIndicator(progress, active);
+    if (isMobile) stopConnectors();
 
     ARSENAL_DATA.forEach((cat, idx) => {
         const stageEl = document.getElementById(`stage-${cat.id}`);
         if (!stageEl) return;
 
-        const opacity = getStageOpacity(idx, progress);
+        const opacity = isMobile
+            ? (idx === active ? 1 : 0)
+            : getStageOpacity(idx, progress);
 
         stageEl.classList.toggle('as-visible', opacity > 0.05);
         stageEl.style.opacity = opacity;
@@ -1137,7 +1095,7 @@ function onScrollTick() {
         if (idx === active && !stageAnimated[idx] && opacity > 0.3) {
             stageAnimated[idx] = true;
             animateChipsIn(cat, () => {
-                if (idx === 0) startConnectors();
+                if (idx === 0 && !isMobile) startConnectors();
             });
         }
 
