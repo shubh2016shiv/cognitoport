@@ -290,6 +290,7 @@ const ML_T_DRAW_END = 0.42;
 const ML_T_HOLD_END = 0.74;
 
 const ML_DPR = Math.min(window.devicePixelRatio || 1, 2);
+const ARSENAL_MOBILE_BREAKPOINT = 768;
 
 // Derived
 const ML_colW  = (ML_W - ML_CAT_PAD_X * 2) / (ML_N - 1);
@@ -303,6 +304,56 @@ let mlCurrentCat   = 0;
 let mlAnimStart    = null;
 let mlTreeRAF      = null;
 let mlTreeActive   = false;
+let mlCanvasLogicalW = ML_W;
+let mlCanvasLogicalH = ML_H;
+
+function isMobileViewport() {
+    return window.innerWidth < ARSENAL_MOBILE_BREAKPOINT;
+}
+
+function sizeMLTreeCanvasForViewport() {
+    if (!mlTreeCanvas || !mlTreeCtx) return;
+    if (isMobileViewport()) {
+        const parentW = Math.floor(mlTreeCanvas.parentElement?.clientWidth || window.innerWidth || ML_W);
+        mlCanvasLogicalW = Math.max(300, parentW);
+        mlCanvasLogicalH = 430;
+        mlTreeCanvas.style.width = '100%';
+        mlTreeCanvas.style.height = 'auto';
+    } else {
+        mlCanvasLogicalW = ML_W;
+        mlCanvasLogicalH = ML_H;
+        mlTreeCanvas.style.width = ML_W + 'px';
+        mlTreeCanvas.style.height = ML_H + 'px';
+    }
+
+    mlTreeCanvas.width = mlCanvasLogicalW * ML_DPR;
+    mlTreeCanvas.height = mlCanvasLogicalH * ML_DPR;
+    mlTreeCtx.setTransform(ML_DPR, 0, 0, ML_DPR, 0, 0);
+}
+
+function mlWrapTextByChars(text, maxChars, maxLines) {
+    const words = text.split(' ');
+    const lines = [];
+    let current = '';
+
+    words.forEach(word => {
+        const candidate = current ? `${current} ${word}` : word;
+        if (candidate.length <= maxChars || !current) {
+            current = candidate;
+        } else {
+            lines.push(current);
+            current = word;
+        }
+    });
+    if (current) lines.push(current);
+
+    if (lines.length > maxLines) {
+        const trimmed = lines.slice(0, maxLines);
+        trimmed[maxLines - 1] = trimmed[maxLines - 1].replace(/\s+$/, '') + '…';
+        return trimmed;
+    }
+    return lines;
+}
 
 // Helper drawing functions (operate on mlTreeCtx)
 const mlClamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -355,11 +406,12 @@ function mlTxt(str, x, y, font, color, alpha, align) {
     mlTreeCtx.restore();
 }
 
-function mlSkillXs(catIdx) {
+function mlSkillXs(catIdx, centerX, canvasW, layoutMargin, mobileMode) {
     const skills    = ML_TREE_CATEGORIES[catIdx].skills;
     const nS        = skills.length;
-    const centerX   = ML_catXs[catIdx];
-    const rawSpread = Math.min(nS * 128, 560);
+    const spreadPerSkill = mobileMode ? 132 : 128;
+    const maxSpread      = mobileMode ? (canvasW - layoutMargin * 2) : 560;
+    const rawSpread      = Math.min(nS * spreadPerSkill, maxSpread);
     const rawXs     = skills.map((_, si) => {
         if (nS === 1) return centerX;
         return centerX - rawSpread / 2 + si * (rawSpread / (nS - 1));
@@ -367,8 +419,8 @@ function mlSkillXs(catIdx) {
     const minRaw = Math.min(...rawXs);
     const maxRaw = Math.max(...rawXs);
     let shift = 0;
-    if (minRaw < ML_MARGIN)        shift = ML_MARGIN - minRaw;
-    if (maxRaw > ML_W - ML_MARGIN) shift = (ML_W - ML_MARGIN) - maxRaw;
+    if (minRaw < layoutMargin)               shift = layoutMargin - minRaw;
+    if (maxRaw > canvasW - layoutMargin)     shift = (canvasW - layoutMargin) - maxRaw;
     return rawXs.map(x => x + shift);
 }
 
@@ -384,37 +436,57 @@ function mlTreeFrame(ts) {
     else if (t < ML_T_HOLD_END) bA = 1;
     else                        bA = 1 - mlEaseO((t - ML_T_HOLD_END) / (1 - ML_T_HOLD_END));
 
-    mlTreeCtx.clearRect(0, 0, ML_W, ML_H);
+    const mobileML = isMobileViewport();
+    const canvasW = mlCanvasLogicalW;
+    const canvasH = mlCanvasLogicalH;
+    const catY = mobileML ? 74 : ML_CAT_Y;
+    const trunkY = mobileML ? 136 : ML_TRUNK_Y;
+    const forkY = mobileML ? 248 : ML_FORK_Y;
+    const layoutMargin = mobileML ? 22 : ML_MARGIN;
+    const catPadX = mobileML ? 34 : ML_CAT_PAD_X;
+    const dotR = mobileML ? 2.8 : ML_DOT_R;
+    const catXs = ML_TREE_CATEGORIES.map((_, i) => {
+        if (ML_N === 1) return canvasW / 2;
+        return catPadX + i * ((canvasW - catPadX * 2) / (ML_N - 1));
+    });
 
-    const activeX = ML_catXs[mlCurrentCat];
+    mlTreeCtx.clearRect(0, 0, canvasW, canvasH);
+
+    const activeX = mobileML ? (canvasW / 2) : catXs[mlCurrentCat];
     const cat     = ML_TREE_CATEGORIES[mlCurrentCat];
     const skills  = cat.skills;
     const nS      = skills.length;
-    const sXs     = mlSkillXs(mlCurrentCat);
+    const sXs     = mlSkillXs(mlCurrentCat, activeX, canvasW, layoutMargin, mobileML);
 
-    // Horizontal category bar
-    mlLn(ML_catXs[0], ML_CAT_Y, ML_catXs[ML_N - 1], ML_CAT_Y, 0.08, ML_C, 0.5);
+    // Category header
+    if (mobileML) {
+        mlLn(layoutMargin, catY, canvasW - layoutMargin, catY, 0.09, ML_C, 0.55);
+        mlCirc(activeX, catY, 4.5, 0.92, ML_C);
+        if (bA > 0) mlGlow(activeX, catY, 22, bA * 0.25);
+        mlTxt(cat.name, activeX, catY - 30, "600 15px 'Inter', sans-serif", '#ffffff', 0.98);
+    } else {
+        mlLn(catXs[0], catY, catXs[ML_N - 1], catY, 0.08, ML_C, 0.5);
 
-    ML_TREE_CATEGORIES.forEach((c, i) => {
-        const x      = ML_catXs[i];
-        const active = i === mlCurrentCat;
+        ML_TREE_CATEGORIES.forEach((c, i) => {
+            const x      = catXs[i];
+            const active = i === mlCurrentCat;
 
-        mlCirc(x, ML_CAT_Y, active ? 4.5 : 2.5, active ? 0.9 : 0.25, active ? ML_C : ML_wa(0.4));
-        if (active && bA > 0) mlGlow(x, ML_CAT_Y, 22, bA * 0.25);
+            mlCirc(x, catY, active ? 4.5 : 2.5, active ? 0.9 : 0.25, active ? ML_C : ML_wa(0.4));
+            if (active && bA > 0) mlGlow(x, catY, 22, bA * 0.25);
 
-        // Category labels — use Inter to match the portfolio's font stack
-        mlTxt(
-            c.name,
-            x, ML_CAT_Y - 32,
-            `${active ? '600' : '500'} 15px 'Inter', sans-serif`,
-            active ? '#ffffff' : ML_wa(0.8),
-            active ? 1 : 0.4
-        );
-    });
+            mlTxt(
+                c.name,
+                x, catY - 32,
+                `${active ? '600' : '500'} 15px 'Inter', sans-serif`,
+                active ? '#ffffff' : ML_wa(0.8),
+                active ? 1 : 0.4
+            );
+        });
+    }
 
     // S1: vertical spine down to trunk level
     const s1 = mlMap(drawT, 0, 0.18, 0, 1);
-    mlPln(activeX, ML_CAT_Y + 5, activeX, ML_TRUNK_Y, s1, bA * 0.9, ML_C, 1);
+    mlPln(activeX, catY + 5, activeX, trunkY, s1, bA * 0.9, ML_C, 1);
 
     // S2: horizontal trunk spreading left & right
     const leftX  = sXs[0];
@@ -422,8 +494,8 @@ function mlTreeFrame(ts) {
     const s2     = mlMap(drawT, 0.15, 0.36, 0, 1);
 
     if (nS > 1) {
-        mlPln(activeX, ML_TRUNK_Y, leftX,  ML_TRUNK_Y, s2, bA * 0.75, ML_C, 0.9);
-        mlPln(activeX, ML_TRUNK_Y, rightX, ML_TRUNK_Y, s2, bA * 0.75, ML_C, 0.9);
+        mlPln(activeX, trunkY, leftX,  trunkY, s2, bA * 0.75, ML_C, 0.9);
+        mlPln(activeX, trunkY, rightX, trunkY, s2, bA * 0.75, ML_C, 0.9);
     }
 
     // S3: vertical drops + skill dots + labels
@@ -436,23 +508,51 @@ function mlTreeFrame(ts) {
         const skillT = mlMap(drawT, start, start + perW, 0, 1);
         if (skillT <= 0) return;
 
-        mlPln(sx, ML_TRUNK_Y, sx, ML_FORK_Y, mlMap(skillT, 0, 0.45, 0, 1), bA * 0.72, ML_C, 0.85);
+        mlPln(sx, trunkY, sx, forkY, mlMap(skillT, 0, 0.45, 0, 1), bA * 0.72, ML_C, 0.85);
 
         const dotA = mlMap(skillT, 0.40, 0.65, 0, 1);
         if (dotA > 0) {
-            mlGlow(sx, ML_FORK_Y, 10, bA * dotA * 0.25);
-            mlCirc(sx, ML_FORK_Y, ML_DOT_R, bA * dotA, ML_C);
+            mlGlow(sx, forkY, 10, bA * dotA * 0.25);
+            mlCirc(sx, forkY, dotR, bA * dotA, ML_C);
         }
 
         const textA = mlMap(skillT, 0.58, 0.90, 0, 1);
         if (textA > 0) {
-            const parts = skill.split(' / ');
-            if (parts.length > 1 && skill.length > 22) {
-                // Use Inter for skill text — matches portfolio font
-                mlTxt(parts[0],                    sx, ML_FORK_Y + 26, "500 14px 'Inter', sans-serif", '#ffffff', bA * textA * 0.9);
-                mlTxt(parts.slice(1).join(' / '), sx, ML_FORK_Y + 44, "400 13px 'Inter', sans-serif",  ML_wa(0.7),   bA * textA * 0.8);
+            if (mobileML) {
+                const leftBound  = si === 0 ? layoutMargin : (sXs[si - 1] + sx) / 2 + 4;
+                const rightBound = si === nS - 1 ? canvasW - layoutMargin : (sx + sXs[si + 1]) / 2 - 4;
+                const safeWidth  = Math.max(56, rightBound - leftBound);
+                const maxChars   = Math.max(9, Math.floor((safeWidth - 8) / 6.1));
+                const lines = mlWrapTextByChars(skill, maxChars, 3);
+                const firstY = forkY + 24;
+                const align =
+                    si === 0 ? 'left'
+                    : si === nS - 1 ? 'right'
+                    : 'center';
+                const textX =
+                    align === 'left' ? leftBound + 1
+                    : align === 'right' ? rightBound - 1
+                    : sx;
+
+                lines.forEach((line, li) => {
+                    mlTxt(
+                        line,
+                        textX,
+                        firstY + li * 14,
+                        `${li === 0 ? '500' : '400'} 12px 'Inter', sans-serif`,
+                        '#ffffff',
+                        bA * textA * 0.94,
+                        align
+                    );
+                });
             } else {
-                mlTxt(skill, sx, ML_FORK_Y + 26, "400 14px 'Inter', sans-serif", '#ffffff', bA * textA * 0.9);
+                const parts = skill.split(' / ');
+                if (parts.length > 1 && skill.length > 22) {
+                    mlTxt(parts[0],                    sx, forkY + 26, "500 14px 'Inter', sans-serif", '#ffffff', bA * textA * 0.9);
+                    mlTxt(parts.slice(1).join(' / '), sx, forkY + 44, "400 13px 'Inter', sans-serif",  '#ffffff',    bA * textA * 0.9);
+                } else {
+                    mlTxt(skill, sx, forkY + 26, "400 14px 'Inter', sans-serif", '#ffffff', bA * textA * 0.9);
+                }
             }
         }
     });
@@ -460,8 +560,8 @@ function mlTreeFrame(ts) {
     // Progress pills (visual only — hit areas are DOM buttons)
     const pillW  = 16, pillH = 2.5, pillGap = 8;
     const totalP = ML_N * pillW + (ML_N - 1) * pillGap;
-    const px0    = (ML_W - totalP) / 2;
-    const pillY  = ML_H - 22;
+    const px0    = (canvasW - totalP) / 2;
+    const pillY  = canvasH - 22;
 
     ML_TREE_CATEGORIES.forEach((_, i) => {
         const px     = px0 + i * (pillW + pillGap);
@@ -510,11 +610,7 @@ function initMLTree() {
     mlTreeCtx = mlTreeCanvas.getContext('2d');
 
     // Size canvas to logical px (DPR-aware)
-    mlTreeCanvas.width  = ML_W * ML_DPR;
-    mlTreeCanvas.height = ML_H * ML_DPR;
-    mlTreeCanvas.style.width  = ML_W + 'px';
-    mlTreeCanvas.style.height = ML_H + 'px';
-    mlTreeCtx.scale(ML_DPR, ML_DPR);
+    sizeMLTreeCanvasForViewport();
 
     // Build pill DOM buttons
     mlPillRowEl.innerHTML = '';
@@ -530,15 +626,15 @@ function initMLTree() {
     // Canvas cursor on pill hover
     mlTreeCanvas.addEventListener('mousemove', e => {
         const rect   = mlTreeCanvas.getBoundingClientRect();
-        const scaleX = ML_W / rect.width;
-        const scaleY = ML_H / rect.height;
+        const scaleX = mlCanvasLogicalW / rect.width;
+        const scaleY = mlCanvasLogicalH / rect.height;
         const mx     = (e.clientX - rect.left) * scaleX;
         const my     = (e.clientY - rect.top)  * scaleY;
 
         const pillW  = 16, pillGap = 8;
         const totalP = ML_N * pillW + (ML_N - 1) * pillGap;
-        const px0    = (ML_W - totalP) / 2;
-        const pillY  = ML_H - 22;
+        const px0    = (mlCanvasLogicalW - totalP) / 2;
+        const pillY  = mlCanvasLogicalH - 22;
 
         let onPill = false;
         for (let i = 0; i < ML_N; i++) {
@@ -553,15 +649,15 @@ function initMLTree() {
     // Canvas click for pill navigation
     mlTreeCanvas.addEventListener('click', e => {
         const rect   = mlTreeCanvas.getBoundingClientRect();
-        const scaleX = ML_W / rect.width;
-        const scaleY = ML_H / rect.height;
+        const scaleX = mlCanvasLogicalW / rect.width;
+        const scaleY = mlCanvasLogicalH / rect.height;
         const mx     = (e.clientX - rect.left) * scaleX;
         const my     = (e.clientY - rect.top)  * scaleY;
 
         const pillW  = 16, pillGap = 8;
         const totalP = ML_N * pillW + (ML_N - 1) * pillGap;
-        const px0    = (ML_W - totalP) / 2;
-        const pillY  = ML_H - 22;
+        const px0    = (mlCanvasLogicalW - totalP) / 2;
+        const pillY  = mlCanvasLogicalH - 22;
 
         for (let i = 0; i < ML_N; i++) {
             const px = px0 + i * (pillW + pillGap);
@@ -588,7 +684,7 @@ function stopMLTree() {
     mlAnimStart  = null;
     mlCurrentCat = 0;
     if (mlTreeCtx && mlTreeCanvas) {
-        mlTreeCtx.clearRect(0, 0, ML_W, ML_H);
+        mlTreeCtx.clearRect(0, 0, mlCanvasLogicalW, mlCanvasLogicalH);
     }
 }
 
@@ -1006,7 +1102,7 @@ function animateChipsOut(stageData) {
 let currentStage   = -1;
 let stageAnimated  = [false, false, false, false];
 let lastProgress   = -1;
-let lastIsMobileViewport = window.innerWidth < 768;
+let lastIsMobileViewport = isMobileViewport();
 
 function getScrollProgress() {
     const section = document.getElementById('arsenal');
@@ -1064,7 +1160,7 @@ function updateHeaderLabel(stageIdx) {
 }
 
 function onScrollTick() {
-    const isMobile = window.innerWidth < 768;
+    const isMobile = isMobileViewport();
     if (isMobile !== lastIsMobileViewport) {
         lastProgress = -1;
         lastIsMobileViewport = isMobile;
@@ -1119,6 +1215,7 @@ function initArsenal() {
     window.addEventListener('resize', () => {
         sizeConnectorCanvas();
         buildConnectorNodes();
+        sizeMLTreeCanvasForViewport();
         onScrollTick();
     });
 
