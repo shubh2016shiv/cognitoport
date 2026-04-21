@@ -1381,7 +1381,7 @@ function isArsenalGestureActive(metrics = getArsenalMetrics()) {
 
 function isArsenalHintVisible(metrics = getArsenalMetrics()) {
     if (!metrics || currentStage < 0) return false;
-    return metrics.rect.top < window.innerHeight && metrics.rect.bottom > 0;
+    return isArsenalGestureActive(metrics);
 }
 
 function getScrollProgress() {

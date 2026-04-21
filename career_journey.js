@@ -78,6 +78,14 @@ let mobileCareerFocusRaf = null;
 let mobileCareerObserver = null;
 let mobileCareerVisibility = new Map();
 let mobileCareerObservedItems = [];
+let mobileCareerManualMode = false;
+let mobileCareerManualItem = null;
+let mobileCareerLongPressTimer = null;
+let mobileCareerTouchStart = null;
+let suppressCareerClick = false;
+
+const CAREER_LONG_PRESS_MS = 420;
+const CAREER_TOUCH_MOVE_CANCEL_PX = 10;
 
 function isCareerMobileMode() {
     return window.innerWidth < CAREER_MOBILE_BREAKPOINT;
@@ -87,6 +95,31 @@ function clearMobileCareerActiveState() {
     document
         .querySelectorAll('#career-timeline .career-item.is-mobile-active')
         .forEach((item) => item.classList.remove('is-mobile-active'));
+}
+
+function clearMobileCareerManualMode() {
+    mobileCareerManualMode = false;
+    mobileCareerManualItem = null;
+}
+
+function setMobileCareerManualItem(target) {
+    if (!target) return;
+    mobileCareerManualMode = true;
+    mobileCareerManualItem = target;
+    setMobileCareerActiveItem(target);
+}
+
+function cancelMobileCareerLongPressTimer() {
+    if (!mobileCareerLongPressTimer) return;
+    clearTimeout(mobileCareerLongPressTimer);
+    mobileCareerLongPressTimer = null;
+}
+
+function releaseMobileCareerManualModeOnScroll() {
+    if (!isCareerMobileMode()) return;
+    if (!mobileCareerManualMode) return;
+    clearMobileCareerManualMode();
+    scheduleMobileCareerActiveStateUpdate();
 }
 
 function setMobileCareerActiveItem(target) {
@@ -133,8 +166,17 @@ function updateMobileCareerActiveState() {
     if (!items.length) return;
 
     if (!isCareerMobileMode()) {
+        clearMobileCareerManualMode();
         clearMobileCareerActiveState();
         return;
+    }
+
+    if (mobileCareerManualMode) {
+        if (mobileCareerManualItem && timeline.contains(mobileCareerManualItem)) {
+            setMobileCareerActiveItem(mobileCareerManualItem);
+            return;
+        }
+        clearMobileCareerManualMode();
     }
 
     const target = getMobileFocusTarget(items);
@@ -159,6 +201,7 @@ function teardownMobileCareerObserver() {
 }
 
 function applyMobileCareerObserverFocus() {
+    if (mobileCareerManualMode) return;
     if (!mobileCareerObservedItems.length) return;
 
     let bestItem = null;
@@ -292,6 +335,12 @@ function bindCareerEvents() {
     const backdrop = document.getElementById('career-drawer-backdrop');
 
     timeline?.addEventListener('click', (event) => {
+        if (suppressCareerClick) {
+            suppressCareerClick = false;
+            event.preventDefault();
+            return;
+        }
+
         const trigger = event.target.closest('[data-career-id]');
         if (!trigger) return;
 
@@ -299,6 +348,43 @@ function bindCareerEvents() {
         if (!selectedCareer) return;
         openCareerDrawer(selectedCareer);
     });
+
+    timeline?.addEventListener('touchstart', (event) => {
+        if (!isCareerMobileMode()) return;
+        const trigger = event.target.closest('[data-career-id]');
+        if (!trigger || !event.touches || !event.touches.length) return;
+
+        const touch = event.touches[0];
+        mobileCareerTouchStart = { x: touch.clientX, y: touch.clientY };
+        cancelMobileCareerLongPressTimer();
+        mobileCareerLongPressTimer = setTimeout(() => {
+            setMobileCareerManualItem(trigger);
+            suppressCareerClick = true;
+            cancelMobileCareerLongPressTimer();
+        }, CAREER_LONG_PRESS_MS);
+    }, { passive: true });
+
+    timeline?.addEventListener('touchmove', (event) => {
+        if (!mobileCareerLongPressTimer || !mobileCareerTouchStart) return;
+        if (!event.touches || !event.touches.length) return;
+
+        const touch = event.touches[0];
+        const dx = Math.abs(touch.clientX - mobileCareerTouchStart.x);
+        const dy = Math.abs(touch.clientY - mobileCareerTouchStart.y);
+        if (dx > CAREER_TOUCH_MOVE_CANCEL_PX || dy > CAREER_TOUCH_MOVE_CANCEL_PX) {
+            cancelMobileCareerLongPressTimer();
+        }
+    }, { passive: true });
+
+    timeline?.addEventListener('touchend', () => {
+        mobileCareerTouchStart = null;
+        cancelMobileCareerLongPressTimer();
+    }, { passive: true });
+
+    timeline?.addEventListener('touchcancel', () => {
+        mobileCareerTouchStart = null;
+        cancelMobileCareerLongPressTimer();
+    }, { passive: true });
 
     closeBtn?.addEventListener('click', closeCareerDrawer);
     backdrop?.addEventListener('click', closeCareerDrawer);
@@ -309,14 +395,29 @@ function bindCareerEvents() {
         }
     });
 
-    window.addEventListener('scroll', scheduleMobileCareerActiveStateUpdate, { passive: true });
-    document.addEventListener('scroll', scheduleMobileCareerActiveStateUpdate, { passive: true, capture: true });
-    window.addEventListener('touchmove', scheduleMobileCareerActiveStateUpdate, { passive: true });
+    window.addEventListener('scroll', () => {
+        releaseMobileCareerManualModeOnScroll();
+        scheduleMobileCareerActiveStateUpdate();
+    }, { passive: true });
+    document.addEventListener('scroll', () => {
+        releaseMobileCareerManualModeOnScroll();
+        scheduleMobileCareerActiveStateUpdate();
+    }, { passive: true, capture: true });
+    window.addEventListener('touchmove', () => {
+        releaseMobileCareerManualModeOnScroll();
+        scheduleMobileCareerActiveStateUpdate();
+    }, { passive: true });
     window.addEventListener('resize', () => {
+        if (!isCareerMobileMode()) {
+            clearMobileCareerManualMode();
+        }
         setupMobileCareerObserver();
         scheduleMobileCareerActiveStateUpdate();
     });
     window.addEventListener('orientationchange', () => {
+        if (!isCareerMobileMode()) {
+            clearMobileCareerManualMode();
+        }
         setupMobileCareerObserver();
         scheduleMobileCareerActiveStateUpdate();
     });

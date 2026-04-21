@@ -777,6 +777,14 @@
             }
 
             /* Career Journey: mobile uses JS-driven active state instead of hover */
+            .career-item:hover {
+                background: transparent;
+                border-color: transparent;
+                transform: none;
+            }
+            .career-item:hover .career-hover-cue {
+                opacity: 0;
+            }
             .career-hover-cue {
                 opacity: 0;
                 right: 0.4rem;
