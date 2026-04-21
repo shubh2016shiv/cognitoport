@@ -22,11 +22,10 @@ function renderAboutMe() {
     const container = document.getElementById('summary-container');
     if (!container) return;
 
-    let html = `<h3 class="text-xl text-cyan-neon font-medium mb-6 font-mono-tech">${aboutMe.title}</h3>`;
+    let html = `<h3 class="about-subtitle">${aboutMe.title}</h3>`;
 
-    aboutMe.paragraphs.forEach((paragraph, index) => {
-        const isLast = index === aboutMe.paragraphs.length - 1;
-        html += `<p class="about-para${isLast ? '' : ' mb-5'}">${paragraph}</p>`;
+    aboutMe.paragraphs.forEach((paragraph) => {
+        html += `<p class="about-para">${paragraph}</p>`;
     });
 
     container.innerHTML = html;

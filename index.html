@@ -34,8 +34,38 @@
         /* =============================================
            ABOUT ME SECTION
         ============================================= */
+        .about-fit {
+            padding-top: clamp(2.25rem, 3.3vh, 3.1rem);
+            padding-bottom: clamp(1.9rem, 3vh, 2.7rem);
+        }
+        .about-layout {
+            align-items: center;
+        }
         .about-image-sticky {
             position: static;
+            max-width: 226px;
+            margin-inline: auto;
+        }
+        @media (min-width: 1280px) {
+            .about-image-sticky {
+                max-width: 236px;
+            }
+        }
+        .about-profile-media {
+            position: relative;
+        }
+        .about-profile-frame {
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 1rem;
+            transform: rotate(1.6deg) scale(1.012);
+            pointer-events: none;
+        }
+        .about-profile-image {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.42);
+            opacity: 0.95;
         }
         .about-divider {
             width: 1px;
@@ -43,60 +73,182 @@
             background: linear-gradient(
                 to bottom,
                 transparent 0%,
-                rgba(0, 240, 255, 0.14) 18%,
-                rgba(0, 240, 255, 0.14) 82%,
+                rgba(0, 240, 255, 0.1) 18%,
+                rgba(0, 240, 255, 0.1) 82%,
                 transparent 100%
             );
             align-self: stretch;
         }
-        .about-para {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1.04rem;
-            font-weight: 400;
-            line-height: 1.86;
-            letter-spacing: 0.012em;
-            color: rgba(195, 200, 215, 0.82);
-            text-align: justify;
-            text-justify: inter-word;
-            margin-bottom: 1.35rem;
+        .about-reading-column {
+            display: flex;
+            justify-content: flex-start;
         }
-        .about-para:last-child { margin-bottom: 0; }
-        .about-accent {
-            color: #f2d46b;
-            font-weight: 600;
+        .about-reading-panel {
+            position: relative;
+            width: min(100%, 88ch);
+            padding: 0.55rem 0.95rem 0.18rem;
+            isolation: isolate;
+        }
+        .about-reading-panel::before {
+            content: "";
+            position: absolute;
+            inset: -0.5rem -0.72rem -0.34rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: radial-gradient(
+                120% 125% at 18% 20%,
+                rgba(9, 12, 17, 0.8) 0%,
+                rgba(9, 12, 17, 0.62) 52%,
+                rgba(9, 12, 17, 0.38) 100%
+            );
+            backdrop-filter: blur(1.5px);
+            -webkit-backdrop-filter: blur(1.5px);
+            pointer-events: none;
+            z-index: -1;
         }
         .about-kicker {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            letter-spacing: 0.19em;
+            font-size: 0.74rem;
+            letter-spacing: 0.17em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 0.7rem;
+            color: rgba(255, 255, 255, 0.56);
+            margin-bottom: 0.42rem;
+        }
+        .about-title {
+            margin-bottom: 0.2rem;
+        }
+        .about-title.section-title {
+            font-size: clamp(2rem, 3vw, 2.65rem);
+            line-height: 1.04;
+            letter-spacing: -0.016em;
+        }
+        .about-subtitle {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(1rem, 0.45vw + 0.92rem, 1.14rem);
+            font-weight: 600;
+            line-height: 1.28;
+            letter-spacing: 0.008em;
+            color: rgba(223, 231, 242, 0.9);
+            margin-bottom: 0.95rem;
+        }
+        .about-copy {
+            max-width: 86ch;
+        }
+        .about-para {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(0.99rem, 0.1vw + 0.95rem, 1.05rem);
+            font-weight: 400;
+            line-height: 1.68;
+            letter-spacing: 0.007em;
+            color: rgba(214, 220, 230, 0.9);
+            text-align: justify;
+            text-justify: inter-word;
+            margin-bottom: 0.86rem;
+        }
+        .about-para:last-child { margin-bottom: 0; }
+        .about-accent {
+            color: #e4ca73;
+            font-weight: 600;
         }
         .about-image-tag {
-            margin-top: 1.25rem;
+            margin-top: 0.82rem;
             text-align: center;
         }
         .about-image-tag__name {
             font-family: 'Satoshi', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            color: rgba(255,255,255,0.88);
+            color: rgba(255,255,255,0.8);
             letter-spacing: 0.02em;
         }
         .about-image-tag__role {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 0.2em;
+            font-size: 0.61rem;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: rgba(0, 240, 255, 0.55);
-            margin-top: 0.3rem;
+            color: rgba(0, 240, 255, 0.45);
+            margin-top: 0.24rem;
+        }
+        @media (max-width: 1279px) {
+            .about-fit {
+                padding-top: clamp(2.1rem, 3.4vh, 2.8rem);
+                padding-bottom: clamp(1.8rem, 2.8vh, 2.4rem);
+            }
+            .about-reading-panel {
+                width: min(100%, 82ch);
+                padding: 0.45rem 0.72rem 0.14rem;
+            }
+            .about-copy {
+                max-width: 80ch;
+            }
+            .about-para {
+                line-height: 1.72;
+            }
+        }
+        @media (max-width: 1023px) {
+            .about-fit {
+                padding-top: 2.8rem;
+                padding-bottom: 2.35rem;
+            }
+            .about-layout {
+                align-items: flex-start;
+                gap: 1.7rem;
+            }
+            .about-reading-column {
+                justify-content: flex-start;
+            }
+            .about-reading-panel {
+                width: 100%;
+                padding: 0.48rem 0.28rem 0.24rem;
+            }
+            .about-reading-panel::before {
+                inset: -0.4rem -0.55rem -0.35rem;
+                border-color: rgba(255, 255, 255, 0.03);
+            }
+            .about-para {
+                text-align: left;
+                text-justify: auto;
+                line-height: 1.78;
+                margin-bottom: 1rem;
+            }
+            .about-divider {
+                display: none !important;
+            }
+            .about-image-sticky {
+                max-width: 214px;
+            }
         }
         @media (max-width: 767px) {
-            .about-image-sticky { position: static; }
-            .about-divider { display: none; }
-            .about-para { font-size: 1rem; line-height: 1.82; }
-            .about-kicker { font-size: 0.72rem; letter-spacing: 0.15em; }
+            .about-fit {
+                padding-top: 2.4rem;
+                padding-bottom: 2.1rem;
+            }
+            .about-image-sticky {
+                max-width: 198px;
+            }
+            .about-kicker {
+                font-size: 0.7rem;
+                letter-spacing: 0.14em;
+                margin-bottom: 0.4rem;
+            }
+            .about-title.section-title {
+                font-size: clamp(1.8rem, 9vw, 2.22rem);
+            }
+            .about-subtitle {
+                font-size: 1rem;
+                margin-bottom: 0.92rem;
+            }
+            .about-para {
+                font-size: 0.98rem;
+                line-height: 1.76;
+                margin-bottom: 0.9rem;
+                text-align: justify;
+                text-justify: inter-word;
+            }
+            .about-image-tag__role {
+                font-size: 0.58rem;
+                letter-spacing: 0.14em;
+            }
         }
 
         .section-title {
@@ -975,17 +1127,17 @@
         </section>
 
         <!-- About Me Section -->
-        <section id="about" class="py-28 overflow-hidden border-t border-white/5 bg-transparent">
-            <div class="w-full max-w-[1560px] mx-auto px-8 md:px-14 xl:px-24">
-                <div class="flex flex-col md:flex-row gap-12 xl:gap-20">
+        <section id="about" class="about-fit overflow-hidden border-t border-white/5 bg-transparent">
+            <div class="w-full max-w-[1520px] mx-auto px-5 md:px-8 xl:px-12">
+                <div class="about-layout flex flex-col md:flex-row gap-8 xl:gap-10">
 
                     <!-- Left: sticky image column -->
-                    <div class="w-full md:w-[260px] lg:w-[290px] flex-shrink-0 md:self-center reveal">
+                    <div class="w-full md:w-[196px] lg:w-[214px] xl:w-[228px] 2xl:w-[236px] flex-shrink-0 md:self-center xl:-ml-4 reveal">
                         <div class="about-image-sticky">
-                            <div class="relative">
-                                <div class="absolute inset-0 border border-white/10 rounded-2xl transform rotate-3 scale-105"></div>
+                            <div class="about-profile-media">
+                                <div class="about-profile-frame"></div>
                                 <img src="https://placehold.co/400x400/111111/FFFFFF?text=SS" alt="Shubham Singh" loading="lazy"
-                                    class="rounded-2xl shadow-2xl border border-white/10 relative z-10 w-full grayscale hover:grayscale-0 transition-all duration-500">
+                                    class="about-profile-image rounded-2xl relative z-10 w-full grayscale hover:grayscale-0 transition-all duration-500">
                             </div>
                             <div class="about-image-tag">
                                 <p class="about-image-tag__name">Shubham Singh</p>
@@ -998,10 +1150,12 @@
                     <div class="about-divider hidden md:block"></div>
 
                     <!-- Right: narrative text column -->
-                    <div class="flex-1 min-w-0 reveal delay-100">
-                        <p class="about-kicker">Profile</p>
-                        <h2 class="section-title mb-8">About Me</h2>
-                        <div id="summary-container"></div>
+                    <div class="about-reading-column flex-1 min-w-0 reveal delay-100">
+                        <div class="about-reading-panel">
+                            <p class="about-kicker">Profile</p>
+                            <h2 class="section-title about-title">About Me</h2>
+                            <div id="summary-container" class="about-copy"></div>
+                        </div>
                     </div>
 
                 </div>
@@ -1653,15 +1807,15 @@
         class DataBokeh {
             constructor() {
                 this.particles = [];
-                const numParticles = window.innerWidth < 768 ? 15 : 25;
+                const numParticles = window.innerWidth < 768 ? 12 : 22;
                 for(let i = 0; i < numParticles; i++) {
                     this.particles.push({
                         x: Math.random() * bgCanvas.width,
                         y: Math.random() * bgCanvas.height,
                         vx: (Math.random() - 0.5) * 0.1, 
                         vy: -(Math.random() * 0.15 + 0.05), 
-                        radius: Math.random() * 25 + 10,
-                        alpha: Math.random() * 0.15 + 0.05 // Increased visibility (5% to 20%)
+                        radius: Math.random() * 20 + 9,
+                        alpha: Math.random() * 0.09 + 0.03
                     });
                 }
             }
@@ -1677,7 +1831,7 @@
                     }
 
                     let gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
-                    gradient.addColorStop(0, `rgba(0, 240, 255, ${p.alpha * 1.5})`);
+                    gradient.addColorStop(0, `rgba(0, 240, 255, ${p.alpha * 1.2})`);
                     gradient.addColorStop(0.5, `rgba(0, 240, 255, ${p.alpha})`);
                     gradient.addColorStop(1, 'rgba(0, 240, 255, 0)');
 
