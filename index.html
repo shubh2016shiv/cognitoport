@@ -749,7 +749,7 @@
                 <a href="#projects" class="nav-link text-gray-400 hover:text-white transition-colors">Projects</a>
                 <a href="#experience" class="nav-link text-gray-400 hover:text-white transition-colors">Experience</a>
                 <a href="#arsenal" class="nav-link text-gray-400 hover:text-white transition-colors">Arsenal</a>
-                <a href="resume.pdf" class="mock-download border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-2 rounded-lg transition-all duration-300">Resume</a>
+                <a href="#" class="resume-download border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-2 rounded-lg transition-all duration-300">Resume</a>
             </nav>
             <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-cyan-neon focus:outline-none p-2 z-20">
                 <i data-lucide="menu"></i>
@@ -768,7 +768,7 @@
              <a href="#projects" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Projects</a>
              <a href="#experience" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Experience</a>
              <a href="#arsenal" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Arsenal</a>
-             <a href="resume.pdf" class="mock-download block border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-3 rounded-lg transition-all text-center w-full">Resume</a>
+             <a href="#" class="resume-download block border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-3 rounded-lg transition-all text-center w-full">Resume</a>
         </div>
     </header>
 
@@ -1077,10 +1077,113 @@
             }, 3000);
         }
 
+        const RESUME_GITHUB_CONFIG = {
+            owner: 'shubh2016shiv',
+            repo: 'cognitoport',
+            branch: 'main',
+            folderPath: 'assets/resume'
+        };
+        let resumeDownloadInFlight = false;
+
+        function formatDownloadDate(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getResumeDownloadFilename() {
+            return `resume_shubham_singh_ai_portfolio_${formatDownloadDate()}.pdf`;
+        }
+
+        async function fetchJson(url) {
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/vnd.github+json' },
+                cache: 'no-store'
+            });
+            if (!response.ok) {
+                throw new Error(`Request failed (${response.status}) for ${url}`);
+            }
+            return response.json();
+        }
+
+        async function getLatestResumePdf() {
+            const { owner, repo, branch, folderPath } = RESUME_GITHUB_CONFIG;
+            const listUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}?ref=${branch}`;
+            const items = await fetchJson(listUrl);
+            const pdfFiles = Array.isArray(items)
+                ? items.filter((item) => item?.type === 'file' && item?.name?.toLowerCase().endsWith('.pdf'))
+                : [];
+
+            if (!pdfFiles.length) {
+                throw new Error('No resume PDF files were found in assets/resume.');
+            }
+            if (pdfFiles.length === 1) {
+                return pdfFiles[0];
+            }
+
+            const filesWithCommitMeta = await Promise.all(pdfFiles.map(async (file) => {
+                const commitsUrl = `https://api.github.com/repos/${owner}/${repo}/commits?path=${encodeURIComponent(file.path)}&sha=${branch}&per_page=1`;
+                try {
+                    const commits = await fetchJson(commitsUrl);
+                    const latestCommit = commits?.[0];
+                    const timestamp = latestCommit?.commit?.author?.date || latestCommit?.commit?.committer?.date || null;
+                    return { file, timestamp: timestamp ? Date.parse(timestamp) : 0 };
+                } catch (error) {
+                    console.warn(`Unable to resolve commit date for ${file.path}`, error);
+                    return { file, timestamp: 0 };
+                }
+            }));
+
+            filesWithCommitMeta.sort((a, b) => {
+                if (b.timestamp !== a.timestamp) {
+                    return b.timestamp - a.timestamp;
+                }
+                return b.file.name.localeCompare(a.file.name);
+            });
+
+            return filesWithCommitMeta[0].file;
+        }
+
+        async function downloadLatestResume() {
+            if (resumeDownloadInFlight) {
+                return;
+            }
+
+            resumeDownloadInFlight = true;
+            try {
+                showToast('Downloading Resume');
+                const latestResume = await getLatestResumePdf();
+                if (!latestResume?.download_url) {
+                    throw new Error('Latest resume does not include a download URL.');
+                }
+
+                const fileResponse = await fetch(latestResume.download_url, { cache: 'no-store' });
+                if (!fileResponse.ok) {
+                    throw new Error(`Failed to download resume (${fileResponse.status}).`);
+                }
+
+                const resumeBlob = await fileResponse.blob();
+                const blobUrl = URL.createObjectURL(resumeBlob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = getResumeDownloadFilename();
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.error('Resume download failed.', error);
+                showToast('Resume is unavailable right now. Please try again.');
+            } finally {
+                resumeDownloadInFlight = false;
+            }
+        }
+
         // --- Event Delegation for Links ---
         document.addEventListener('click', function(e) {
             const navLink = e.target.closest('.nav-link');
-            const mockDownload = e.target.closest('.mock-download');
+            const resumeDownload = e.target.closest('.resume-download');
             const mockLink = e.target.closest('.mock-link');
 
             if (navLink) {
@@ -1095,10 +1198,10 @@
                     }
                 }
                 document.getElementById('mobile-menu').classList.add('hidden');
-            } else if (mockDownload) {
+            } else if (resumeDownload) {
                 e.preventDefault();
-                showToast("Resume download initiated...");
                 document.getElementById('mobile-menu').classList.add('hidden');
+                void downloadLatestResume();
             } else if (mockLink) {
                 e.preventDefault();
                 showToast("Opening external link...");
