@@ -53,14 +53,10 @@ const ARSENAL_DATA = [
     }
 ];
 
-// Scroll timeline: [stageIndex, startFraction, endFraction]
-// The scroll room is 400vh. Fractions are of (sectionScrollHeight - vh).
-const STAGE_WINDOWS = [
-    { stage: 0, start: 0.00, peak: 0.10, end: 0.30 },
-    { stage: 1, start: 0.25, peak: 0.38, end: 0.55 },
-    { stage: 2, start: 0.50, peak: 0.63, end: 0.78 },
-    { stage: 3, start: 0.73, peak: 0.83, end: 1.00 }
-];
+const STAGE_COUNT = ARSENAL_DATA.length;
+const STAGE_ANCHORS = ARSENAL_DATA.map((_, idx) =>
+    STAGE_COUNT <= 1 ? 0 : idx / (STAGE_COUNT - 1)
+);
 
 // ── DOM Helpers ───────────────────────────────
 function clamp(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
@@ -1329,114 +1325,303 @@ function animateChipsOut(stageData) {
 
 // ── Scroll Engine ─────────────────────────────
 let currentStage   = -1;
-let stageAnimated  = [false, false, false, false];
-let lastProgress   = -1;
+let stageAnimated  = ARSENAL_DATA.map(() => false);
 let lastIsMobileViewport = isMobileViewport();
+let lastScrollY = window.scrollY;
+let lastGestureDirection = 1;
+let transitionLockUntil = 0;
+let programmaticScrollTimer = null;
+let touchStartY = null;
+let touchCaptured = false;
 
-function getScrollProgress() {
+const STAGE_TRANSITION_LOCK_MS = 420;
+const WHEEL_MOMENTUM_THRESHOLD = 140;
+const TOUCH_CAPTURE_THRESHOLD = 24;
+const TOUCH_MOMENTUM_THRESHOLD = 110;
+
+function isTransitionLocked() {
+    return performance.now() < transitionLockUntil;
+}
+
+function lockTransitions() {
+    transitionLockUntil = performance.now() + STAGE_TRANSITION_LOCK_MS;
+}
+
+function setProgrammaticScrollActive() {
+    if (programmaticScrollTimer) clearTimeout(programmaticScrollTimer);
+    programmaticScrollTimer = setTimeout(() => {
+        programmaticScrollTimer = null;
+    }, STAGE_TRANSITION_LOCK_MS + 140);
+}
+
+function isProgrammaticScrollActive() {
+    return programmaticScrollTimer !== null;
+}
+
+function getArsenalMetrics() {
     const section = document.getElementById('arsenal');
-    if (!section) return 0;
+    if (!section) return null;
+
     const rect = section.getBoundingClientRect();
     const sectionScrollRoom = section.offsetHeight - window.innerHeight;
-    if (sectionScrollRoom <= 0) return 0;
-    const scrolled = -rect.top;
-    return clamp(scrolled / sectionScrollRoom, 0, 1);
+    return { section, rect, sectionScrollRoom };
 }
 
-function getActiveStage(progress) {
-    let best = 0, bestScore = -1;
-    STAGE_WINDOWS.forEach((w, i) => {
-        if (progress >= w.start && progress <= w.end) {
-            const score = invLerp(w.start, w.peak, progress) - invLerp(w.peak, w.end, progress);
-            if (score > bestScore) { bestScore = score; best = i; }
-        }
-    });
-    if (progress > STAGE_WINDOWS[STAGE_WINDOWS.length - 1].peak) {
-        best = STAGE_WINDOWS.length - 1;
-    }
-    return best;
+function isArsenalInControl(metrics = getArsenalMetrics()) {
+    if (!metrics || metrics.sectionScrollRoom <= 0) return false;
+    return metrics.rect.top <= 0 && metrics.rect.bottom >= window.innerHeight;
 }
 
-function getStageOpacity(stageIdx, progress) {
-    const w = STAGE_WINDOWS[stageIdx];
-    if (!w) return 0;
-    const fadeIn  = invLerp(w.start, w.peak, progress);
-    const fadeOut = 1 - invLerp(w.peak, w.end, progress);
-    return clamp(Math.min(fadeIn, fadeOut), 0, 1);
+function getScrollProgress() {
+    const metrics = getArsenalMetrics();
+    if (!metrics || metrics.sectionScrollRoom <= 0) return 0;
+    const scrolled = -metrics.rect.top;
+    return clamp(scrolled / metrics.sectionScrollRoom, 0, 1);
+}
+
+function progressToStage(progress) {
+    if (STAGE_COUNT <= 1) return 0;
+    return clamp(Math.round(progress * (STAGE_COUNT - 1)), 0, STAGE_COUNT - 1);
+}
+
+function stageToProgress(stageIdx) {
+    const idx = clamp(stageIdx, 0, STAGE_COUNT - 1);
+    return STAGE_ANCHORS[idx] ?? 0;
 }
 
 const ACCENTS = ARSENAL_DATA.map(d => d.accentColor);
-const LABELS  = ARSENAL_DATA.map(d => d.label);
 
 function setAccentColor(color) {
     document.documentElement.style.setProperty('--arsenal-accent', color);
 }
 
-function updateProgressIndicator(progress, activeStage) {
+function updateProgressIndicator(activeStage) {
     const fill = document.getElementById('arsenal-progress-fill');
-    if (fill) fill.style.height = `${(progress * 100).toFixed(1)}%`;
+    if (fill) {
+        const fillPercent = stageToProgress(activeStage) * 100;
+        fill.style.height = `${fillPercent.toFixed(1)}%`;
+    }
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < STAGE_COUNT; i++) {
         const dot = document.getElementById(`dot-${i}`);
         if (!dot) continue;
         dot.classList.toggle('dot-active', i === activeStage);
     }
 }
 
-function updateHeaderLabel(stageIdx) {
-    const label = document.getElementById('arsenal-category-label');
-    if (label) label.textContent = LABELS[stageIdx];
+function updateScrollHint(stageIdx, direction, isVisible) {
+    const hint = document.getElementById('arsenal-scroll-hint');
+    if (!hint) return;
+
+    hint.classList.toggle('is-hidden', !isVisible);
+    if (!isVisible) return;
+
+    const finalStage = STAGE_COUNT - 1;
+    let dir = 'down';
+    if (stageIdx === 0) dir = 'down';
+    else if (stageIdx === finalStage) dir = 'up';
+    else dir = direction < 0 ? 'up' : 'down';
+
+    hint.dataset.direction = dir;
+    hint.classList.toggle('hint-down', dir === 'down');
+    hint.classList.toggle('hint-up', dir === 'up');
+
+    const arrow = hint.querySelector('[data-hint-arrow]');
+    if (arrow) arrow.textContent = dir === 'up' ? '↑' : '↓';
 }
 
-function onScrollTick() {
-    const isMobile = isMobileViewport();
-    if (isMobile !== lastIsMobileViewport) {
-        ARSENAL_DATA.forEach((cat, idx) => {
-            if (stageAnimated[idx]) {
-                animateChipsOut(cat);
-                stageAnimated[idx] = false;
-            }
-        });
-        lastProgress = -1;
-        lastIsMobileViewport = isMobile;
+function scrollToStageAnchor(stageIdx) {
+    const metrics = getArsenalMetrics();
+    if (!metrics || metrics.sectionScrollRoom <= 0) return;
+
+    const targetProgress = stageToProgress(stageIdx);
+    const targetTop = window.scrollY + metrics.rect.top + (metrics.sectionScrollRoom * targetProgress);
+    setProgrammaticScrollActive();
+    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+}
+
+function isBoundaryReleaseDirection(direction) {
+    if (direction < 0 && currentStage <= 0) return true;
+    if (direction > 0 && currentStage >= STAGE_COUNT - 1) return true;
+    return false;
+}
+
+function momentumStepsFromDelta(delta, threshold) {
+    return Math.abs(delta) >= threshold ? 2 : 1;
+}
+
+function resetStageAnimations() {
+    ARSENAL_DATA.forEach((cat, idx) => {
+        if (!stageAnimated[idx]) return;
+        animateChipsOut(cat);
+        stageAnimated[idx] = false;
+    });
+}
+
+function applyActiveStage(stageIdx, opts = {}) {
+    const options = {
+        direction: lastGestureDirection,
+        shouldLock: false,
+        shouldScrollToAnchor: false,
+        force: false,
+        ...opts
+    };
+
+    const nextStage = clamp(stageIdx, 0, STAGE_COUNT - 1);
+    if (options.direction !== 0) {
+        lastGestureDirection = options.direction > 0 ? 1 : -1;
     }
 
-    const progress = getScrollProgress();
-    if (Math.abs(progress - lastProgress) < 0.001) return;
-    lastProgress = progress;
+    const stageChanged = nextStage !== currentStage;
+    if (!stageChanged && !options.force) {
+        updateProgressIndicator(nextStage);
+        updateScrollHint(nextStage, lastGestureDirection, isArsenalInControl());
+        return;
+    }
 
-    const active = getActiveStage(progress);
+    if (options.shouldLock) lockTransitions();
+    currentStage = nextStage;
 
-    setAccentColor(ACCENTS[active]);
-    updateHeaderLabel(active);
-    updateProgressIndicator(progress, active);
+    setAccentColor(ACCENTS[nextStage]);
+    updateProgressIndicator(nextStage);
 
     ARSENAL_DATA.forEach((cat, idx) => {
         const stageEl = document.getElementById(`stage-${cat.id}`);
-        if (!stageEl) return;
-
-        const opacity = isMobile
-            ? (idx === active ? 1 : 0)
-            : getStageOpacity(idx, progress);
-
-        stageEl.classList.toggle('as-visible', opacity > 0.05);
-        stageEl.style.opacity = opacity;
-
-        if (idx === active && !stageAnimated[idx] && opacity > 0.3) {
-            stageAnimated[idx] = true;
-            animateChipsIn(cat, () => {
-                if (idx === 0) startConnectors();
-            });
+        const isActive = idx === nextStage;
+        if (stageEl) {
+            stageEl.classList.toggle('as-visible', isActive);
+            stageEl.style.opacity = isActive ? '1' : '0';
         }
 
-        if (opacity < 0.02 && stageAnimated[idx]) {
-            stageAnimated[idx] = false;
+        if (!isActive && stageAnimated[idx]) {
             animateChipsOut(cat);
-            if (idx === 0) stopConnectors();
+            stageAnimated[idx] = false;
         }
     });
 
-    currentStage = active;
+    if (!stageAnimated[nextStage]) {
+        stageAnimated[nextStage] = true;
+        animateChipsIn(ARSENAL_DATA[nextStage], () => {
+            if (nextStage === 0) startConnectors();
+        });
+    }
+
+    if (options.shouldScrollToAnchor) {
+        scrollToStageAnchor(nextStage);
+    }
+
+    updateScrollHint(nextStage, lastGestureDirection, isArsenalInControl());
+}
+
+function navigateByDelta(delta, source) {
+    if (delta === 0) return false;
+    if (currentStage < 0) {
+        currentStage = progressToStage(getScrollProgress());
+    }
+
+    const direction = delta > 0 ? 1 : -1;
+    if (isBoundaryReleaseDirection(direction)) return false;
+
+    const threshold = source === 'touch'
+        ? TOUCH_MOMENTUM_THRESHOLD
+        : WHEEL_MOMENTUM_THRESHOLD;
+    const steps = momentumStepsFromDelta(delta, threshold);
+    const targetStage = clamp(currentStage + (direction * steps), 0, STAGE_COUNT - 1);
+    if (targetStage === currentStage) return false;
+
+    applyActiveStage(targetStage, {
+        direction,
+        shouldLock: true,
+        shouldScrollToAnchor: true
+    });
+    return true;
+}
+
+function onArsenalWheel(e) {
+    if (!isArsenalInControl()) {
+        if (currentStage >= 0) updateScrollHint(currentStage, lastGestureDirection, false);
+        return;
+    }
+
+    if (Math.abs(e.deltaY) < 8) return;
+    const direction = e.deltaY > 0 ? 1 : -1;
+
+    if (isTransitionLocked()) {
+        if (isBoundaryReleaseDirection(direction)) return;
+        e.preventDefault();
+        return;
+    }
+
+    const consumed = navigateByDelta(e.deltaY, 'wheel');
+    if (consumed) e.preventDefault();
+}
+
+function onArsenalTouchStart(e) {
+    if (!e.touches || e.touches.length !== 1) return;
+    touchStartY = e.touches[0].clientY;
+    touchCaptured = false;
+}
+
+function onArsenalTouchMove(e) {
+    if (touchStartY === null || !e.touches || e.touches.length !== 1) return;
+    if (!isArsenalInControl()) return;
+
+    const currentY = e.touches[0].clientY;
+    const delta = touchStartY - currentY;
+    if (!touchCaptured && Math.abs(delta) < TOUCH_CAPTURE_THRESHOLD) return;
+
+    const direction = delta > 0 ? 1 : -1;
+    if (isTransitionLocked()) {
+        if (isBoundaryReleaseDirection(direction)) return;
+        e.preventDefault();
+        touchCaptured = true;
+        return;
+    }
+
+    if (!touchCaptured) {
+        const consumed = navigateByDelta(delta, 'touch');
+        if (consumed) {
+            e.preventDefault();
+            touchCaptured = true;
+        }
+        return;
+    }
+
+    e.preventDefault();
+}
+
+function onArsenalTouchEnd() {
+    touchStartY = null;
+    touchCaptured = false;
+}
+
+function onScrollTick(force = false) {
+    const isMobile = isMobileViewport();
+    if (isMobile !== lastIsMobileViewport) {
+        resetStageAnimations();
+        currentStage = -1;
+        lastIsMobileViewport = isMobile;
+    }
+
+    const scrollDelta = window.scrollY - lastScrollY;
+    if (Math.abs(scrollDelta) > 0.5) {
+        lastGestureDirection = scrollDelta > 0 ? 1 : -1;
+    }
+    lastScrollY = window.scrollY;
+
+    const stageFromScroll = progressToStage(getScrollProgress());
+    if (force || currentStage < 0) {
+        applyActiveStage(stageFromScroll, { force: true });
+        return;
+    }
+
+    if (!isTransitionLocked() && !isProgrammaticScrollActive() && stageFromScroll !== currentStage) {
+        applyActiveStage(stageFromScroll, { direction: lastGestureDirection });
+        return;
+    }
+
+    updateProgressIndicator(currentStage);
+    updateScrollHint(currentStage, lastGestureDirection, isArsenalInControl());
 }
 
 // ── Init ──────────────────────────────────────
@@ -1447,7 +1632,11 @@ function initArsenal() {
     initNLPCanvas();
     initNLPMobileCycle();
 
-    window.addEventListener('scroll', onScrollTick, { passive: true });
+    window.addEventListener('scroll', () => onScrollTick(false), { passive: true });
+    window.addEventListener('wheel', onArsenalWheel, { passive: false });
+    window.addEventListener('touchstart', onArsenalTouchStart, { passive: true });
+    window.addEventListener('touchmove', onArsenalTouchMove, { passive: false });
+    window.addEventListener('touchend', onArsenalTouchEnd, { passive: true });
     window.addEventListener('resize', () => {
         sizeConnectorCanvas();
         buildConnectorNodes();
@@ -1456,16 +1645,16 @@ function initArsenal() {
         if (nlpMobileCycleRunning && isMobileViewport()) {
             runNLPMobileCycleStep();
         }
-        onScrollTick();
+        onScrollTick(true);
     });
 
-    onScrollTick();
+    onScrollTick(true);
 
     const section = document.getElementById('arsenal');
     if (section) {
         const rect = section.getBoundingClientRect();
         if (rect.top <= 0) {
-            onScrollTick();
+            onScrollTick(true);
         }
     }
 }
