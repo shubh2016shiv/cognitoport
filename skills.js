@@ -1338,6 +1338,7 @@ const STAGE_TRANSITION_LOCK_MS = 420;
 const WHEEL_MOMENTUM_THRESHOLD = 140;
 const TOUCH_CAPTURE_THRESHOLD = 24;
 const TOUCH_MOMENTUM_THRESHOLD = 110;
+const ARSENAL_ACTIVATION_TOP_THRESHOLD = 120;
 
 function isTransitionLocked() {
     return performance.now() < transitionLockUntil;
@@ -1370,6 +1371,17 @@ function getArsenalMetrics() {
 function isArsenalInControl(metrics = getArsenalMetrics()) {
     if (!metrics || metrics.sectionScrollRoom <= 0) return false;
     return metrics.rect.top <= 0 && metrics.rect.bottom >= window.innerHeight;
+}
+
+function isArsenalGestureActive(metrics = getArsenalMetrics()) {
+    if (!metrics || metrics.sectionScrollRoom <= 0) return false;
+    return metrics.rect.top <= ARSENAL_ACTIVATION_TOP_THRESHOLD
+        && metrics.rect.bottom >= (window.innerHeight * 0.6);
+}
+
+function isArsenalHintVisible(metrics = getArsenalMetrics()) {
+    if (!metrics || currentStage < 0) return false;
+    return metrics.rect.top < window.innerHeight && metrics.rect.bottom > 0;
 }
 
 function getScrollProgress() {
@@ -1426,8 +1438,10 @@ function updateScrollHint(stageIdx, direction, isVisible) {
     hint.classList.toggle('hint-down', dir === 'down');
     hint.classList.toggle('hint-up', dir === 'up');
 
-    const arrow = hint.querySelector('[data-hint-arrow]');
-    if (arrow) arrow.textContent = dir === 'up' ? '↑' : '↓';
+    const arrows = hint.querySelectorAll('[data-hint-arrow]');
+    arrows.forEach((arrow) => {
+        arrow.textContent = dir === 'up' ? 'Ʌ' : 'V';
+    });
 }
 
 function scrollToStageAnchor(stageIdx) {
@@ -1475,7 +1489,7 @@ function applyActiveStage(stageIdx, opts = {}) {
     const stageChanged = nextStage !== currentStage;
     if (!stageChanged && !options.force) {
         updateProgressIndicator(nextStage);
-        updateScrollHint(nextStage, lastGestureDirection, isArsenalInControl());
+        updateScrollHint(nextStage, lastGestureDirection, isArsenalHintVisible());
         return;
     }
 
@@ -1510,7 +1524,7 @@ function applyActiveStage(stageIdx, opts = {}) {
         scrollToStageAnchor(nextStage);
     }
 
-    updateScrollHint(nextStage, lastGestureDirection, isArsenalInControl());
+    updateScrollHint(nextStage, lastGestureDirection, isArsenalHintVisible());
 }
 
 function navigateByDelta(delta, source) {
@@ -1538,7 +1552,7 @@ function navigateByDelta(delta, source) {
 }
 
 function onArsenalWheel(e) {
-    if (!isArsenalInControl()) {
+    if (!isArsenalGestureActive()) {
         if (currentStage >= 0) updateScrollHint(currentStage, lastGestureDirection, false);
         return;
     }
@@ -1564,7 +1578,7 @@ function onArsenalTouchStart(e) {
 
 function onArsenalTouchMove(e) {
     if (touchStartY === null || !e.touches || e.touches.length !== 1) return;
-    if (!isArsenalInControl()) return;
+    if (!isArsenalGestureActive()) return;
 
     const currentY = e.touches[0].clientY;
     const delta = touchStartY - currentY;
@@ -1621,7 +1635,7 @@ function onScrollTick(force = false) {
     }
 
     updateProgressIndicator(currentStage);
-    updateScrollHint(currentStage, lastGestureDirection, isArsenalInControl());
+    updateScrollHint(currentStage, lastGestureDirection, isArsenalHintVisible());
 }
 
 // ── Init ──────────────────────────────────────

@@ -113,7 +113,7 @@
         @media (prefers-reduced-motion: reduce) {
             .cli-chrome, #cli-output { animation: none; opacity: 1; }
             .cli-cursor { animation: none; opacity: 1; }
-            .arsenal-scroll-hint__arrow { animation: none !important; }
+            .arsenal-scroll-hint__glyph { animation: none !important; opacity: 0.9; }
         }
         /* Mobile tweaks */
         @media (max-width: 480px) {
@@ -284,42 +284,48 @@
             gap: 0.22rem;
             padding: 0.45rem 0.55rem;
             border-radius: 999px;
-            border: 1px solid rgba(0, 240, 255, 0.2);
+            border: 1px solid var(--arsenal-accent, #00F0FF);
             background: rgba(8, 22, 26, 0.28);
             backdrop-filter: blur(6px);
-            color: rgba(0, 240, 255, 0.75);
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.08);
+            color: var(--arsenal-accent, #00F0FF);
+            box-shadow: 0 0 12px var(--arsenal-accent, #00F0FF);
             opacity: 0.68;
-            transition: opacity 0.24s ease, border-color 0.24s ease, color 0.24s ease;
+            transition: opacity 0.24s ease, border-color 0.24s ease, color 0.24s ease, box-shadow 0.24s ease;
         }
         .arsenal-scroll-hint.is-hidden {
             opacity: 0;
         }
-        .arsenal-scroll-hint__label {
+        .arsenal-scroll-hint__glyph {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.58rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
             line-height: 1;
+            opacity: 0.28;
+            transform: translateY(0);
+            text-shadow: 0 0 10px currentColor;
         }
-        .arsenal-scroll-hint__arrow {
-            font-size: 0.9rem;
-            line-height: 1;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+        .arsenal-scroll-hint.hint-down .arsenal-scroll-hint__glyph {
+            animation: arsenal-hint-wave-down 1.05s ease-in-out infinite;
         }
-        .arsenal-scroll-hint.hint-down .arsenal-scroll-hint__arrow {
-            animation: arsenal-hint-down 1.2s ease-in-out infinite;
+        .arsenal-scroll-hint.hint-up .arsenal-scroll-hint__glyph {
+            animation: arsenal-hint-wave-up 1.05s ease-in-out infinite;
         }
-        .arsenal-scroll-hint.hint-up .arsenal-scroll-hint__arrow {
-            animation: arsenal-hint-up 1.2s ease-in-out infinite;
+        .arsenal-scroll-hint.hint-down .arsenal-scroll-hint__glyph.delay-1 { animation-delay: 0s; }
+        .arsenal-scroll-hint.hint-down .arsenal-scroll-hint__glyph.delay-2 { animation-delay: 0.18s; }
+        .arsenal-scroll-hint.hint-down .arsenal-scroll-hint__glyph.delay-3 { animation-delay: 0.36s; }
+        .arsenal-scroll-hint.hint-up .arsenal-scroll-hint__glyph.delay-1 { animation-delay: 0.36s; }
+        .arsenal-scroll-hint.hint-up .arsenal-scroll-hint__glyph.delay-2 { animation-delay: 0.18s; }
+        .arsenal-scroll-hint.hint-up .arsenal-scroll-hint__glyph.delay-3 { animation-delay: 0s; }
+        @keyframes arsenal-hint-wave-down {
+            0%, 100% { opacity: 0.26; transform: translateY(0); }
+            22% { opacity: 1; transform: translateY(1px); }
+            55% { opacity: 0.38; transform: translateY(0.2px); }
         }
-        @keyframes arsenal-hint-down {
-            0%, 100% { transform: translateY(-1px); opacity: 0.65; }
-            45% { transform: translateY(3px); opacity: 1; }
-        }
-        @keyframes arsenal-hint-up {
-            0%, 100% { transform: translateY(1px); opacity: 0.65; }
-            45% { transform: translateY(-3px); opacity: 1; }
+        @keyframes arsenal-hint-wave-up {
+            0%, 100% { opacity: 0.26; transform: translateY(0); }
+            22% { opacity: 1; transform: translateY(-1px); }
+            55% { opacity: 0.38; transform: translateY(-0.2px); }
         }
 
 
@@ -742,11 +748,8 @@
                 gap: 0.15rem;
                 opacity: 0.62;
             }
-            .arsenal-scroll-hint__label {
-                font-size: 0.52rem;
-            }
-            .arsenal-scroll-hint__arrow {
-                font-size: 0.8rem;
+            .arsenal-scroll-hint__glyph {
+                font-size: 0.74rem;
             }
             .stage-label {
                 font-size: clamp(1.85rem, 9vw, 2.4rem);
@@ -1040,8 +1043,9 @@
                     </div>
 
                     <div id="arsenal-scroll-hint" class="arsenal-scroll-hint hint-down is-hidden" aria-hidden="true" data-direction="down">
-                        <span class="arsenal-scroll-hint__label">Scroll</span>
-                        <span class="arsenal-scroll-hint__arrow" data-hint-arrow>↓</span>
+                        <span class="arsenal-scroll-hint__glyph delay-1" data-hint-arrow>V</span>
+                        <span class="arsenal-scroll-hint__glyph delay-2" data-hint-arrow>V</span>
+                        <span class="arsenal-scroll-hint__glyph delay-3" data-hint-arrow>V</span>
                     </div>
 
                 </div>
