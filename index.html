@@ -740,13 +740,15 @@
                 overflow: hidden;
             }
             .arsenal-scroll-hint {
-                right: 0.1rem;
-                top: auto;
-                bottom: 0.65rem;
-                transform: none;
+                position: fixed;
+                right: 0.4rem;
+                top: 50%;
+                bottom: auto;
+                transform: translateY(-50%);
                 padding: 0.36rem 0.46rem;
                 gap: 0.15rem;
                 opacity: 0.62;
+                z-index: 58;
             }
             .arsenal-scroll-hint__glyph {
                 font-size: 0.74rem;
