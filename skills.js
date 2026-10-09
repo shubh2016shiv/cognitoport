@@ -1551,12 +1551,21 @@ function navigateByDelta(delta, source) {
     return true;
 }
 
+function canScrollGenAIExplorer(target, delta) {
+    const explorer = target instanceof Element ? target.closest('.genai-explorer') : null;
+    if (!explorer || currentStage !== 0) return false;
+    const remaining = explorer.scrollHeight - explorer.clientHeight;
+    if (remaining < 2) return false;
+    return delta > 0 ? explorer.scrollTop < remaining - 1 : explorer.scrollTop > 1;
+}
+
 function onArsenalWheel(e) {
     if (!isArsenalGestureActive()) {
         if (currentStage >= 0) updateScrollHint(currentStage, lastGestureDirection, false);
         return;
     }
 
+    if (canScrollGenAIExplorer(e.target, e.deltaY)) return;
     if (Math.abs(e.deltaY) < 8) return;
     const direction = e.deltaY > 0 ? 1 : -1;
 
@@ -1582,6 +1591,7 @@ function onArsenalTouchMove(e) {
 
     const currentY = e.touches[0].clientY;
     const delta = touchStartY - currentY;
+    if (canScrollGenAIExplorer(e.target, delta)) return;
     if (!touchCaptured && Math.abs(delta) < TOUCH_CAPTURE_THRESHOLD) return;
 
     const direction = delta > 0 ? 1 : -1;

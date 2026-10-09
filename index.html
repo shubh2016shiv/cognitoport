@@ -1075,6 +1075,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="genai_explorer.css">
 </head>
 
 <body class="relative">
@@ -1332,9 +1333,18 @@
 
                     <!-- Stage 1: GenAI -->
                     <div class="arsenal-stage as-visible" id="stage-genai">
-                        <canvas id="genai-connector-canvas"></canvas>
-                        <p class="stage-label" id="arsenal-category-label">Generative AI</p>
-                        <div class="chip-grid" id="genai-chip-grid"></div>
+                        <div class="genai-explorer" aria-label="Generative AI technical arsenal">
+                            <div class="genai-explorer__header">
+                                <div>
+                                    <h3 class="genai-explorer__heading">Generative / Agentic AI Skills</h3>
+                                </div>
+                                <span class="genai-explorer__count" id="genai-explorer-count" aria-live="polite">1 / 5</span>
+                            </div>
+                            <div class="genai-explorer__body">
+                                <div class="genai-explorer__nav" id="genai-explorer-tabs" role="tablist" aria-label="Generative AI skill categories"></div>
+                                <div class="genai-explorer__detail" id="genai-explorer-panel" role="tabpanel" tabindex="0"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Stage 2: Machine Learning -->
@@ -1444,6 +1454,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="about_me.js"></script>
     <script src="skills.js"></script>
+    <script src="genai_explorer.js"></script>
     <script src="career_journey.js"></script>
     <script src="contact.js"></script>
 

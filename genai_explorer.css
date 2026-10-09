@@ -1,0 +1,300 @@
+#stage-genai {
+    padding: 1.5rem 1.8rem;
+}
+
+.genai-explorer {
+    width: min(100%, 1180px);
+    max-height: calc(100vh - 4rem);
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(13, 20, 23, 0.98), rgba(5, 8, 10, 0.98));
+    box-shadow: 0 24px 75px rgba(0, 0, 0, 0.34), inset 0 1px rgba(255, 255, 255, 0.04);
+    padding: clamp(1.5rem, 2.4vw, 2.3rem);
+    scrollbar-color: rgba(0, 240, 255, 0.35) transparent;
+}
+
+.genai-explorer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.7rem;
+}
+
+.genai-explorer__section-label,
+.genai-explorer__kicker {
+    color: #00e4f5;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.genai-explorer__heading {
+    color: #00e4f5;
+    font-size: clamp(1.7rem, 2.25vw, 2.15rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.genai-explorer__count {
+    flex: none;
+    padding: 0.36rem 0.64rem;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 999px;
+    background: rgba(0, 240, 255, 0.07);
+    color: #e5fcff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+}
+
+.genai-explorer__body {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.84fr) minmax(0, 1.16fr);
+    gap: clamp(1.1rem, 2.5vw, 2.5rem);
+}
+
+.genai-explorer__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.genai-explorer__tab {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    min-height: 62px;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 11px;
+    background: rgba(0, 0, 0, 0.18);
+    color: #d6dadd;
+    text-align: left;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.genai-explorer__tab:hover {
+    border-color: rgba(0, 240, 255, 0.42);
+    background: rgba(0, 240, 255, 0.055);
+    color: #fff;
+    transform: translateX(2px);
+}
+
+.genai-explorer__tab[aria-selected="true"] {
+    border-color: rgba(0, 240, 255, 0.66);
+    background: linear-gradient(90deg, rgba(0, 240, 255, 0.13), rgba(0, 240, 255, 0.025));
+    color: #fff;
+    box-shadow: inset 3px 0 #00f0ff;
+}
+
+.genai-explorer__tab:focus-visible,
+.genai-explorer__project:focus-visible {
+    outline: 2px solid #00f0ff;
+    outline-offset: 3px;
+}
+
+.genai-explorer__tab-icon,
+.genai-explorer__tab-arrow {
+    display: inline-flex;
+    flex: none;
+    color: #00d6e7;
+}
+
+.genai-explorer__tab-icon svg { width: 22px; height: 22px; }
+.genai-explorer__tab-arrow { margin-left: auto; opacity: 0.48; }
+.genai-explorer__tab-arrow svg { width: 15px; height: 15px; }
+.genai-explorer__tab[aria-selected="true"] .genai-explorer__tab-arrow { opacity: 1; }
+
+.genai-explorer__detail {
+    min-width: 0;
+    padding: 0.45rem 0.1rem 0.1rem 0;
+    color: #fff;
+}
+
+.genai-explorer__detail:focus-visible { outline: 2px solid #00f0ff; outline-offset: 3px; }
+
+.genai-explorer__title {
+    margin: 0.35rem 0 0.45rem;
+    font-size: clamp(1.45rem, 2.2vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+}
+
+.genai-explorer__description {
+    max-width: 54ch;
+    color: rgba(235, 244, 247, 0.74);
+    font-size: 0.98rem;
+    line-height: 1.6;
+}
+
+.genai-explorer__divider {
+    height: 1px;
+    margin: 1.1rem 0;
+    background: rgba(255, 255, 255, 0.11);
+}
+
+.genai-explorer__section-label {
+    display: block;
+    margin-bottom: 0.7rem;
+    color: #dceef0;
+    letter-spacing: 0.04em;
+}
+
+.genai-explorer__skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.genai-explorer__skill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.56rem;
+    min-height: 49px;
+    padding: 0.44rem 0.78rem 0.44rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.065);
+    color: #f1f6f7;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.genai-explorer__logo {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: #152428;
+}
+
+.genai-explorer__logo img,
+.genai-explorer__logo svg {
+    display: block;
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+}
+
+.genai-explorer__logo--azure { background: #10253a; }
+.genai-explorer__logo--langchain { background: #e2efea; }
+.genai-explorer__logo--langgraph { background: #e2efea; }
+.genai-explorer__logo--milvus { background: #f4f7ff; }
+.genai-explorer__logo--chroma { background: #f9f1e9; }
+.genai-explorer__logo--pydantic { background: #291923; }
+
+.genai-explorer__logo-pair {
+    position: relative;
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+.genai-explorer__logo-pair img:first-child {
+    position: absolute;
+    left: 0;
+    top: 1px;
+    width: 17px;
+    height: 17px;
+}
+
+.genai-explorer__logo-pair img:last-child {
+    position: absolute;
+    right: -2px;
+    bottom: -1px;
+    width: 14px;
+    height: 14px;
+    padding: 2px;
+    border-radius: 50%;
+    background: #152428;
+}
+
+.genai-explorer__capabilities {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.genai-explorer__capabilities li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    color: #d7e0e2;
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+
+.genai-explorer__capabilities svg {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    margin-top: 1px;
+    color: #40dfae;
+}
+
+.genai-explorer__project-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #96a6aa;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.genai-explorer__project {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #fff;
+    font-size: 0.91rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-decoration: none;
+}
+
+.genai-explorer__project:hover { color: #00f0ff; }
+.genai-explorer__project svg { width: 14px; height: 14px; }
+
+@media (max-width: 1100px) {
+    .genai-explorer__body { grid-template-columns: minmax(190px, 0.85fr) minmax(0, 1.15fr); gap: 1.2rem; }
+    .genai-explorer__capabilities { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+    #stage-genai { padding: 0 0.1rem 0 0; overflow: auto; }
+    .genai-explorer { max-height: 100%; border-radius: 14px; padding: 1rem; }
+    .genai-explorer__header { margin-bottom: 0.9rem; }
+    .genai-explorer__heading { font-size: 1.42rem; }
+    .genai-explorer__body { display: block; }
+    .genai-explorer__nav { flex-direction: row; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.45rem; scrollbar-width: thin; }
+    .genai-explorer__tab { width: auto; min-height: 43px; flex: none; padding: 0.5rem 0.65rem; font-size: 0.71rem; white-space: nowrap; }
+    .genai-explorer__tab-icon svg { width: 17px; height: 17px; }
+    .genai-explorer__tab-arrow { display: none; }
+    .genai-explorer__detail { padding: 0.7rem 0.1rem 0; }
+    .genai-explorer__title { font-size: 1.32rem; }
+    .genai-explorer__description { font-size: 0.78rem; }
+    .genai-explorer__divider { margin: 0.8rem 0; }
+    .genai-explorer__skill { font-size: 0.82rem; }
+    .genai-explorer__capabilities { gap: 0.4rem; }
+    .genai-explorer__capabilities li { font-size: 0.73rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .genai-explorer__tab { transition: none; }
+}
