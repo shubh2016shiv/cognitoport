@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive walkthrough of a retrieval-augmented pipeline that turns clinical pharmacotherapy recommendations into drugs a patient's health plan actually covers."
+    />
+    <title>Formulary Intelligence — Architecture Explorer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="example.css" />
+
+    <!-- React Flow (full HLD canvas): loaded from a CDN as ES modules via an
+         import map — no npm, no bundler, no build step. The rest of the site
+         stays plain HTML/CSS/JS. esm.sh resolves react/react-dom as shared
+         singletons so there is one copy of each across every entry. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@18.3.1",
+          "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+          "@xyflow/react": "https://esm.sh/@xyflow/react@12?deps=react@18.3.1,react-dom@18.3.1"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12/dist/style.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#overview">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-text">
+          <b>Formulary Intelligence — coverage-aware pharmacotherapy recommendation</b>
+        </span>
+      </a>
+
+      <nav class="topbar-center" aria-label="Architecture navigation">
+        <button class="btn btn-flow-nav" id="flowBtn" type="button">
+          <span aria-hidden="true">↗</span> Full flow
+        </button>
+      </nav>
+
+      <nav class="topbar-actions" aria-label="Presentation controls">
+        <button class="btn btn-present" id="presentBtn" type="button">Present</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="overview">
+        <!-- Zone 1 — the headline: the business problem, then the system that answers it -->
+        <div class="hero-zone1">
+          <div class="hero-zone1-text">
+            <p class="eyebrow">Clinical decision support · retrieval-augmented pipeline · schema-constrained reasoning</p>
+            <h1 id="heroTitle" tabindex="-1">
+              <em>Healthcare Business Problem</em>
+              <span>— An AI Agent Workflow called Formulary Intelligence that performs drug recommendations for patients' pharmacological actions, recommending only drugs covered by their insurance plan</span>
+            </h1>
+          </div>
+        </div>
+
+        <hr class="hero-rule" />
+
+        <!-- Zone 2 — editorial split: paragraph left, stat annotations right -->
+        <div class="hero-zone2">
+          <div class="hero-copy">
+            <p class="lede">
+              Whenever a patient's clinical record includes a pharmacological action like "start an
+              SGLT2 inhibitor to manage blood sugar," Formulary Intelligence generates the drug
+              recommendation for it using LLM and RAG, limited to drugs covered by the patient's
+              insurance plan. It does this by checking what the plan covers, identifying the drug
+              class for that specific pharmacological action using GPT-4o, and searching that class
+              within the plan's covered drug list using vector semantic search. It then uses an LLM
+              to select the final list of relevant drugs that are both covered and in the same
+              class, and the clinician prescribes from that list.
+            </p>
+            <button class="btn btn-link hero-example-link" id="exampleBtn" type="button">
+              Read a worked example — one patient, six steps, one prescription that clears ↗
+            </button>
+          </div>
+
+          <aside class="hero-stats" aria-labelledby="evalTitle">
+            <p class="eval-eyebrow" id="evalTitle">How correctness is measured</p>
+
+            <div class="eval-grid">
+              <!-- The two independent metrics. Each has its own ground truth
+                   and its own failure mode; neither substitutes for the other. -->
+              <article class="eval-card">
+                <span class="eval-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.2" />
+                    <path d="M12 1.6v3M12 19.4v3M1.6 12h3M19.4 12h3" />
+                  </svg>
+                </span>
+                <p class="eval-name">Drug class accuracy</p>
+                <p class="stat-number eval-figure" data-count="90"><span class="stat-count">0</span>%</p>
+                <div class="stat-bar-track eval-track"><div class="stat-bar eval-bar-a" style="width:90%"></div></div>
+                <p class="eval-desc">Did the model pick the right category of drug for this patient's need? Checked against the same fixed set of test cases every time something changes.</p>
+                <p class="eval-truth">Answers come from a pharmacist, checked once and reused</p>
+              </article>
+
+              <article class="eval-card">
+                <span class="eval-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.4 15.4 5.1 5.1" /><path d="M7.6 9.4h5.8M7.6 12.2h3.4" />
+                  </svg>
+                </span>
+                <p class="eval-name">Retrieval recall@k</p>
+                <p class="stat-number eval-figure" data-count="85"><span class="stat-count">0</span>%</p>
+                <div class="stat-bar-track eval-track"><div class="stat-bar eval-bar-b" style="width:85%"></div></div>
+                <p class="eval-desc">Once a drug class is picked, does the search actually turn up the right drug from it? If it's missing here, nothing later can tell. The next step just picks the best of what it was given.</p>
+                <p class="eval-truth">Checked directly against the plan's own drug list. No model needed.</p>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <hr class="section-rule" />
+
+      <section class="map" id="map" aria-labelledby="mapTitle">
+        <div class="section-head">
+          <div>
+            <p class="section-em">Low Level Design</p>
+            <h2 id="mapTitle">Resolve → Classify → Retrieve → Select</h2>
+          </div>
+          <p class="section-hint">Click any stage to zoom in</p>
+        </div>
+
+        <div class="rail" id="rail" role="list" aria-label="Architecture stages"></div>
+
+        <div class="map-nav">
+          <button class="chip" id="mapPrev" type="button" aria-label="Open previous stage">← Previous</button>
+          <button class="chip" id="mapNext" type="button" aria-label="Open next stage">Next →</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pagefoot">
+      <span class="keys">
+        <kbd>←</kbd><kbd>→</kbd> navigate · <kbd>Enter</kbd> zoom in · <kbd>Esc</kbd> back one level
+      </span>
+    </footer>
+
+    <!-- Consolidated end-to-end HLD -->
+    <div class="flowview" id="flowview" role="dialog" aria-modal="true" aria-labelledby="flowTitle" aria-hidden="true">
+      <header class="flow-head">
+        <div>
+          <p class="eyebrow">Consolidated end-to-end HLD</p>
+          <h2 id="flowTitle">The whole pipeline, one explorable canvas.</h2>
+        </div>
+        <div class="flow-head-actions">
+          <button class="icon-x" id="flowClose" type="button" aria-label="Close diagram">×</button>
+        </div>
+      </header>
+      <div class="full-flow-shell" id="fullFlowShell">
+        <div class="full-flow-canvas" id="fullFlowReactFlow" aria-live="polite"></div>
+        <aside class="full-flow-bubble" id="fullFlowBubble" aria-live="polite" hidden></aside>
+      </div>
+
+      <details class="flow-legend">
+        <summary class="flow-legend-toggle">
+          <span class="flow-legend-closed">Legend <small>(Click to Expand)</small></span>
+          <span class="flow-legend-open">Legend <small>(Click to Contract)</small></span>
+          <i aria-hidden="true"></i>
+        </summary>
+        <div class="flow-legend-content" aria-label="Diagram legend">
+          <p class="flow-legend-title">Phases</p>
+          <ul class="flow-legend-list">
+            <li><i class="fl-swatch fl-swatch-inputs" aria-hidden="true"></i>Inputs And Sources</li>
+            <li><i class="fl-swatch fl-swatch-knowledge" aria-hidden="true"></i>Coverage Resolution</li>
+            <li><i class="fl-swatch fl-swatch-context" aria-hidden="true"></i>Action Extraction</li>
+            <li><i class="fl-swatch fl-swatch-plan" aria-hidden="true"></i>Drug Class Identification</li>
+            <li><i class="fl-swatch fl-swatch-execute" aria-hidden="true"></i>Formulary Retrieval</li>
+            <li><i class="fl-swatch fl-swatch-critique" aria-hidden="true"></i>Relevance Selection</li>
+            <li><i class="fl-swatch fl-swatch-post" aria-hidden="true"></i>Synthesis And Governance</li>
+          </ul>
+        </div>
+      </details>
+
+      <footer class="flow-foot">
+        <p>Pause over a component for detail · Keyboard focus opens immediately · Scroll or use a trackpad to pan in any direction · Drag empty space to move.</p>
+      </footer>
+    </div>
+
+    <!-- Worked example — one patient, six steps, told as prose, not on the landing page -->
+    <div class="flowview" id="exampleview" role="dialog" aria-modal="true" aria-labelledby="exampleTitle" aria-hidden="true">
+      <header class="flow-head">
+        <div>
+          <p class="eyebrow">Worked example · Type 2 diabetes · “start metformin to manage blood sugar”</p>
+          <h2 id="exampleTitle">One action in the record, one prescription that clears.</h2>
+        </div>
+        <div class="flow-head-actions">
+          <button class="icon-x" id="exampleClose" type="button" aria-label="Close worked example">×</button>
+        </div>
+      </header>
+
+      <div class="writeup-shell" id="writeupShell">
+        <article class="writeup">
+          <p class="writeup-lede">
+            Without a coverage check, the clinician prescribes blind. The drug may be non-preferred,
+            may need prior authorisation, or may not be on the plan at all — and nobody finds out
+            until the claim is rejected at the pharmacy counter, days later, with the patient
+            standing there waiting for medication they were told to start.
+          </p>
+
+          <p class="writeup-scenario">
+            Here is how it works for a patient with Type 2 diabetes whose clinical record includes
+            the action “start metformin to manage blood sugar.”
+          </p>
+
+          <ol class="writeup-steps">
+            <li>
+              <b>Check coverage.</b> The system looks up the patient's insurance plan and finds their
+              formulary, the official list of drugs that plan covers.
+            </li>
+            <li>
+              <b>Extract drug actions.</b> It reads the clinical record and keeps only the
+              medication-related actions. Here, that is “start metformin to manage blood sugar.”
+              Referrals, monitoring plans and lifestyle counselling stay in the record, but never
+              enter this pipeline.
+            </li>
+            <li>
+              <b>Identify drug class.</b> An AI call understands that metformin belongs to the
+              Biguanides drug class. This call sees no formulary data at all — it is asked only what
+              clinical knowledge can answer, never what a particular plan happens to cover.
+            </li>
+            <li>
+              <b>Retrieve covered drugs.</b> It searches the patient's plan for covered drugs in the
+              Biguanides class and finds metformin immediate-release (500 mg, 850 mg and 1000 mg
+              tablets) and metformin extended-release (500 mg, 750 mg and 1000 mg tablets). That is
+              the whole list, because metformin is the only biguanide available for prescription
+              today. Both are preferred, first-tier generics on this plan, with no prior
+              authorisation and no step therapy required. The same retrieval works for any drug
+              class. For SGLT2 inhibitors the list might show Jardiance, Farxiga, Invokana and
+              Steglatro. For GLP-1 receptor agonists it might show Ozempic, Trulicity, Victoza and
+              Mounjaro. For statins it might show atorvastatin, rosuvastatin, simvastatin and
+              pravastatin.
+            </li>
+            <li>
+              <b>Select relevant drugs.</b> A second AI call picks the relevant ones from only that
+              retrieved list. Both metformin forms come back as relevant. Because the model is handed
+              that list and a schema that accepts entries from it, it has no way to name a drug this
+              plan does not cover.
+            </li>
+            <li>
+              <b>Clinician prescribes.</b> The doctor now sees the recommended drugs, metformin
+              extended-release and metformin immediate-release, with their available strengths, and
+              prescribes from this list, confident that the insurance will cover whichever one they
+              choose.
+            </li>
+          </ol>
+
+          <p class="writeup-outcome">
+            In this example, the clinician writes the actual prescription for <b>metformin
+            extended-release 500 mg, one tablet once daily with the evening meal</b>. Because it came
+            from the recommended, coverage-aware list, the prescription goes through without a
+            coverage rejection.
+          </p>
+
+          <h3>Available dosages</h3>
+          <div class="writeup-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Form</th><th>Strengths</th><th>Typical dosing</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Metformin immediate-release (IR)</td>
+                  <td>500 mg, 850 mg, 1000 mg tablets</td>
+                  <td>1–3 times daily with meals, max 2,550 mg/day</td>
+                </tr>
+                <tr>
+                  <td>Metformin extended-release (ER)</td>
+                  <td>500 mg, 750 mg, 1000 mg tablets</td>
+                  <td>Once daily with the evening meal, max 2,000 mg/day</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Prior authorisation and step therapy</h3>
+          <p>
+            Generic metformin IR and ER are almost always preferred, first-tier drugs on US
+            formularies. They typically need <b>no prior authorisation and no step therapy</b>,
+            because metformin is the standard first-line treatment for Type 2 diabetes and costs very
+            little. Plans usually apply only simple quantity limits, such as a maximum number of
+            tablets per month.
+          </p>
+          <p>
+            The branded extended-release versions — Fortamet and Glumetza — are the ones that can be
+            non-preferred and require prior authorisation. That is exactly why coverage-aware
+            recommendation matters: it steers the clinician toward the covered generic first.
+          </p>
+
+          <p class="writeup-footnote">
+            Plan details, formulary contents and the patient in this example are synthetic. Dosing
+            figures are standard prescribing references, included to show the shape of the data a
+            clinician works from — not clinical guidance.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <!-- Zoom caption -->
+    <p class="caption" id="caption" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Level 2 / Level 3 panel -->
+    <div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" aria-hidden="true">
+      <header class="panel-head">
+        <nav class="crumbs" id="crumbs" aria-label="Zoom path"></nav>
+        <span class="panel-index" id="panelIndex"></span>
+        <button class="icon-x" id="panelClose" type="button" aria-label="Close detail view">×</button>
+      </header>
+
+      <div class="panel-body" id="panelBody">
+        <div class="panel-inner" id="panelInner"></div>
+      </div>
+
+      <footer class="panel-foot">
+        <button class="btn btn-quiet" id="panelPrev" type="button"><span aria-hidden="true">←</span> <b id="panelPrevLabel">Previous</b></button>
+        <button class="btn btn-tertiary" id="panelOut" type="button">Zoom out to the whole system <span aria-hidden="true">↙</span></button>
+        <button class="btn btn-solid" id="panelNext" type="button"><b id="panelNextLabel">Next</b> <span aria-hidden="true">→</span></button>
+      </footer>
+    </div>
+
+    <script src="content.js"></script>
+    <script src="app.js"></script>
+    <script src="example.js"></script>
+    <script type="module" src="full-flow.js"></script>
+    <script type="module" src="knowledge-flow.js"></script>
+    <script type="module" src="extraction-flow.js"></script>
+    <script type="module" src="classification-flow.js"></script>
+    <script type="module" src="retrieval-flow.js"></script>
+    <script type="module" src="selection-flow.js"></script>
+    <script type="module" src="synthesis-flow.js"></script>
+    <script type="module" src="governance-flow.js"></script>
+  </body>
+</html>
