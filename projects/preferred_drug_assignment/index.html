@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore the six-stage Preferred Drug Intelligence pipeline that identifies clinically preferred drugs within covered plan formularies.">
+  <title>Preferred Drug Intelligence — Architecture Explorer</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="reference.css">
+  <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12.11.5/dist/style.css">
+  <script type="importmap">
+    {"imports": {
+      "react": "https://esm.sh/react@19.2.6",
+      "react/jsx-runtime": "https://esm.sh/react@19.2.6/jsx-runtime",
+      "react-dom": "https://esm.sh/react-dom@19.2.6?deps=react@19.2.6",
+      "react-dom/client": "https://esm.sh/react-dom@19.2.6/client?deps=react@19.2.6",
+      "@xyflow/react": "https://esm.sh/@xyflow/react@12.11.5?deps=react@19.2.6,react-dom@19.2.6"
+    }}
+  </script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambientA" aria-hidden="true"></div><div class="ambient ambientB" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="Preferred Drug Intelligence home"><span class="brandMark" aria-hidden="true"><i></i><i></i><i></i></span><strong>Preferred Drug Intelligence</strong></a>
+    <nav class="primaryActions" aria-label="Architecture resources">
+      <button class="featureAction architectureNavButton" id="flowBtn" type="button"><span class="actionLong">Full Architecture HLD</span><span class="actionShort">Architecture</span><span class="actionIcon" aria-hidden="true">↗</span></button>
+      <a class="featureAction guideDownloadButton" href="preferred-drug-assignment-hld-guide.pdf" download aria-label="Download the full HLD guide as a PDF"><span class="actionLong">Download Full HLD Guide</span><span class="actionShort">PDF Guide</span><span class="actionIcon" aria-hidden="true">↓</span></a>
+    </nav>
+    <nav class="topActions" aria-label="Explorer actions"><button class="presentButton" id="presentBtn" type="button">Present</button></nav>
+  </header>
+
+  <main id="overview">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="heroZone"><h1 id="heroTitle"><em>Healthcare Business Problem</em><span>- AI Agent Workflow for filtering preferred prescription drugs from a 5,000+ drug database</span></h1></div>
+      <div class="heroRule"></div>
+      <div class="heroSplit">
+        <div class="objective">
+          <p class="objectiveLead">In many e-prescribing systems, when a doctor prescribes a drug, the system shows every drug covered by the patient’s insurance, sometimes leaving the doctor with dozens of options even though only a few may be clinically preferred.</p>
+          <p class="objectiveBody">The challenge is that these two sources use different names. A clinical recommendation might say <strong><span class="drugTag">“ADDERALL tablet 15 mg”</span></strong>, while the insurance data stores the same drug as <strong><span class="drugCode">“<span class="noBreak">Amphetamine-Dextroamphetamine</span>”</span></strong>.</p>
+          <p class="objectiveBody">This pipeline bridges that gap by understanding drug names, active ingredients, combination drugs, drug classes, and different strengths and forms, then identifying which of the patient’s covered drugs are also clinically recommended. It does this across seven insurance plans, with a hard safety rule: <strong>a drug can only be marked as preferred if it is already covered by the patient’s insurance.</strong> The result is a smaller, clinically relevant set of choices for the doctor without ever adding a drug that the insurance does not cover.</p>
+        </div>
+        <div class="impChart impFunnel hasEntered">
+          <header class="impChartHead"><h3>Cutting through the noise to the right prescription</h3><p>Every covered drug goes in; only the ones a clinical committee also recommends come out, each verified to still be covered.</p></header>
+          <div class="funnelStage" role="img" aria-label="A funnel: on average 13.9 insurance-covered drugs per prescription are filtered down to 7.5 clinically preferred options, 46 percent fewer choices.">
+            <div class="funnelViz">
+              <div class="funnelCaptions">
+                <div class="fcap fcapBefore"><span class="fcapTag">Covered by insurance</span><span class="fcapNum"><strong>14</strong></span><span class="fcapNote">every option, nothing sorted</span></div>
+                <div class="fcap fcapAfter"><span class="fcapTag">Clinically preferred <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.5 5 9l4.5-5.5"/></svg></span><span class="fcapNum"><strong>8</strong></span><span class="fcapNote">recommended, and still covered</span></div>
+              </div>
+              <svg class="funnelDiagram" viewBox="0 0 340 150" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <defs><linearGradient id="funnelGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(169,112,44,.16)"/><stop offset="1" stop-color="rgba(30,107,82,.12)"/></linearGradient></defs>
+                <g class="fg fgFunnel"><path d="M6 10 L196 58 L232 58 L232 92 L196 92 L6 140 Z" fill="url(#funnelGrad)" stroke="rgba(16,22,20,.16)" stroke-width="1" stroke-linejoin="round"/></g>
+                <g class="fg fgClutter" id="clutterMarks"></g>
+                <g class="fg fgFilter"><line x1="214" y1="52" x2="214" y2="98" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="3 3" stroke-linecap="round"/><text x="214" y="42" text-anchor="middle" class="fFilterLabel">AI filter</text><path d="M232 75 L248 75 M244 71 L248 75 L244 79" stroke="var(--green-deep)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <g class="fg fgKept" id="keptMarks"><rect x="252" y="50" width="86" height="50" rx="11" fill="rgba(30,107,82,.10)" stroke="rgba(30,107,82,.32)" stroke-width="1"/></g>
+              </svg>
+              <p class="funnelBaseline">Averages per prescription, measured across 1,615 comparisons in seven insurance plans.</p>
+            </div>
+            <div class="funnelResult"><strong>46%</strong><span>fewer choices</span><small>for the prescriber</small></div>
+          </div>
+          <aside class="listInsight"><div class="listTicks" id="listTicks" aria-hidden="true"></div><p><strong>About 1 in 10 drugs narrows to a single preferred option.</strong></p></aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="system" id="stages" aria-labelledby="stagesTitle">
+      <div class="sectionHead"><h2 id="stagesTitle"><em>Low Level Design Flow Diagram</em></h2><p>Click any stage to zoom in</p></div>
+      <div class="rail" id="rail" role="list" aria-label="Six architecture stages"></div>
+    </section>
+  </main>
+
+  <section id="storyView" aria-hidden="true" hidden><div id="storyMount"></div></section>
+
+  <section class="storyScreen" id="flowView" role="region" aria-label="Full architecture" aria-hidden="true" hidden>
+    <header class="storyScreenHead">
+      <button class="storyBack" id="closeFlow" type="button">← Back</button>
+      <div class="storyScreenTitle"><p class="eyebrow">Consolidated end-to-end HLD</p><h2 id="flowTitle" tabindex="-1">The whole architecture, one canvas.</h2></div>
+    </header>
+    <div class="hld-host" id="fullFlowMount" aria-live="polite"></div>
+    <footer class="storyScreenFoot"><span>Drag to pan · scroll to zoom</span><span><kbd>Esc</kbd> back</span></footer>
+  </section>
+</body>
+</html>

@@ -1,0 +1,5 @@
+body.modal-open{overflow:hidden}
+.storyScreen[hidden],#storyView[hidden]{display:none!important}
+.storyScreenTitle h2:focus{outline:none}
+.hld-host{flex:1;min-height:0;display:flex;flex-direction:column}
+.hld-host>.hld-canvas{width:100%}
