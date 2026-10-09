@@ -666,48 +666,6 @@
         }
 
         /* ============================================
-           ML — TREE CANVAS VISUALISATION
-           Canvas-based branching tree with progress
-           pills. Purple accent (#A855F7) to match
-           the ML stage palette.
-        ============================================ */
-        #ml-tree-wrap {
-            position: relative;
-            width: 100%;
-            max-width: 100%;
-        }
-        #ml-tree-canvas {
-            display: block;
-            width: 100%;
-            height: auto;
-            cursor: default;
-        }
-        .ml-pill-row {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
-            pointer-events: none;
-        }
-        .ml-pill-hit {
-            width: 36px;
-            height: 36px;
-            margin: 0 2px;
-            cursor: pointer;
-            pointer-events: all;
-            border-radius: 4px;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            background: transparent;
-            border: none;
-        }
-
-        /* ============================================
            NLP — SCRAMBLE CANVAS
            Canvas-based character-scramble animation.
            Accent: #34D399 (portfolio NLP green).
@@ -1028,8 +986,6 @@
                 padding: 0.72rem 1.2rem;
             }
             #genai-connector-canvas { display: block; }
-            #ml-tree-wrap { width: 100%; }
-            #ml-tree-canvas { width: 100%; height: auto; }
             #nlp-scramble-canvas { display: none; }
             .nlp-mobile-cycle { display: block; }
             .nlp-mobile-group { margin-bottom: 1.25rem; }
@@ -1066,6 +1022,7 @@
         }
     </style>
     <link rel="stylesheet" href="genai_explorer.css">
+    <link rel="stylesheet" href="ml_skills.css">
 </head>
 
 <body class="relative">
@@ -1335,12 +1292,17 @@
                         </div>
                     </div>
 
-                    <!-- Stage 2: Machine Learning -->
+                    <!-- Stage 2: Machine Learning & Deep Learning -->
                     <div class="arsenal-stage" id="stage-ml">
-                        <p class="stage-label">Machine Learning</p>
-                        <div id="ml-tree-wrap">
-                            <canvas id="ml-tree-canvas"></canvas>
-                            <div class="ml-pill-row" id="ml-pill-row"></div>
+                        <div class="genai-explorer ml-skills-panel" aria-label="Machine Learning and Deep Learning skills">
+                            <div class="genai-explorer__header">
+                                <h3 class="genai-explorer__heading">Machine Learning &amp; Deep Learning Skills</h3>
+                                <span class="genai-explorer__count" id="ml-explorer-count" aria-live="polite">1 / 5</span>
+                            </div>
+                            <div class="genai-explorer__body">
+                                <div class="genai-explorer__nav" id="ml-explorer-tabs" role="tablist" aria-label="Machine Learning skill categories"></div>
+                                <div class="genai-explorer__detail" id="ml-explorer-panel" role="tabpanel" tabindex="0"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -1443,6 +1405,7 @@
     <script src="about_me.js"></script>
     <script src="skills.js"></script>
     <script src="genai_explorer.js"></script>
+    <script src="ml_explorer.js"></script>
     <script src="career_journey.js"></script>
     <script src="contact.js"></script>
 

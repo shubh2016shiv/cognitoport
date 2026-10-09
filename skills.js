@@ -21,10 +21,10 @@ const ARSENAL_DATA = [
     },
     {
         id: 'ml',
-        label: 'Machine Learning',
+        label: 'Machine Learning & Deep Learning',
         tagline: 'Structured · Robust · Scientific',
         accentColor: '#A855F7',
-        useTree: true,          // ← drives canvas tree, not chips
+        useStaticPanel: true,
         gridId: null,
         chipClass: null,
         animIn: null,
@@ -62,11 +62,13 @@ const STAGE_ANCHORS = ARSENAL_DATA.map((_, idx) =>
 function clamp(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
 function lerp(a, b, t) { return a + (b - a) * t; }
 function invLerp(a, b, v) { return clamp((v - a) / (b - a), 0, 1); }
+const ARSENAL_MOBILE_BREAKPOINT = 768;
+function isMobileViewport() { return window.innerWidth < ARSENAL_MOBILE_BREAKPOINT; }
 
-// ── Build Chips (skip ML — it uses a canvas tree) ──────────────
+// ── Build Chips for the animated stages ──────────────
 function buildChips() {
     ARSENAL_DATA.forEach(cat => {
-        if (cat.useTree) return;
+        if (cat.useStaticPanel) return;
         const grid = document.getElementById(cat.gridId);
         if (!grid) return;
         grid.innerHTML = cat.skills.map(skill => `
@@ -232,455 +234,6 @@ function stopConnectors() {
     connectorRAF = null;
     if (connectorCtx && connectorCanvas) {
         connectorCtx.clearRect(0, 0, connectorCanvas.width, connectorCanvas.height);
-    }
-}
-
-// =============================================
-//  ML TREE CANVAS — purple-themed version of
-//  the branching tree from ml-tree-v3.html
-//  Color: #A855F7 (portfolio ML accent)
-//  Fonts: JetBrains Mono (already loaded)
-// =============================================
-
-const ML_TREE_CATEGORIES = [
-    {
-        name: 'Data Processing',
-        skills: ['Apache Spark (PySpark)', 'Apache Airflow', 'Polars', 'Dask', 'DuckDB']
-    },
-    {
-        name: 'Feature Stores',
-        skills: ['Feast', 'Tecton', 'Hopsworks', 'Databricks / Snowflake FS']
-    },
-    {
-        name: 'Modelling',
-        skills: ['XGBoost / LightGBM / CatBoost', 'Scikit-Learn', 'HuggingFace']
-    },
-    {
-        name: 'Experiment Tracking',
-        skills: ['MLflow', 'Weights & Biases (W&B)']
-    },
-    {
-        name: 'Deployment & Monitoring',
-        skills: ['AWS SageMaker / Azure ML', 'Docker + Kubernetes', 'BentoML / Seldon / KServe', 'Evidently AI / Arize AI']
-    }
-];
-
-const ML_N = ML_TREE_CATEGORIES.length;
-
-// Purple palette (matches portfolio ML accent #A855F7)
-const ML_C  = '#A855F7';
-const ML_ca = a => `rgba(168,85,247,${a})`;
-const ML_wa = a => `rgba(255,255,255,${a})`;
-
-// Layout constants (same proportions as ml-tree-v3)
-const ML_W        = 1100;
-const ML_H        = 520;
-const ML_CAT_Y    = 62;
-const ML_CAT_PAD_X= 90;
-const ML_TRUNK_Y  = 118;
-const ML_FORK_Y   = 172;
-const ML_DOT_R    = 3;
-const ML_MARGIN   = 52;
-const ML_DURATION = 6800;
-const ML_T_DRAW_END = 0.42;
-const ML_T_HOLD_END = 0.74;
-
-const ML_DPR = Math.min(window.devicePixelRatio || 1, 2);
-const ARSENAL_MOBILE_BREAKPOINT = 768;
-
-// Derived
-const ML_colW  = (ML_W - ML_CAT_PAD_X * 2) / (ML_N - 1);
-const ML_catXs = ML_TREE_CATEGORIES.map((_, i) => ML_CAT_PAD_X + i * ML_colW);
-
-// State
-let mlTreeCanvas   = null;
-let mlTreeCtx      = null;
-let mlPillRowEl    = null;
-let mlCurrentCat   = 0;
-let mlAnimStart    = null;
-let mlTreeRAF      = null;
-let mlTreeActive   = false;
-let mlCanvasLogicalW = ML_W;
-let mlCanvasLogicalH = ML_H;
-
-function isMobileViewport() {
-    return window.innerWidth < ARSENAL_MOBILE_BREAKPOINT;
-}
-
-function sizeMLTreeCanvasForViewport() {
-    if (!mlTreeCanvas || !mlTreeCtx) return;
-    if (isMobileViewport()) {
-        const parentW = Math.floor(mlTreeCanvas.parentElement?.clientWidth || window.innerWidth || ML_W);
-        mlCanvasLogicalW = Math.max(300, parentW);
-        mlCanvasLogicalH = 430;
-        mlTreeCanvas.style.width = '100%';
-        mlTreeCanvas.style.height = 'auto';
-    } else {
-        mlCanvasLogicalW = ML_W;
-        mlCanvasLogicalH = ML_H;
-        mlTreeCanvas.style.width = ML_W + 'px';
-        mlTreeCanvas.style.height = ML_H + 'px';
-    }
-
-    mlTreeCanvas.width = mlCanvasLogicalW * ML_DPR;
-    mlTreeCanvas.height = mlCanvasLogicalH * ML_DPR;
-    mlTreeCtx.setTransform(ML_DPR, 0, 0, ML_DPR, 0, 0);
-}
-
-function mlWrapTextByChars(text, maxChars, maxLines) {
-    const words = text.split(' ');
-    const lines = [];
-    let current = '';
-
-    words.forEach(word => {
-        const candidate = current ? `${current} ${word}` : word;
-        if (candidate.length <= maxChars || !current) {
-            current = candidate;
-        } else {
-            lines.push(current);
-            current = word;
-        }
-    });
-    if (current) lines.push(current);
-
-    if (lines.length > maxLines) {
-        const trimmed = lines.slice(0, maxLines);
-        trimmed[maxLines - 1] = trimmed[maxLines - 1].replace(/\s+$/, '') + '…';
-        return trimmed;
-    }
-    return lines;
-}
-
-// Helper drawing functions (operate on mlTreeCtx)
-const mlClamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const mlMap   = (v, a, b, c, d) => c + (d - c) * mlClamp((v - a) / (b - a), 0, 1);
-const mlEaseO = t => 1 - Math.pow(1 - t, 3);
-
-function mlLn(x1, y1, x2, y2, alpha, color, width) {
-    if (alpha <= 0) return;
-    mlTreeCtx.save();
-    mlTreeCtx.globalAlpha = alpha;
-    mlTreeCtx.strokeStyle = color;
-    mlTreeCtx.lineWidth   = width;
-    mlTreeCtx.lineCap     = 'round';
-    mlTreeCtx.beginPath(); mlTreeCtx.moveTo(x1, y1); mlTreeCtx.lineTo(x2, y2); mlTreeCtx.stroke();
-    mlTreeCtx.restore();
-}
-
-function mlPln(x1, y1, x2, y2, p, alpha, color, width) {
-    if (p <= 0 || alpha <= 0) return;
-    p = Math.min(p, 1);
-    mlLn(x1, y1, x1 + (x2 - x1) * p, y1 + (y2 - y1) * p, alpha, color, width);
-}
-
-function mlCirc(x, y, r, alpha, color) {
-    if (alpha <= 0) return;
-    mlTreeCtx.save();
-    mlTreeCtx.globalAlpha = alpha;
-    mlTreeCtx.fillStyle   = color;
-    mlTreeCtx.beginPath(); mlTreeCtx.arc(x, y, r, 0, Math.PI * 2); mlTreeCtx.fill();
-    mlTreeCtx.restore();
-}
-
-function mlGlow(x, y, r, alpha) {
-    if (alpha <= 0) return;
-    const g = mlTreeCtx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, ML_ca(alpha)); g.addColorStop(1, 'rgba(0,0,0,0)');
-    mlTreeCtx.fillStyle = g;
-    mlTreeCtx.beginPath(); mlTreeCtx.arc(x, y, r, 0, Math.PI * 2); mlTreeCtx.fill();
-}
-
-function mlTxt(str, x, y, font, color, alpha, align) {
-    if (alpha <= 0) return;
-    mlTreeCtx.save();
-    mlTreeCtx.globalAlpha  = alpha;
-    mlTreeCtx.fillStyle    = color;
-    mlTreeCtx.font         = font;
-    mlTreeCtx.textAlign    = align || 'center';
-    mlTreeCtx.textBaseline = 'middle';
-    mlTreeCtx.fillText(str, x, y);
-    mlTreeCtx.restore();
-}
-
-function mlSkillXs(catIdx, centerX, canvasW, layoutMargin, mobileMode) {
-    const skills    = ML_TREE_CATEGORIES[catIdx].skills;
-    const nS        = skills.length;
-    const spreadPerSkill = mobileMode ? 132 : 128;
-    const maxSpread      = mobileMode ? (canvasW - layoutMargin * 2) : 560;
-    const rawSpread      = Math.min(nS * spreadPerSkill, maxSpread);
-    const rawXs     = skills.map((_, si) => {
-        if (nS === 1) return centerX;
-        return centerX - rawSpread / 2 + si * (rawSpread / (nS - 1));
-    });
-    const minRaw = Math.min(...rawXs);
-    const maxRaw = Math.max(...rawXs);
-    let shift = 0;
-    if (minRaw < layoutMargin)               shift = layoutMargin - minRaw;
-    if (maxRaw > canvasW - layoutMargin)     shift = (canvasW - layoutMargin) - maxRaw;
-    return rawXs.map(x => x + shift);
-}
-
-function mlTreeFrame(ts) {
-    if (!mlTreeActive) return;
-    if (!mlAnimStart) mlAnimStart = ts;
-
-    const t     = mlClamp((ts - mlAnimStart) / ML_DURATION, 0, 1);
-    const drawT = mlClamp(t / ML_T_DRAW_END, 0, 1);
-
-    let bA;
-    if      (t < ML_T_DRAW_END) bA = mlEaseO(t / ML_T_DRAW_END);
-    else if (t < ML_T_HOLD_END) bA = 1;
-    else                        bA = 1 - mlEaseO((t - ML_T_HOLD_END) / (1 - ML_T_HOLD_END));
-
-    const mobileML = isMobileViewport();
-    const canvasW = mlCanvasLogicalW;
-    const canvasH = mlCanvasLogicalH;
-    const catY = mobileML ? 74 : ML_CAT_Y;
-    const trunkY = mobileML ? 136 : ML_TRUNK_Y;
-    const forkY = mobileML ? 248 : ML_FORK_Y;
-    const layoutMargin = mobileML ? 22 : ML_MARGIN;
-    const catPadX = mobileML ? 34 : ML_CAT_PAD_X;
-    const dotR = mobileML ? 2.8 : ML_DOT_R;
-    const catXs = ML_TREE_CATEGORIES.map((_, i) => {
-        if (ML_N === 1) return canvasW / 2;
-        return catPadX + i * ((canvasW - catPadX * 2) / (ML_N - 1));
-    });
-
-    mlTreeCtx.clearRect(0, 0, canvasW, canvasH);
-
-    const activeX = mobileML ? (canvasW / 2) : catXs[mlCurrentCat];
-    const cat     = ML_TREE_CATEGORIES[mlCurrentCat];
-    const skills  = cat.skills;
-    const nS      = skills.length;
-    const sXs     = mlSkillXs(mlCurrentCat, activeX, canvasW, layoutMargin, mobileML);
-
-    // Category header
-    if (mobileML) {
-        mlLn(layoutMargin, catY, canvasW - layoutMargin, catY, 0.09, ML_C, 0.55);
-        mlCirc(activeX, catY, 4.5, 0.92, ML_C);
-        if (bA > 0) mlGlow(activeX, catY, 22, bA * 0.25);
-        mlTxt(cat.name, activeX, catY - 30, "600 15px 'Inter', sans-serif", '#ffffff', 0.98);
-    } else {
-        mlLn(catXs[0], catY, catXs[ML_N - 1], catY, 0.08, ML_C, 0.5);
-
-        ML_TREE_CATEGORIES.forEach((c, i) => {
-            const x      = catXs[i];
-            const active = i === mlCurrentCat;
-
-            mlCirc(x, catY, active ? 4.5 : 2.5, active ? 0.9 : 0.25, active ? ML_C : ML_wa(0.4));
-            if (active && bA > 0) mlGlow(x, catY, 22, bA * 0.25);
-
-            mlTxt(
-                c.name,
-                x, catY - 32,
-                `${active ? '600' : '500'} 15px 'Inter', sans-serif`,
-                active ? '#ffffff' : ML_wa(0.8),
-                active ? 1 : 0.4
-            );
-        });
-    }
-
-    // S1: vertical spine down to trunk level
-    const s1 = mlMap(drawT, 0, 0.18, 0, 1);
-    mlPln(activeX, catY + 5, activeX, trunkY, s1, bA * 0.9, ML_C, 1);
-
-    // S2: horizontal trunk spreading left & right
-    const leftX  = sXs[0];
-    const rightX = sXs[nS - 1];
-    const s2     = mlMap(drawT, 0.15, 0.36, 0, 1);
-
-    if (nS > 1) {
-        mlPln(activeX, trunkY, leftX,  trunkY, s2, bA * 0.75, ML_C, 0.9);
-        mlPln(activeX, trunkY, rightX, trunkY, s2, bA * 0.75, ML_C, 0.9);
-    }
-
-    // S3: vertical drops + skill dots + labels
-    const stagger = 0.34;
-    const perW    = 0.30;
-
-    skills.forEach((skill, si) => {
-        const sx     = sXs[si];
-        const start  = 0.32 + (si / nS) * stagger;
-        const skillT = mlMap(drawT, start, start + perW, 0, 1);
-        if (skillT <= 0) return;
-
-        mlPln(sx, trunkY, sx, forkY, mlMap(skillT, 0, 0.45, 0, 1), bA * 0.72, ML_C, 0.85);
-
-        const dotA = mlMap(skillT, 0.40, 0.65, 0, 1);
-        if (dotA > 0) {
-            mlGlow(sx, forkY, 10, bA * dotA * 0.25);
-            mlCirc(sx, forkY, dotR, bA * dotA, ML_C);
-        }
-
-        const textA = mlMap(skillT, 0.58, 0.90, 0, 1);
-        if (textA > 0) {
-            if (mobileML) {
-                const leftBound  = si === 0 ? layoutMargin : (sXs[si - 1] + sx) / 2 + 4;
-                const rightBound = si === nS - 1 ? canvasW - layoutMargin : (sx + sXs[si + 1]) / 2 - 4;
-                const safeWidth  = Math.max(56, rightBound - leftBound);
-                const maxChars   = Math.max(9, Math.floor((safeWidth - 8) / 6.1));
-                const lines = mlWrapTextByChars(skill, maxChars, 3);
-                const firstY = forkY + 24;
-                const align =
-                    si === 0 ? 'left'
-                    : si === nS - 1 ? 'right'
-                    : 'center';
-                const textX =
-                    align === 'left' ? leftBound + 1
-                    : align === 'right' ? rightBound - 1
-                    : sx;
-
-                lines.forEach((line, li) => {
-                    mlTxt(
-                        line,
-                        textX,
-                        firstY + li * 14,
-                        `${li === 0 ? '500' : '400'} 12px 'Inter', sans-serif`,
-                        '#ffffff',
-                        bA * textA * 0.94,
-                        align
-                    );
-                });
-            } else {
-                const parts = skill.split(' / ');
-                if (parts.length > 1 && skill.length > 22) {
-                    mlTxt(parts[0],                    sx, forkY + 26, "500 14px 'Inter', sans-serif", '#ffffff', bA * textA * 0.9);
-                    mlTxt(parts.slice(1).join(' / '), sx, forkY + 44, "400 13px 'Inter', sans-serif",  '#ffffff',    bA * textA * 0.9);
-                } else {
-                    mlTxt(skill, sx, forkY + 26, "400 14px 'Inter', sans-serif", '#ffffff', bA * textA * 0.9);
-                }
-            }
-        }
-    });
-
-    // Progress pills (visual only — hit areas are DOM buttons)
-    const pillW  = 16, pillH = 2.5, pillGap = 8;
-    const totalP = ML_N * pillW + (ML_N - 1) * pillGap;
-    const px0    = (canvasW - totalP) / 2;
-    const pillY  = canvasH - 22;
-
-    ML_TREE_CATEGORIES.forEach((_, i) => {
-        const px     = px0 + i * (pillW + pillGap);
-        const active = i === mlCurrentCat;
-
-        mlTreeCtx.save();
-        mlTreeCtx.globalAlpha = 0.10;
-        mlTreeCtx.fillStyle   = ML_C;
-        mlTreeCtx.beginPath(); mlTreeCtx.roundRect(px, pillY, pillW, pillH, pillH / 2); mlTreeCtx.fill();
-
-        mlTreeCtx.globalAlpha = active ? 0.70 : 0.20;
-        mlTreeCtx.fillStyle   = active ? ML_C : ML_wa(0.3);
-        const fw = active ? pillW * mlClamp(t / 0.98, 0, 1) : pillW;
-        if (fw > 0) {
-            mlTreeCtx.beginPath(); mlTreeCtx.roundRect(px, pillY, fw, pillH, pillH / 2); mlTreeCtx.fill();
-        }
-
-        if (active) {
-            mlTreeCtx.globalAlpha = 0.18;
-            mlTreeCtx.strokeStyle = ML_C;
-            mlTreeCtx.lineWidth   = 1;
-            mlTreeCtx.beginPath(); mlTreeCtx.roundRect(px - 2, pillY - 2, pillW + 4, pillH + 4, (pillH + 4) / 2); mlTreeCtx.stroke();
-        }
-        mlTreeCtx.restore();
-    });
-
-    // Auto-advance to next category
-    if (t >= 1) {
-        mlAnimStart  = null;
-        mlCurrentCat = (mlCurrentCat + 1) % ML_N;
-    }
-
-    mlTreeRAF = requestAnimationFrame(mlTreeFrame);
-}
-
-function mlJumpTo(idx) {
-    mlCurrentCat = idx;
-    mlAnimStart  = null;
-}
-
-function initMLTree() {
-    mlTreeCanvas = document.getElementById('ml-tree-canvas');
-    mlPillRowEl  = document.getElementById('ml-pill-row');
-    if (!mlTreeCanvas || !mlPillRowEl) return;
-
-    mlTreeCtx = mlTreeCanvas.getContext('2d');
-
-    // Size canvas to logical px (DPR-aware)
-    sizeMLTreeCanvasForViewport();
-
-    // Build pill DOM buttons
-    mlPillRowEl.innerHTML = '';
-    for (let i = 0; i < ML_N; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'ml-pill-hit';
-        btn.title     = ML_TREE_CATEGORIES[i].name;
-        btn.setAttribute('aria-label', ML_TREE_CATEGORIES[i].name);
-        btn.addEventListener('click', () => mlJumpTo(i));
-        mlPillRowEl.appendChild(btn);
-    }
-
-    // Canvas cursor on pill hover
-    mlTreeCanvas.addEventListener('mousemove', e => {
-        const rect   = mlTreeCanvas.getBoundingClientRect();
-        const scaleX = mlCanvasLogicalW / rect.width;
-        const scaleY = mlCanvasLogicalH / rect.height;
-        const mx     = (e.clientX - rect.left) * scaleX;
-        const my     = (e.clientY - rect.top)  * scaleY;
-
-        const pillW  = 16, pillGap = 8;
-        const totalP = ML_N * pillW + (ML_N - 1) * pillGap;
-        const px0    = (mlCanvasLogicalW - totalP) / 2;
-        const pillY  = mlCanvasLogicalH - 22;
-
-        let onPill = false;
-        for (let i = 0; i < ML_N; i++) {
-            const px = px0 + i * (pillW + pillGap);
-            if (mx >= px - 6 && mx <= px + pillW + 6 && my >= pillY - 8 && my <= pillY + 14) {
-                onPill = true; break;
-            }
-        }
-        mlTreeCanvas.style.cursor = onPill ? 'pointer' : 'default';
-    });
-
-    // Canvas click for pill navigation
-    mlTreeCanvas.addEventListener('click', e => {
-        const rect   = mlTreeCanvas.getBoundingClientRect();
-        const scaleX = mlCanvasLogicalW / rect.width;
-        const scaleY = mlCanvasLogicalH / rect.height;
-        const mx     = (e.clientX - rect.left) * scaleX;
-        const my     = (e.clientY - rect.top)  * scaleY;
-
-        const pillW  = 16, pillGap = 8;
-        const totalP = ML_N * pillW + (ML_N - 1) * pillGap;
-        const px0    = (mlCanvasLogicalW - totalP) / 2;
-        const pillY  = mlCanvasLogicalH - 22;
-
-        for (let i = 0; i < ML_N; i++) {
-            const px = px0 + i * (pillW + pillGap);
-            if (mx >= px - 8 && mx <= px + pillW + 8 && my >= pillY - 10 && my <= pillY + 16) {
-                mlJumpTo(i);
-                return;
-            }
-        }
-    });
-}
-
-function startMLTree() {
-    if (mlTreeRAF) return;
-    mlTreeActive = true;
-    mlAnimStart  = null;
-    document.fonts.ready.then(() => {
-        mlTreeRAF = requestAnimationFrame(mlTreeFrame);
-    });
-}
-
-function stopMLTree() {
-    mlTreeActive = false;
-    if (mlTreeRAF) { cancelAnimationFrame(mlTreeRAF); mlTreeRAF = null; }
-    mlAnimStart  = null;
-    mlCurrentCat = 0;
-    if (mlTreeCtx && mlTreeCanvas) {
-        mlTreeCtx.clearRect(0, 0, mlCanvasLogicalW, mlCanvasLogicalH);
     }
 }
 
@@ -1207,13 +760,10 @@ function retriggerAnimationClass(chip, className) {
 
 // ── Animate Chips In ─────────────────────────
 function animateChipsIn(stageData, onDone) {
-    // ML uses the tree canvas — not chips
-    if (stageData.useTree) {
-        startMLTree();
-        if (onDone) setTimeout(onDone, 200);
+    if (stageData.useStaticPanel) {
+        if (onDone) onDone();
         return;
     }
-
     // NLP uses the scramble canvas.
     if (stageData.useCanvas) {
         if (isMobileViewport()) startNLPMobileCycle();
@@ -1296,12 +846,7 @@ function stopCloudSync() {
 
 // ── Animation Cleanup ─────────────────────────
 function animateChipsOut(stageData) {
-    // ML uses the tree canvas
-    if (stageData.useTree) {
-        stopMLTree();
-        return;
-    }
-
+    if (stageData.useStaticPanel) return;
     // NLP uses the scramble canvas
     if (stageData.useCanvas) {
         stopNLPCanvas();
@@ -1551,12 +1096,17 @@ function navigateByDelta(delta, source) {
     return true;
 }
 
-function canScrollGenAIExplorer(target, delta) {
-    const explorer = target instanceof Element ? target.closest('.genai-explorer') : null;
-    if (!explorer || currentStage !== 0) return false;
-    const remaining = explorer.scrollHeight - explorer.clientHeight;
+function canScrollArsenalPanel(target, delta) {
+    const panel = target instanceof Element ? target.closest('.genai-explorer, .ml-skills-panel') : null;
+    if (!panel) return false;
+    if (panel.matches('.ml-skills-panel')) {
+        if (currentStage !== 1) return false;
+    } else if (currentStage !== 0) {
+        return false;
+    }
+    const remaining = panel.scrollHeight - panel.clientHeight;
     if (remaining < 2) return false;
-    return delta > 0 ? explorer.scrollTop < remaining - 1 : explorer.scrollTop > 1;
+    return delta > 0 ? panel.scrollTop < remaining - 1 : panel.scrollTop > 1;
 }
 
 function onArsenalWheel(e) {
@@ -1565,7 +1115,7 @@ function onArsenalWheel(e) {
         return;
     }
 
-    if (canScrollGenAIExplorer(e.target, e.deltaY)) return;
+    if (canScrollArsenalPanel(e.target, e.deltaY)) return;
     if (Math.abs(e.deltaY) < 8) return;
     const direction = e.deltaY > 0 ? 1 : -1;
 
@@ -1591,7 +1141,7 @@ function onArsenalTouchMove(e) {
 
     const currentY = e.touches[0].clientY;
     const delta = touchStartY - currentY;
-    if (canScrollGenAIExplorer(e.target, delta)) return;
+    if (canScrollArsenalPanel(e.target, delta)) return;
     if (!touchCaptured && Math.abs(delta) < TOUCH_CAPTURE_THRESHOLD) return;
 
     const direction = delta > 0 ? 1 : -1;
@@ -1652,7 +1202,6 @@ function onScrollTick(force = false) {
 function initArsenal() {
     buildChips();
     initConnectorCanvas();
-    initMLTree();
     initNLPCanvas();
     initNLPMobileCycle();
 
@@ -1664,7 +1213,6 @@ function initArsenal() {
     window.addEventListener('resize', () => {
         sizeConnectorCanvas();
         buildConnectorNodes();
-        sizeMLTreeCanvasForViewport();
         sizeNLPCanvasForViewport();
         if (nlpMobileCycleRunning && isMobileViewport()) {
             runNLPMobileCycleStep();

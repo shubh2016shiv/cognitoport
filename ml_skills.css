@@ -1,0 +1,82 @@
+#stage-ml {
+    padding: 1.5rem 1.8rem;
+}
+
+.ml-skills-panel {
+    border-color: rgba(168, 85, 247, 0.3);
+    background: linear-gradient(145deg, rgba(18, 15, 27, 0.98), rgba(8, 8, 12, 0.98));
+    scrollbar-color: rgba(168, 85, 247, 0.45) transparent;
+}
+
+.ml-skills-panel .genai-explorer__heading,
+.ml-skills-panel .genai-explorer__kicker {
+    color: #c390ff;
+}
+
+.ml-skills-panel .genai-explorer__count {
+    border-color: rgba(168, 85, 247, 0.33);
+    background: rgba(168, 85, 247, 0.11);
+    color: #e6d1ff;
+}
+
+.ml-skills-panel .genai-explorer__tab:hover {
+    border-color: rgba(168, 85, 247, 0.46);
+    background: rgba(168, 85, 247, 0.07);
+}
+
+.ml-skills-panel .genai-explorer__tab[aria-selected="true"] {
+    border-color: rgba(168, 85, 247, 0.72);
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.16), rgba(168, 85, 247, 0.025));
+    box-shadow: inset 3px 0 #a855f7;
+}
+
+.ml-skills-panel .genai-explorer__tab-icon,
+.ml-skills-panel .genai-explorer__tab-arrow,
+.ml-skills-panel .genai-explorer__logo svg {
+    color: #bd82ff;
+}
+
+.ml-skills-panel .genai-explorer__tab:focus-visible,
+.ml-skills-panel .genai-explorer__detail:focus-visible {
+    outline-color: #bd82ff;
+}
+
+.ml-skills-panel .genai-explorer__skill {
+    background: rgba(255, 255, 255, 0.055);
+}
+
+.ml-skills-panel .genai-explorer__logo {
+    background: #231a2f;
+}
+
+.ml-skills-panel .ml-explorer__logo--numpy,
+.ml-skills-panel .ml-explorer__logo--pandas,
+.ml-skills-panel .ml-explorer__logo--scikit-learn {
+    background: #f0eef7;
+}
+
+.ml-skills-panel .ml-explorer__logo--apache-spark,
+.ml-skills-panel .ml-explorer__logo--xgboost {
+    background: #fff;
+}
+
+.ml-skills-panel .ml-explorer__logo--xgboost img {
+    width: 56px;
+    height: 27px;
+}
+
+.ml-skills-panel .ml-explorer__logo--xgboost {
+    width: 62px;
+}
+
+.ml-skills-panel .genai-explorer__capabilities svg {
+    color: #c390ff;
+}
+
+@media (max-width: 767px) {
+    #stage-ml { padding: 0 0.1rem 0 0; overflow: auto; }
+    .ml-skills-panel .genai-explorer__heading { font-size: 1.35rem; }
+    .ml-skills-panel .genai-explorer__capabilities-divider { display: block; }
+    .ml-skills-panel .genai-explorer__capabilities-label { display: block; }
+    .ml-skills-panel .genai-explorer__capabilities { display: grid; }
+}
