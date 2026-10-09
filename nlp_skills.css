@@ -1,0 +1,72 @@
+#stage-nlp {
+    padding: 1.5rem 1.8rem;
+}
+
+.nlp-skills-panel {
+    border-color: rgba(52, 211, 153, 0.28);
+    background: linear-gradient(145deg, rgba(11, 23, 20, 0.98), rgba(6, 11, 10, 0.98));
+    scrollbar-color: rgba(52, 211, 153, 0.45) transparent;
+}
+
+.nlp-skills-panel .genai-explorer__heading,
+.nlp-skills-panel .genai-explorer__kicker {
+    color: #34d399;
+}
+
+.nlp-skills-panel .genai-explorer__count {
+    border-color: rgba(52, 211, 153, 0.32);
+    background: rgba(52, 211, 153, 0.1);
+    color: #cbf9e7;
+}
+
+.nlp-skills-panel .genai-explorer__tab:hover {
+    border-color: rgba(52, 211, 153, 0.46);
+    background: rgba(52, 211, 153, 0.065);
+}
+
+.nlp-skills-panel .genai-explorer__tab[aria-selected="true"] {
+    border-color: rgba(52, 211, 153, 0.7);
+    background: linear-gradient(90deg, rgba(52, 211, 153, 0.15), rgba(52, 211, 153, 0.025));
+    box-shadow: inset 3px 0 #34d399;
+}
+
+.nlp-skills-panel .genai-explorer__tab-icon,
+.nlp-skills-panel .genai-explorer__tab-arrow,
+.nlp-skills-panel .genai-explorer__logo svg {
+    color: #5be1af;
+}
+
+.nlp-skills-panel .genai-explorer__tab:focus-visible,
+.nlp-skills-panel .genai-explorer__detail:focus-visible {
+    outline-color: #34d399;
+}
+
+.nlp-skills-panel .genai-explorer__logo {
+    background: #17342a;
+}
+
+.nlp-skills-panel .nlp-explorer__logo--spacy,
+.nlp-skills-panel .nlp-explorer__logo--scikit-learn,
+.nlp-skills-panel .nlp-explorer__logo--milvus {
+    background: #f1f8f4;
+}
+
+.nlp-explorer__monogram {
+    color: #b9f5dc;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: -0.07em;
+}
+
+.nlp-skills-panel .genai-explorer__capabilities svg {
+    color: #34d399;
+}
+
+@media (max-width: 767px) {
+    #stage-nlp { padding: 0 0.1rem 0 0; overflow: auto; }
+    .nlp-skills-panel .genai-explorer__heading { font-size: 1.34rem; }
+    .nlp-skills-panel .genai-explorer__capabilities-divider,
+    .nlp-skills-panel .genai-explorer__capabilities-label { display: block; }
+    .nlp-skills-panel .genai-explorer__capabilities { display: grid; }
+}
