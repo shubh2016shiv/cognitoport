@@ -31,6 +31,58 @@
         .text-cyan-neon { color: #00F0FF; }
         .border-cyan-neon { border-color: #00F0FF; }
 
+        .resume-spotlight {
+            position: relative;
+            z-index: 20;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-height: 42px;
+            padding: 0.55rem 0.85rem;
+            overflow: hidden;
+            border: 1px solid rgba(0, 240, 255, 0.42);
+            border-radius: 0.7rem;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.14), rgba(0, 240, 255, 0.035) 72%);
+            box-shadow: inset 0 1px 0 rgba(181, 249, 255, 0.13), 0 0 20px rgba(0, 240, 255, 0.07);
+            color: #e2fbff;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.025em;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+        }
+        .resume-spotlight::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 16%;
+            right: 16%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.9), transparent);
+        }
+        .resume-spotlight:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0, 240, 255, 0.78);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 240, 255, 0.065) 72%);
+            box-shadow: inset 0 1px 0 rgba(181, 249, 255, 0.2), 0 0 26px rgba(0, 240, 255, 0.15);
+        }
+        .resume-spotlight:focus-visible { outline: 2px solid #00F0FF; outline-offset: 3px; }
+        .resume-spotlight__icon { display: inline-flex; color: #00F0FF; }
+        .resume-spotlight__icon svg { width: 17px; height: 17px; stroke-width: 1.8; }
+        .resume-spotlight__label { line-height: 1; }
+        .resume-spotlight__format {
+            margin-left: 0.12rem;
+            padding-left: 0.6rem;
+            border-left: 1px solid rgba(0, 240, 255, 0.24);
+            color: rgba(126, 232, 243, 0.75);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.59rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+        }
+        @media (prefers-reduced-motion: reduce) { .resume-spotlight { transition: none; } }
+
         /* =============================================
            ABOUT ME SECTION
         ============================================= */
@@ -1038,9 +1090,10 @@
     <!-- Header -->
     <header id="header" class="bg-[#0A0A0A]/90 backdrop-blur-md fixed w-full top-0 z-50 transition-all duration-300 border-b border-transparent">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center relative">
-            <a href="#" class="nav-link relative z-20 block w-32 h-10 sm:w-36 sm:h-11 overflow-hidden" aria-label="Shubham Singh — back to top">
-                <img src="assets/photo/logo.png" alt="Shubham Singh" width="1280" height="1280"
-                    class="absolute left-1/2 top-1/2 w-full h-auto max-w-none -translate-x-1/2 -translate-y-1/2">
+            <a href="#" class="resume-download resume-spotlight" aria-label="Download latest resume PDF">
+                <span class="resume-spotlight__icon" aria-hidden="true"><i data-lucide="file-down"></i></span>
+                <span class="resume-spotlight__label">Resume</span>
+                <span class="resume-spotlight__format" aria-hidden="true">PDF</span>
             </a>
             
             <!-- Apple Aero Glass Toggle (Desktop Top Middle) -->
@@ -1057,7 +1110,6 @@
                 <a href="#projects" class="nav-link text-gray-400 hover:text-white transition-colors">Projects</a>
                 <a href="#experience" class="nav-link text-gray-400 hover:text-white transition-colors">Experience</a>
                 <a href="#arsenal" class="nav-link text-gray-400 hover:text-white transition-colors">Arsenal</a>
-                <a href="#" class="resume-download border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-2 rounded-lg transition-all duration-300">Resume</a>
             </nav>
             <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-cyan-neon focus:outline-none p-2 z-20">
                 <i data-lucide="menu"></i>
@@ -1076,7 +1128,6 @@
              <a href="#projects" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Projects</a>
              <a href="#experience" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Experience</a>
              <a href="#arsenal" class="nav-link block text-lg text-gray-300 hover:text-cyan-neon transition-colors">Arsenal</a>
-             <a href="#" class="resume-download block border border-white/20 hover:border-cyan-neon text-white hover:text-cyan-neon px-4 py-3 rounded-lg transition-all text-center w-full">Resume</a>
         </div>
     </header>
 
