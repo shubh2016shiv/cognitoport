@@ -1,0 +1,114 @@
+/* ============================================================
+   Worked example — an editorial write-up, opened from the hero
+   ============================================================
+   Lives in its own overlay (.flowview#exampleview in index.html), not on
+   the landing page — the landing view is a compact hero + system map, and
+   this multi-paragraph case study would blow that budget on its own.
+   Deliberately plain typography: one prose column, a numbered list, one
+   table. Built only from tokens defined in styles.css.
+   ============================================================ */
+
+/* The scrollable body row inside the shared .flowview grid — same role as
+   .full-flow-shell and .trace-shell play for the other two overlays. */
+.writeup-shell {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px var(--gutter) 56px;
+  background: var(--paper-2);
+}
+
+/* A prose measure, centred in the wide overlay. Body text is the one thing
+   that must not stretch with the container. */
+.writeup {
+  max-width: 76ch;
+  margin: 26px auto 0;
+  font-size: var(--f-body);
+  line-height: 1.72;
+  color: var(--ink-2);
+}
+.writeup p + p { margin-top: 18px; }
+.writeup b,
+.writeup strong { color: var(--ink); font-weight: 650; }
+.writeup em { font-style: italic; }
+
+.writeup-lede {
+  font-size: var(--f-lede);
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.writeup-scenario {
+  margin-top: 22px;
+  font-family: var(--serif);
+  font-size: clamp(17px, 1.5vw, 19.5px);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--green-deep);
+}
+
+.writeup h3 {
+  margin: 36px 0 10px;
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+/* Numbered steps read as an ordered list in a document, with the step name
+   carrying the bold rather than a badge or a card. */
+.writeup-steps { margin: 22px 0 0; padding-left: 26px; display: grid; gap: 15px; }
+.writeup-steps li { padding-left: 4px; }
+.writeup-steps li::marker {
+  color: var(--green-deep);
+  font-weight: 700;
+  font-family: var(--mono);
+  font-size: var(--f-sm);
+}
+
+/* One quiet rule before the closing paragraph, so the outcome reads as the
+   end of the story rather than another step. */
+.writeup-outcome {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.writeup-table-wrap { overflow-x: auto; }
+.writeup table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: var(--f-sm);
+}
+.writeup th,
+.writeup td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+.writeup th {
+  font-size: var(--f-micro);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.writeup td { line-height: 1.6; }
+.writeup td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.writeup tbody tr:last-child td { border-bottom: 0; }
+
+.writeup-footnote {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: var(--f-xs);
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+@media (max-width: 620px) {
+  .writeup-steps { padding-left: 20px; }
+}

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive walkthrough of a streaming clinical assistant: a clinician's question is grounded in retrieved guidelines and the patient's own record, then answered token by token over a live channel."
+    />
+    <title>Clinical Copilot Chat — Architecture Explorer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="example.css" />
+
+    <!-- React Flow (full HLD canvas): loaded from a CDN as ES modules via an
+         import map — no npm, no bundler, no build step. The rest of the site
+         stays plain HTML/CSS/JS. esm.sh resolves react/react-dom as shared
+         singletons so there is one copy of each across every entry. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@18.3.1",
+          "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+          "@xyflow/react": "https://esm.sh/@xyflow/react@12?deps=react@18.3.1,react-dom@18.3.1"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12/dist/style.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#overview">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-text">
+          <b>Clinical Copilot Chat — grounded, streaming clinical question answering</b>
+        </span>
+      </a>
+
+      <nav class="topbar-center" aria-label="Architecture navigation">
+        <button class="btn btn-flow-nav" id="flowBtn" type="button">
+          <span aria-hidden="true">↗</span> Full flow
+        </button>
+      </nav>
+
+      <nav class="topbar-actions" aria-label="Presentation controls">
+        <button class="btn btn-present" id="presentBtn" type="button">Present</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="overview">
+        <!-- Zone 1 — the headline: the clinical problem, then the system that answers it -->
+        <div class="hero-zone1">
+          <div class="hero-zone1-text">
+            <p class="eyebrow">Clinical decision support · retrieval-grounded generation · streaming response</p>
+            <h1 id="heroTitle" tabindex="-1">
+              <em>Healthcare Business Problem</em>
+              <span>— A clinician asks a question about the patient in front of them, and gets an answer grounded in that patient's record and in the clinical guidance that applies, streamed back while they read it</span>
+            </h1>
+          </div>
+        </div>
+
+        <hr class="hero-rule" />
+
+        <!-- Zone 2 — editorial split: paragraph left, latency annotations right -->
+        <div class="hero-zone2">
+          <div class="hero-copy">
+            <p class="lede">
+              A clinician mid-encounter asks something like "her LDL is still 142 on atorvastatin 20 —
+              what would you do next?" Answering it needs three things the question does not contain:
+              what this patient's record actually says, what the relevant guideline actually recommends,
+              and what was already said earlier in the conversation. This pipeline fetches all three —
+              guidelines by hybrid search, the patient's record and the conversation history in parallel
+              alongside it — stages them into one prompt, and streams the model's answer back over a
+              channel that was already open before any of that work began. Sources are numbered before
+              the model sees them, so the citations at the end record what the answer actually used.
+            </p>
+            <button class="btn btn-link hero-example-link" id="exampleBtn" type="button">
+              Read a worked example — one question, two and a half seconds, traced end to end ↗
+            </button>
+          </div>
+
+          <aside class="hero-stats" aria-labelledby="evalTitle">
+            <p class="eval-eyebrow" id="evalTitle">Evaluation scorecard · speed, then trust</p>
+
+            <div class="eval-grid">
+              <!-- These figures are proposed release thresholds, not measured
+                   production results. The expandable checks explain the composite
+                   grounding gate without overloading the first view. -->
+              <article class="eval-card eval-card--latency">
+                <div class="eval-card-head">
+                  <span class="eval-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3.2 2" />
+                    </svg>
+                  </span>
+                  <span class="eval-dimension">01 · Responsiveness</span>
+                  <span class="eval-badge">Release gate</span>
+                </div>
+                <p class="eval-name">Time to first byte</p>
+                <div class="eval-target-row">
+                  <p class="eval-target">&lt; 5s</p>
+                  <p class="eval-qualifier">at p95</p>
+                </div>
+                <div class="stat-bar-track eval-track eval-track--latency" aria-hidden="true">
+                  <div class="stat-bar eval-bar-a" style="width:50%"></div>
+                  <i class="eval-threshold" style="left:50%"></i>
+                </div>
+                <div class="eval-scale" aria-hidden="true"><span>Faster</span><span>5-second boundary</span><span>Slower</span></div>
+                <p class="eval-desc">At least 95 of every 100 requests should begin displaying a response within five seconds.</p>
+                <p class="eval-truth">Measures whether the clinician starts receiving value quickly</p>
+              </article>
+
+              <article class="eval-card eval-card--grounding">
+                <div class="eval-card-head">
+                  <span class="eval-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z" /><path d="m8.5 12 2.2 2.2 4.8-5" />
+                    </svg>
+                  </span>
+                  <span class="eval-dimension">02 · Grounding</span>
+                  <span class="eval-badge eval-badge--next">Next evaluation</span>
+                </div>
+                <p class="eval-name">Grounded clinical answer rate</p>
+                <div class="eval-target-row">
+                  <p class="eval-target">≥ 95%</p>
+                  <p class="eval-qualifier">of evaluated answers</p>
+                </div>
+                <div class="stat-bar-track eval-track eval-track--grounding" aria-hidden="true">
+                  <div class="stat-bar eval-bar-b" style="width:95%"></div>
+                  <i class="eval-threshold" style="left:95%"></i>
+                </div>
+                <div class="eval-scale" aria-hidden="true"><span>Unsupported</span><span>Release target</span><span>Grounded</span></div>
+                <p class="eval-desc">An answer passes only when its clinical claims are supported by the patient record or retrieved guidelines.</p>
+                <p class="eval-truth">Measures whether a fast answer can also be trusted</p>
+              </article>
+            </div>
+
+            <details class="eval-breakdown">
+              <summary>
+                <span><b>Expand grounding quality</b><small>See the four checks behind the 95% target</small></span>
+                <i aria-hidden="true"></i>
+              </summary>
+              <div class="eval-mini-grid">
+                <div class="eval-mini"><span>Patient-data faithfulness</span><b>≥ 98%</b><small>No invented or altered patient facts</small></div>
+                <div class="eval-mini"><span>Citation correctness</span><b>≥ 95%</b><small>Source supports the associated claim</small></div>
+                <div class="eval-mini"><span>Citation coverage</span><b>≥ 95%</b><small>Evidence-requiring claims include support</small></div>
+                <div class="eval-mini eval-mini--critical"><span>Unsupported high-risk claims</span><b>0</b><small>Zero-tolerance safety gate</small></div>
+              </div>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <hr class="section-rule" />
+
+      <section class="map" id="map" aria-labelledby="mapTitle">
+        <div class="section-head">
+          <div>
+            <p class="section-em">Low Level Design</p>
+            <h2 id="mapTitle">Admit → Ground → Assemble → Stream → Settle</h2>
+          </div>
+          <p class="section-hint">Click any stage to zoom in</p>
+        </div>
+
+        <div class="rail" id="rail" role="list" aria-label="Architecture stages"></div>
+
+        <div class="map-nav">
+          <button class="chip" id="mapPrev" type="button" aria-label="Open previous stage">← Previous</button>
+          <button class="chip" id="mapNext" type="button" aria-label="Open next stage">Next →</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pagefoot">
+      <span class="keys">
+        <kbd>←</kbd><kbd>→</kbd> navigate · <kbd>Enter</kbd> zoom in · <kbd>Esc</kbd> back one level
+      </span>
+    </footer>
+
+    <!-- Consolidated end-to-end HLD -->
+    <div class="flowview" id="flowview" role="dialog" aria-modal="true" aria-labelledby="flowTitle" aria-hidden="true">
+      <header class="flow-head">
+        <div>
+          <p class="eyebrow">Consolidated end-to-end HLD</p>
+          <h2 id="flowTitle">The whole request, one explorable canvas.</h2>
+        </div>
+        <div class="flow-head-actions">
+          <button class="icon-x" id="flowClose" type="button" aria-label="Close diagram">×</button>
+        </div>
+      </header>
+      <div class="full-flow-shell" id="fullFlowShell">
+        <div class="full-flow-canvas" id="fullFlowReactFlow" aria-live="polite"></div>
+        <aside class="full-flow-bubble" id="fullFlowBubble" aria-live="polite" hidden></aside>
+      </div>
+
+      <details class="flow-legend">
+        <summary class="flow-legend-toggle">
+          <span class="flow-legend-closed">Legend <small>(Click to Expand)</small></span>
+          <span class="flow-legend-open">Legend <small>(Click to Contract)</small></span>
+          <i aria-hidden="true"></i>
+        </summary>
+        <div class="flow-legend-content" aria-label="Diagram legend">
+          <p class="flow-legend-title">Phases</p>
+          <ul class="flow-legend-list">
+            <li><i class="fl-swatch fl-swatch-inputs" aria-hidden="true"></i>Request Admission</li>
+            <li><i class="fl-swatch fl-swatch-knowledge" aria-hidden="true"></i>Guideline Retrieval — lane A</li>
+            <li><i class="fl-swatch fl-swatch-context" aria-hidden="true"></i>Patient Context — lane B</li>
+            <li><i class="fl-swatch fl-swatch-plan" aria-hidden="true"></i>Prompt Assembly And Capacity</li>
+            <li><i class="fl-swatch fl-swatch-execute" aria-hidden="true"></i>Streaming Generation</li>
+            <li><i class="fl-swatch fl-swatch-critique" aria-hidden="true"></i>Formulary Tool Branch</li>
+            <li><i class="fl-swatch fl-swatch-post" aria-hidden="true"></i>Settle And Observe</li>
+          </ul>
+        </div>
+      </details>
+
+      <footer class="flow-foot">
+        <p>Pause over a component for detail · Keyboard focus opens immediately · Scroll or use a trackpad to pan in any direction · Drag empty space to move.</p>
+      </footer>
+    </div>
+
+    <!-- Worked example — one question, told as prose, not on the landing page -->
+    <div class="flowview" id="exampleview" role="dialog" aria-modal="true" aria-labelledby="exampleTitle" aria-hidden="true">
+      <header class="flow-head">
+        <div>
+          <p class="eyebrow">Worked example · lipid management · “her LDL is still 142 on atorvastatin 20 — what would you do next?”</p>
+          <h2 id="exampleTitle">One question, and everything that has to happen before the first word.</h2>
+        </div>
+        <div class="flow-head-actions">
+          <button class="icon-x" id="exampleClose" type="button" aria-label="Close worked example">×</button>
+        </div>
+      </header>
+
+      <div class="writeup-shell" id="writeupShell">
+        <article class="writeup">
+          <p class="writeup-lede">
+            The question contains almost nothing the system needs. It names a lab value and a drug, but
+            not the patient, not their history, not what the guideline says about intensifying statin
+            therapy, and not what the clinician asked two minutes ago. Answering it well means
+            reconstructing all of that in under two seconds, while somebody watches.
+          </p>
+
+          <p class="writeup-scenario">
+            Here is what happens between the clinician pressing enter and the first word appearing, for
+            a synthetic patient with established atherosclerotic cardiovascular disease.
+          </p>
+
+          <ol class="writeup-steps">
+            <li>
+              <b>Admit the question — about 0.03 seconds.</b> The clinician's token is verified, the
+              feature flags for this request are resolved, and identifiers are minted for the thread, the
+              run and this turn. The question itself is written to the transcript <em>before</em> anything
+              tries to answer it, so a failure thirty seconds from now still leaves a record of what was
+              asked. Then the stream opens, and a status frame goes out immediately — everything after
+              this point happens behind a connection that is already live.
+            </li>
+            <li>
+              <b>Two lanes start at once.</b> Guideline retrieval and patient context assembly are fired
+              together. Neither depends on the other, and neither depends on any reasoning, which is
+              exactly why a planning step would be expensive here — it would make both of these
+              conditional on its own output and forfeit the parallelism.
+            </li>
+            <li>
+              <b>Lane A: find the guidance — about 1.05 seconds.</b> The question is embedded, then issued
+              against the clinical guideline index as one hybrid query — keyword matching and vector
+              similarity together, semantically reranked, capped at five passages. Back come excerpts on
+              LDL targets for secondary prevention and on when to intensify therapy or add a non-statin
+              agent. Each source document is stripped of any citation markers it already carried and
+              assigned a number: source 1, source 2, source 3. The model will be told to cite by those
+              numbers, and it will never see a source that was not numbered here.
+            </li>
+            <li>
+              <b>Lane B: load the patient and the conversation — about 1.22 seconds.</b> The patient's
+              clinical picture comes from a read-through cache in around twenty milliseconds: the LDL
+              trend, the current atorvastatin 20 mg, prior intolerances, the ASCVD history, renal
+              function. Alongside it, three pre-rendered care views. And alongside those, the slowest
+              call in the entire request — the conversation history, at roughly 1.18 seconds, re-paired
+              into strictly alternating turns with the reference blocks stripped out of previous answers.
+              That one read sets the floor for this whole phase. Everything else in both lanes finishes
+              inside its shadow.
+            </li>
+            <li>
+              <b>Stage one prompt — about a millisecond.</b> The system prompt is fetched from the
+              registry and the numbered guideline excerpts are substituted into it. The patient views are
+              then staged as synthetic exchanges — the assistant appearing to have already stated the
+              clinical picture — followed by the real conversation history, followed by the live question.
+              Patient data enters as conversation, never as instruction.
+            </li>
+            <li>
+              <b>Buy capacity — about 0.27 seconds.</b> The prompt is costed and a slot is acquired
+              against the shared model quota, returning a metered client. This is a sequential network
+              round trip sitting between finished context and the model call, on the critical path, and
+              it is the second thing worth optimising: the token estimate does not actually depend on the
+              context it is waiting behind.
+            </li>
+            <li>
+              <b>Stream the answer — first token at about 0.6 seconds, then roughly 1.3 seconds of
+              generation.</b> The first chunk arrives under a ten-second deadline and is inspected: it is
+              content, not a tool call, so the answer has begun. As tokens flow past, citation markers are
+              stripped inline and their identifiers recorded — including one that arrived split across
+              three separate frames as a bracket, then a digit, then a closing bracket. The clinician
+              starts reading at 1.9 seconds and keeps reading while the rest is still being written.
+            </li>
+            <li>
+              <b>Settle.</b> Two of the three retrieved sources were actually cited, so only those two
+              appear in the closing reference list — the third is dropped rather than listed as though it
+              had contributed. The completed answer is written to both the transcript and the cache the
+              next turn will read from. Stage timings and token counts are published.
+            </li>
+          </ol>
+
+          <p class="writeup-outcome">
+            End to end: <b>about 2.6 seconds</b>, of which roughly 63% elapsed before the first word
+            existed. The clinician experienced a wait of about 1.9 seconds, because the remaining
+            generation time disappeared into their reading time. That difference — 2.6 seconds of work
+            felt as 1.9 seconds of waiting — is the entire argument for streaming.
+          </p>
+
+          <h3>What the same question costs on the tool branch</h3>
+          <p>
+            Had the clinician instead asked “which statins are covered on her plan?”, the first chunk
+            would have carried a tool call rather than content. The visible stream is interrupted before
+            anything reaches the screen, the streamed argument fragments are reassembled, the patient's
+            plan is resolved, the covered-drug list is searched once per drug class in parallel, and the
+            result is rendered as a table. That table is appended to the same prompt and sent to a
+            <em>second</em> model call — one issued against a client with no tools bound to it, which is
+            what makes a third hop structurally impossible rather than merely discouraged.
+          </p>
+          <p>
+            This branch is behind a feature flag and appears in none of the recorded traces, so the
+            honest statement about its latency is that it is unmeasured. It pays for a second full model
+            call plus the coverage lookup in between, and nobody has yet measured what that does to a
+            clinician's wait.
+          </p>
+
+          <h3>The measured shape</h3>
+          <div class="writeup-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Phase</th><th>Median</th><th>Note</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Admission and preparation</td><td>~0.03s</td><td>Auth, flags, identifiers, transcript write</td></tr>
+                <tr><td>Lane A — guideline retrieval</td><td>~1.05s</td><td>Vector search alone is ~0.9s of it</td></tr>
+                <tr><td>Lane B — patient context</td><td>~1.22s</td><td>Conversation history alone is ~1.18s of it</td></tr>
+                <tr><td>Prompt assembly</td><td>~0.001s</td><td>Pure composition, no I/O</td></tr>
+                <tr><td>Capacity acquisition</td><td>~0.27s</td><td>Sequential, on the critical path</td></tr>
+                <tr><td>Model — time to first token</td><td>~0.6s</td><td>Where the clinician starts reading</td></tr>
+                <tr><td>Model — remaining generation</td><td>~1.3s</td><td>Overlaps with reading time</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Lanes A and B run concurrently, so they contribute the larger of the two rather than their
+            sum. That single decision removes roughly 45% of the pre-model wait.
+          </p>
+
+          <h3>What this example does not show</h3>
+          <p>
+            Whether the answer was any good. Every number above is a latency measurement, and the system
+            has no correctness signal at all — no grounding check, no retrieval recall measurement, no
+            frozen regression set. It can tell you precisely how long a clinically wrong answer took to
+            produce. That gap is named directly under the Settle stage rather than left for an
+            interviewer to find.
+          </p>
+
+          <p class="writeup-footnote">
+            The patient, the lab values and the conversation in this example are synthetic. Latency
+            figures are medians across five recorded execution-timeline traces of one deployment and
+            describe that deployment only. Nothing here is clinical guidance.
+          </p>
+        </article>
+      </div>
+    </div>
+
+    <!-- Zoom caption -->
+    <p class="caption" id="caption" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Level 2 / Level 3 panel -->
+    <div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" aria-hidden="true">
+      <header class="panel-head">
+        <nav class="crumbs" id="crumbs" aria-label="Zoom path"></nav>
+        <span class="panel-index" id="panelIndex"></span>
+        <button class="icon-x" id="panelClose" type="button" aria-label="Close detail view">×</button>
+      </header>
+
+      <div class="panel-body" id="panelBody">
+        <div class="panel-inner" id="panelInner"></div>
+      </div>
+
+      <footer class="panel-foot">
+        <button class="btn btn-quiet" id="panelPrev" type="button"><span aria-hidden="true">←</span> <b id="panelPrevLabel">Previous</b></button>
+        <button class="btn btn-tertiary" id="panelOut" type="button">Zoom out to the whole system <span aria-hidden="true">↙</span></button>
+        <button class="btn btn-solid" id="panelNext" type="button"><b id="panelNextLabel">Next</b> <span aria-hidden="true">→</span></button>
+      </footer>
+    </div>
+
+    <script src="content.js"></script>
+    <script src="app.js"></script>
+    <script src="example.js"></script>
+    <script type="module" src="full-flow.js"></script>
+    <script type="module" src="admission-flow.js"></script>
+    <script type="module" src="retrieval-flow.js"></script>
+    <script type="module" src="context-flow.js"></script>
+    <script type="module" src="prompt-flow.js"></script>
+    <script type="module" src="generation-flow.js"></script>
+    <script type="module" src="tooling-flow.js"></script>
+    <script type="module" src="settle-flow.js"></script>
+  </body>
+</html>
