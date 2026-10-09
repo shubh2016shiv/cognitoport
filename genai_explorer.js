@@ -25,6 +25,8 @@ const GENAI_CATEGORIES = [
         skills: [
             { name: 'LangGraph', logo: 'langgraph' },
             { name: 'LangChain', logo: 'langchain' },
+            { name: 'AutoGen', logo: 'autogen' },
+            { name: 'Microsoft Agent Framework', logo: 'microsoft-agent-framework', extension: 'png' },
             { name: 'Multi-Agent Systems', icon: 'multi' }
         ],
         capabilities: ['Stateful agent workflows', 'Specialist agent handoffs', 'Multi-step task execution', 'Review and correction loops'],
@@ -83,7 +85,7 @@ function genaiSkillMarkup(skill) {
     if (skill.logo === 'azure-openai') {
         artwork = '<span class="genai-explorer__logo-pair"><img src="assets/skill-logos/azure.svg" alt=""><img src="assets/skill-logos/openai.svg" alt=""></span>';
     } else if (skill.logo) {
-        artwork = `<img src="assets/skill-logos/${skill.logo}.svg" alt="">`;
+        artwork = `<img src="assets/skill-logos/${skill.logo}.${skill.extension || 'svg'}" alt="">`;
     } else {
         artwork = genaiIcon(skill.icon);
     }
@@ -104,9 +106,12 @@ function initGenAIExplorer() {
         </button>
     `).join('');
 
+    let skillCarouselTimer = null;
+
     function selectCategory(index, focusTab = false) {
         const category = GENAI_CATEGORIES[index];
         if (!category) return;
+        if (skillCarouselTimer) clearInterval(skillCarouselTimer);
 
         tabs.querySelectorAll('[role="tab"]').forEach((tab, tabIndex) => {
             const selected = tabIndex === index;
@@ -120,15 +125,26 @@ function initGenAIExplorer() {
             <h4 class="genai-explorer__title">${category.title}</h4>
             <p class="genai-explorer__description">${category.description}</p>
             <div class="genai-explorer__divider"></div>
-            <span class="genai-explorer__section-label">Skills & technologies</span>
-            <div class="genai-explorer__skills">${category.skills.map(genaiSkillMarkup).join('')}</div>
-            <div class="genai-explorer__divider"></div>
-            <span class="genai-explorer__section-label">What I build</span>
+            <span class="genai-explorer__section-label">Tools and Frameworks</span>
+            <div class="genai-explorer__skills${category.skills.length > 2 ? ' is-rotating' : ''}" aria-live="off">${(category.skills.length > 2 ? category.skills.slice(0, 2) : category.skills).map(genaiSkillMarkup).join('')}</div>
+            <div class="genai-explorer__divider genai-explorer__capabilities-divider"></div>
+            <span class="genai-explorer__section-label genai-explorer__capabilities-label">What I build</span>
             <ul class="genai-explorer__capabilities">${category.capabilities.map(capability => `<li>${genaiIcon('check')}<span>${capability}</span></li>`).join('')}</ul>
             <div class="genai-explorer__divider"></div>
             <span class="genai-explorer__project-label">Project example</span>
             <a class="genai-explorer__project" href="${category.project.href}">${category.project.name}${genaiIcon('external')}</a>
         `;
+        if (category.skills.length > 2) {
+            const skillsRow = panel.querySelector('.genai-explorer__skills');
+            let nextIndex = 0;
+            skillCarouselTimer = setInterval(() => {
+                nextIndex = (nextIndex + 2) % category.skills.length;
+                skillsRow.innerHTML = [
+                    category.skills[nextIndex],
+                    category.skills[(nextIndex + 1) % category.skills.length]
+                ].map(genaiSkillMarkup).join('');
+            }, 2000);
+        }
         if (focusTab) tabs.querySelectorAll('[role="tab"]')[index].focus();
     }
 

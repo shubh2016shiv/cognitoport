@@ -155,6 +155,23 @@
     gap: 0.55rem;
 }
 
+.genai-explorer__skills.is-rotating {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 70px;
+}
+
+.genai-explorer__skills.is-rotating .genai-explorer__skill {
+    min-width: 0;
+    width: 100%;
+    animation: genai-skill-pair-in 180ms ease-out;
+}
+
+@keyframes genai-skill-pair-in {
+    from { opacity: 0.5; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 .genai-explorer__skill {
     display: inline-flex;
     align-items: center;
@@ -191,6 +208,8 @@
 .genai-explorer__logo--azure { background: #10253a; }
 .genai-explorer__logo--langchain { background: #e2efea; }
 .genai-explorer__logo--langgraph { background: #e2efea; }
+.genai-explorer__logo--autogen { background: #2d2d2f; }
+.genai-explorer__logo--microsoft-agent-framework { background: #15102b; }
 .genai-explorer__logo--milvus { background: #f4f7ff; }
 .genai-explorer__logo--chroma { background: #f9f1e9; }
 .genai-explorer__logo--pydantic { background: #291923; }
@@ -291,10 +310,13 @@
     .genai-explorer__description { font-size: 0.78rem; }
     .genai-explorer__divider { margin: 0.8rem 0; }
     .genai-explorer__skill { font-size: 0.82rem; }
-    .genai-explorer__capabilities { gap: 0.4rem; }
-    .genai-explorer__capabilities li { font-size: 0.73rem; }
+    .genai-explorer__skills.is-rotating { min-height: 80px; }
+    .genai-explorer__capabilities-divider,
+    .genai-explorer__capabilities-label,
+    .genai-explorer__capabilities { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .genai-explorer__tab { transition: none; }
+    .genai-explorer__skills.is-rotating .genai-explorer__skill { animation: none; }
 }
