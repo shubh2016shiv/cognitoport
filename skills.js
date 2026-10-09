@@ -43,7 +43,7 @@ const ARSENAL_DATA = [
     },
     {
         id: 'cloud',
-        label: 'Cloud & MLOps',
+        label: 'Engineering & Deployment',
         tagline: 'Scalable · Reliable · Production',
         accentColor: '#FBBF24',
         gridId: 'cloud-chip-grid',
