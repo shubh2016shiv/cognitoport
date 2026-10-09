@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive walkthrough of a multi-agent system that turns ETL validation descriptions into executable PySpark scripts for a healthcare data platform."
+    />
+    <title>ETL Data Validation Authoring with Multi Agent System</title>
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- React Flow (Full HLD, Knowledge, Context, Plan, Execute, Critique and Evaluation
+         diagrams): loaded from a CDN as ES modules via an import map, no
+         npm/bundler/build step. The rest of the site stays exactly the plain
+         HTML/CSS/JS it already is — this is an "island," not a framework
+         migration. esm.sh resolves react/react-dom as shared singletons
+         across every entry so there's one copy of each. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@18.3.1",
+          "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+          "@xyflow/react": "https://esm.sh/@xyflow/react@12?deps=react@18.3.1,react-dom@18.3.1"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12/dist/style.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#overview">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-text">
+          <b>ETL Data Validation Authoring with Multi Agent System</b>
+        </span>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Presentation controls">
+        <button class="btn btn-present" id="presentBtn" type="button">Present</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="overview">
+        <!-- Zone 1 — full-width headline -->
+        <div class="hero-zone1">
+          <div class="hero-zone1-text">
+            <p class="eyebrow">Healthcare ETL validation authoring · fixed-topology multi-agent system</p>
+            <h1 id="heroTitle" tabindex="-1">From ETL validation descriptions<br />to <em>executable</em> PySpark scripts.</h1>
+          </div>
+
+          <button class="hero-flow-tile" id="flowBtn" type="button">
+            <span class="hero-flow-tile-fill" aria-hidden="true"></span>
+            <span class="hero-flow-tile-label">
+              <span class="hero-flow-tile-title">Full flow</span>
+              <small>The whole pipeline, one diagram</small>
+            </span>
+            <span class="hero-flow-tile-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false">
+                <path class="hero-flow-route" d="M5 22h5.5c3 0 3-12 6-12H26" />
+                <circle cx="5" cy="22" r="2" />
+                <path class="hero-flow-arrow" d="m22 6 4 4-4 4" />
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <hr class="hero-rule" />
+
+        <!-- Zone 2 — editorial split: paragraph left, stat annotations right -->
+        <div class="hero-zone2">
+          <div class="hero-copy">
+            <p class="lede">
+              This system takes one data-validation requirement (a target table, a rule name, a
+              sentence of plain English) and turns it into a deployable PySpark script for a
+              healthcare ETL pipeline. A Planner resolves intent, an Executor implements the approved
+              specification, and a Critique ensemble diagnoses and repairs the result. The sequence
+              is fixed, every handoff is validated, and self-correction is the only loop allowed to
+              run.
+            </p>
+          </div>
+
+          <aside class="hero-stats">
+            <div class="stat-groups">
+              <div class="stat-cell">
+                <p class="stat-number" data-count="75">↓<span class="stat-count">0</span>%</p>
+                <p class="stat-label">Review cycles</p>
+                <div class="stat-bars">
+                  <div class="stat-bar-row">
+                    <span class="stat-bar-tag">ReAct</span>
+                    <div class="stat-bar-track"><div class="stat-bar stat-bar-before" style="width:100%"></div></div>
+                    <span class="stat-bar-value">8–15</span>
+                  </div>
+                  <div class="stat-bar-row">
+                    <span class="stat-bar-tag">MAS</span>
+                    <div class="stat-bar-track"><div class="stat-bar stat-bar-after" style="width:27%"></div></div>
+                    <span class="stat-bar-value">2–4</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stat-cell">
+                <p class="stat-number" data-count="80">↓<span class="stat-count">0</span>%</p>
+                <p class="stat-label">Token cost</p>
+                <div class="stat-bars">
+                  <div class="stat-bar-row">
+                    <span class="stat-bar-tag">ReAct</span>
+                    <div class="stat-bar-track"><div class="stat-bar stat-bar-before" style="width:100%"></div></div>
+                    <span class="stat-bar-value">60–100K</span>
+                  </div>
+                  <div class="stat-bar-row">
+                    <span class="stat-bar-tag">MAS</span>
+                    <div class="stat-bar-track"><div class="stat-bar stat-bar-after" style="width:20%"></div></div>
+                    <span class="stat-bar-value">5–20K</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-attribution">
+              <p class="attr-line1">GPT-5.4 <span class="ic-sep">·</span> ReAct Agent → <span class="ic-nowrap">Multi-Agent System</span> <span class="ic-illustrative">illustrative</span></p>
+              <p class="attr-line2">Same model. Decomposed architecture.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <hr class="section-rule" />
+
+      <section class="map" id="map" aria-labelledby="mapTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">System map</p>
+            <h2 id="mapTitle">Plan → Execute → Critique</h2>
+          </div>
+          <p class="section-hint">Click any stage to zoom in</p>
+        </div>
+
+        <div class="rail" id="rail" role="list" aria-label="Architecture stages"></div>
+
+        <p class="rail-legend">
+          <span><i aria-hidden="true">⚙</i>Deterministic</span>
+          <span><i aria-hidden="true">◆</i>Model reasoning</span>
+          <span><i aria-hidden="true">↻</i>Internal loop</span>
+        </p>
+
+        <div class="map-nav">
+          <button class="chip" id="mapPrev" type="button" aria-label="Open previous stage">← Previous</button>
+          <button class="chip" id="mapNext" type="button" aria-label="Open next stage">Next →</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pagefoot">
+      <span class="keys">
+        <kbd>←</kbd><kbd>→</kbd> navigate · <kbd>Enter</kbd> zoom in · <kbd>Esc</kbd> back one level
+      </span>
+    </footer>
+
+    <!-- Consolidated end-to-end HLD -->
+    <div class="flowview" id="flowview" role="dialog" aria-modal="true" aria-labelledby="flowTitle" aria-hidden="true">
+      <header class="flow-head">
+        <div>
+          <p class="eyebrow">Consolidated end-to-end HLD</p>
+          <h2 id="flowTitle">The whole pipeline, one explorable canvas.</h2>
+        </div>
+        <div class="flow-head-actions">
+          <button class="icon-x" id="flowClose" type="button" aria-label="Close diagram">×</button>
+        </div>
+      </header>
+      <div class="full-flow-shell" id="fullFlowShell">
+        <div class="full-flow-canvas" id="fullFlowReactFlow" aria-live="polite"></div>
+        <aside class="full-flow-bubble" id="fullFlowBubble" aria-live="polite" hidden></aside>
+      </div>
+
+      <details class="flow-legend">
+        <summary class="flow-legend-toggle">
+          <span class="flow-legend-closed">Legend <small>(Click to Expand)</small></span>
+          <span class="flow-legend-open">Legend <small>(Click to Contract)</small></span>
+          <i aria-hidden="true"></i>
+        </summary>
+        <div class="flow-legend-content" aria-label="Diagram legend">
+          <p class="flow-legend-title">Phases</p>
+          <ul class="flow-legend-list">
+            <li><i class="fl-swatch fl-swatch-inputs" aria-hidden="true"></i>Inputs And Sources</li>
+            <li><i class="fl-swatch fl-swatch-knowledge" aria-hidden="true"></i>Knowledge Base</li>
+            <li><i class="fl-swatch fl-swatch-context" aria-hidden="true"></i>Retrieval And Context</li>
+            <li><i class="fl-swatch fl-swatch-plan" aria-hidden="true"></i>Plan</li>
+            <li><i class="fl-swatch fl-swatch-execute" aria-hidden="true"></i>Execute</li>
+            <li><i class="fl-swatch fl-swatch-critique" aria-hidden="true"></i>Critique Loop</li>
+            <li><i class="fl-swatch fl-swatch-post" aria-hidden="true"></i>Post-Critique</li>
+          </ul>
+        </div>
+      </details>
+
+      <footer class="flow-foot">
+        <p>Pause over a component for detail · Keyboard focus opens immediately · Scroll or use a trackpad to pan in any direction · Drag empty space to move.</p>
+      </footer>
+    </div>
+
+    <!-- Zoom caption -->
+    <p class="caption" id="caption" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Level 2 / Level 3 panel -->
+    <div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" aria-hidden="true">
+      <header class="panel-head">
+        <nav class="crumbs" id="crumbs" aria-label="Zoom path"></nav>
+        <span class="panel-index" id="panelIndex"></span>
+        <button class="icon-x" id="panelClose" type="button" aria-label="Close detail view">×</button>
+      </header>
+
+      <div class="panel-body" id="panelBody">
+        <div class="panel-inner" id="panelInner"></div>
+      </div>
+
+      <footer class="panel-foot">
+        <button class="btn btn-quiet" id="panelPrev" type="button"><span aria-hidden="true">←</span> <b id="panelPrevLabel">Previous</b></button>
+        <button class="btn btn-tertiary" id="panelOut" type="button">Zoom out to the whole system <span aria-hidden="true">↙</span></button>
+        <button class="btn btn-solid" id="panelNext" type="button"><b id="panelNextLabel">Next</b> <span aria-hidden="true">→</span></button>
+      </footer>
+    </div>
+
+    <script src="vendor/mermaid.min.js"></script>
+    <script src="app.js"></script>
+    <script type="module" src="full-flow.js"></script>
+    <script type="module" src="knowledge-flow.js"></script>
+    <script type="module" src="context-flow.js"></script>
+    <script type="module" src="plan-flow.js"></script>
+    <script type="module" src="execute-flow.js"></script>
+    <script type="module" src="critique-flow.js"></script>
+    <script type="module" src="evaluation-flow.js"></script>
+    <script type="module" src="output-flow.js"></script>
+  </body>
+</html>
