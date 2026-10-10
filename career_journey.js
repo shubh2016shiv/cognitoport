@@ -35,17 +35,68 @@ const CAREER_JOURNEY = [
     },
     {
         id: 'faraday-ml-engineer',
-        period: 'March 2023 - June 2024',
+        period: 'March 2023 – June 2024',
         role: 'Machine Learning Engineer',
-        company: 'Faraday Battery Private Limited',
+        company: 'Faraday Battery',
+        drawerCompany: 'Faraday Battery, Birmingham, UK',
         companyUrl: 'https://www.faradaybattery.in/',
         location: 'Birmingham, UK',
-        blurb: 'Developed predictive modeling and data workflows for research-oriented battery diagnostics use cases.',
-        drawerHeading: 'Machine Learning Engineer at Faraday Battery Private Limited',
-        drawerText: [
-            'Detailed professional experience content will be added here.',
-            'Project-level context, model strategy, and operational details will be added later.'
-        ]
+        blurb: 'Built cloud ML pipelines for battery health, charge, remaining life, and maintenance alerts.',
+        drawerHeading: 'Machine Learning Engineer',
+        drawerHtml: `
+            <div class="space-y-6">
+                <p>Faraday Battery makes rechargeable battery packs for large electric vehicles, and its customers need to know when a battery cell needs maintenance. I built the cloud ML systems for that: models that predict battery charge, health and remaining life, plus the data and deployment pipelines around them.</p>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Skills</p>
+                    <table class="w-full text-left text-sm border-collapse">
+                        <tbody class="divide-y divide-white/10">
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold w-2/5">ML / AI</th><td class="py-3">${renderCareerSkillChips(['Python', 'CNNs', 'Computer vision', 'Anomaly detection', 'LLMs (Ollama)'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">AWS</th><td class="py-3">${renderCareerSkillChips(['Lambda', 'ECS Anywhere', 'ECR', 'S3', 'DynamoDB', 'API Gateway', 'IoT Core', 'EventBridge', 'CloudWatch'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">DevOps</th><td class="py-3">${renderCareerSkillChips(['Docker', 'Terraform', 'Bash'])}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-2">Generative AI</p>
+                    <h5 class="text-white text-base font-semibold leading-snug">LLM Maintenance Reports for EV Batteries</h5>
+                    <ul class="mt-4 space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Battery maintenance records are technical, and customers need plain-language reports and root-cause analysis.</li>
+                        <li><strong class="text-white">What I built:</strong> A summarisation service that runs an Ollama LLM in Docker on a local server, called through API Gateway, and turns maintenance records into customer-friendly reports.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-2">ML at Scale</p>
+                    <h5 class="text-white text-base font-semibold leading-snug">Fast Battery Inference on Serverless AWS</h5>
+                    <ul class="mt-4 space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Predicting the State of Charge (how much energy is left) for thousands of cells in one battery pack took about 10 minutes.</li>
+                        <li><strong class="text-white">What I built:</strong> I deployed a CNN model for State of Charge (pre-trained by the National Physical Laboratory) on AWS Lambda, with a hierarchical design that runs concurrent, asynchronous predictions. I built three inference pipelines in all, covering Remaining Useful Life, State of Health and maintenance alerts, using S3, DynamoDB, ECR and Lambda.</li>
+                        <li><strong class="text-white">Result:</strong> The State of Charge inference time dropped from 10 minutes to 40–50 seconds. Latency across the three pipelines fell by 80%.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-2">Computer Vision</p>
+                    <h5 class="text-white text-base font-semibold leading-snug">Automated Weld Inspection</h5>
+                    <ul class="mt-4 space-y-3">
+                        <li>Built a serverless pipeline with a containerised vision model to check welds on EV battery casings, replacing a manual review step.</li>
+                        <li><strong class="text-white">Result:</strong> Each inspection takes under 10 seconds.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Anomaly Detection and Data Pipelines</p>
+                    <ul class="list-disc pl-5 space-y-2 marker:text-cyan-neon">
+                        <li>Deployed a Chi² anomaly-detection system for threshold monitoring with the National Physical Laboratory, with Dockerised training on Lambda and EventBridge and real-time inference triggered by DynamoDB.</li>
+                        <li>Built the telemetry pipeline that checks the structure of incoming battery data and enforces time-series order before storing it (IoT Core, Lambda, API Gateway, DynamoDB, EventBridge, CloudWatch).</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Training and Platform</p>
+                    <ul class="list-disc pl-5 space-y-2 marker:text-cyan-neon">
+                        <li>Built three Dockerised model-training pipelines on AWS ECS Anywhere, so training ran on existing on-premise machines and cut compute costs.</li>
+                        <li>Designed 30+ API Gateway resources and tuned 60+ DynamoDB tables with Global Secondary Indexes, reducing query times by 30%.</li>
+                        <li>Wrote 70+ Terraform scripts (50+ for DynamoDB tables, 20+ for API Gateway and Lambda) to move the platform into production.</li>
+                    </ul>
+                </div>
+            </div>`
     },
     {
         id: 'bcu-msc-ai',
