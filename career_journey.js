@@ -117,17 +117,42 @@ const CAREER_JOURNEY = [
     },
     {
         id: 'citibank-software-developer',
-        period: '2016 - 2022',
+        period: '2016–2022',
         role: 'Software Developer',
-        company: 'CitiCorp Services India Private Limited (TTS Department)',
+        company: 'Citi, Treasury and Trade Solutions (TTS)',
+        drawerCompany: 'Citi, Treasury and Trade Solutions (TTS), via CitiCorp Services India Private Limited, Pune',
         companyUrl: 'https://www.citigroup.com/global/about-us/global-presence/india',
         location: 'Pune, India',
-        blurb: 'Built secure and scalable backend systems with strong engineering standards for financial workloads.',
-        drawerHeading: 'Software Developer at CitiCorp Services India Private Limited (TTS Department)',
-        drawerText: [
-            'Detailed professional experience content will be added here.',
-            'This section will include platform responsibilities and engineering achievements.'
-        ]
+        blurb: 'Built and secured trade and treasury software, from backend services to machine learning and deployment automation.',
+        drawerHeading: 'Software Developer',
+        drawerHtml: `
+            <div class="space-y-6">
+                <p>Six years building and securing software for Citi’s trade and treasury services, used by client banks across 21 EMEA countries. I started in backend development and moved into machine learning, deployment automation and application security.</p>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Skills</p>
+                    <table class="w-full text-left text-sm border-collapse">
+                        <tbody class="divide-y divide-white/10">
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold w-2/5">ML / NLP</th><td class="py-3">${renderCareerSkillChips(['Python', 'Keras', 'Scikit-learn', 'LSTM', 'GloVe embeddings'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">DevOps</th><td class="py-3">${renderCareerSkillChips(['CI/CD', 'IBM UrbanCode Deploy', 'JFrog Artifactory'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Security</th><td class="py-3">${renderCareerSkillChips(['CyberArk'])}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-2">AI Project</p>
+                    <h5 class="text-white text-base font-semibold leading-snug">HS Code Classifier for Trade Finance</h5>
+                    <p class="mt-1 text-xs text-gray-400">LSTM · NLP</p>
+                    <ul class="mt-4 space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Letters of credit (SWIFT MT700 messages) include a free-text description of the goods. Operations staff had to read each one and manually assign the matching Harmonized System (HS/HSN) commodity code, the international standard that customs and trade finance rely on.</li>
+                        <li><strong class="text-white">What I built:</strong> A deep-learning text classifier (LSTM with pre-trained GloVe embeddings) that reads the description and suggests the commodity code. Most trade messages cover a few common product types, so I used stratified validation and tracked both overall and per-class results.</li>
+                        <li><strong class="text-white">Result:</strong> About 79% accuracy across 29 commodity codes, trained on roughly 9,600 messages.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Recognition</p>
+                    <p>Gratitude Silver award for delivering and upgrading application security for client banks across 21 EMEA countries.</p>
+                </div>
+            </div>`
     }
 ];
 
@@ -361,9 +386,9 @@ function openCareerDrawer(career) {
     titleEl.textContent = career.drawerHeading;
 
     if (career.companyUrl) {
-        companyEl.innerHTML = `${career.organizationLabel || 'Company'}: <a href="${career.companyUrl}" target="_blank" rel="noopener noreferrer" class="text-cyan-neon hover:underline">${career.company}</a>`;
+        companyEl.innerHTML = `${career.organizationLabel || 'Company'}: <a href="${career.companyUrl}" target="_blank" rel="noopener noreferrer" class="text-cyan-neon hover:underline">${career.drawerCompany || career.company}</a>`;
     } else {
-        companyEl.textContent = `${career.organizationLabel || 'Company'}: ${career.company}`;
+        companyEl.textContent = `${career.organizationLabel || 'Company'}: ${career.drawerCompany || career.company}`;
     }
 
     contentEl.innerHTML = career.drawerHtml || career.drawerText
