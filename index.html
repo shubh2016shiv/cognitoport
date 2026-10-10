@@ -1237,19 +1237,22 @@
                 <p class="text-[#AAAAAA] mb-10 reveal delay-100">
                     Currently open to new opportunities and collaborations in the AI space. Feel free to send me a message!
                 </p>
-                <form id="contactForm" class="space-y-6 reveal delay-200" novalidate>
+                <form id="contactForm" action="https://formsubmit.co/shubh2014shiv@gmail.com" method="POST" class="space-y-6 reveal delay-200">
                     <!-- Hidden FormSubmit config fields -->
-                    <input type="hidden" name="_subject" value="Portfolio Contact from ${name}">
-                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_subject" value="Portfolio Contact">
                     <input type="hidden" name="_template" value="table">
                     <!-- Honeypot: catches bots — must stay hidden -->
                     <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <label for="contactName" class="sr-only">Your name</label>
                         <input id="contactName" name="name" type="text" placeholder="Your Name" required class="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-cyan-neon focus:bg-white/[0.05] transition-all">
+                        <label for="contactEmail" class="sr-only">Your email</label>
                         <input id="contactEmail" name="email" type="email" placeholder="Your Email" required class="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-cyan-neon focus:bg-white/[0.05] transition-all">
                     </div>
+                    <label for="contactMessage" class="sr-only">Your message</label>
                     <textarea id="contactMessage" name="message" placeholder="Your Message" rows="4" required class="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-cyan-neon focus:bg-white/[0.05] transition-all"></textarea>
                     <button type="submit" id="contactSubmitBtn" class="bg-white text-black font-semibold py-3 px-8 rounded-full transition-all duration-300 hover:bg-cyan-neon hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed">Send Message</button>
+                    <p class="text-[#AAAAAA] text-sm">Having trouble? <a href="mailto:shubh2014shiv@gmail.com" class="text-cyan-neon hover:underline">Email me directly</a>.</p>
                 </form>
             </div>
         </section>
@@ -1280,7 +1283,6 @@
     <script src="nlp_explorer.js"></script>
     <script src="ops_explorer.js"></script>
     <script src="career_journey.js"></script>
-    <script src="contact.js"></script>
 
     <script>
         lucide.createIcons();
