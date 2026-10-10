@@ -1,0 +1,107 @@
+#stage-cloud {
+    padding: 1.5rem 1.8rem;
+}
+
+.ops-skills-panel {
+    border-color: rgba(251, 191, 36, 0.28);
+    background: linear-gradient(145deg, rgba(24, 20, 11, 0.98), rgba(11, 10, 7, 0.98));
+    scrollbar-color: rgba(251, 191, 36, 0.45) transparent;
+}
+
+.ops-skills-panel .genai-explorer__heading,
+.ops-skills-panel .genai-explorer__kicker {
+    color: #fbbf24;
+}
+
+.ops-skills-panel .genai-explorer__count {
+    border-color: rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.09);
+    color: #fff0bf;
+}
+
+.ops-skills-panel .genai-explorer__tab:hover {
+    border-color: rgba(251, 191, 36, 0.43);
+    background: rgba(251, 191, 36, 0.06);
+}
+
+.ops-skills-panel .genai-explorer__tab[aria-selected="true"] {
+    border-color: rgba(251, 191, 36, 0.68);
+    background: linear-gradient(90deg, rgba(251, 191, 36, 0.14), rgba(251, 191, 36, 0.025));
+    box-shadow: inset 3px 0 #fbbf24;
+}
+
+.ops-skills-panel .genai-explorer__tab-icon,
+.ops-skills-panel .genai-explorer__tab-arrow,
+.ops-skills-panel .genai-explorer__logo svg {
+    color: #fbd46b;
+}
+
+.ops-skills-panel .genai-explorer__tab:focus-visible,
+.ops-skills-panel .genai-explorer__detail:focus-visible {
+    outline-color: #fbbf24;
+}
+
+.ops-skills-panel .genai-explorer__logo {
+    background: #2a2417;
+}
+
+.ops-skills-panel .ops-explorer__logo--fastapi,
+.ops-skills-panel .ops-explorer__logo--docker,
+.ops-skills-panel .ops-explorer__logo--kubernetes,
+.ops-skills-panel .ops-explorer__logo--github-actions,
+.ops-skills-panel .ops-explorer__logo--azure-devops,
+.ops-skills-panel .ops-explorer__logo--terraform,
+.ops-skills-panel .ops-explorer__logo--opentelemetry,
+.ops-skills-panel .ops-explorer__logo--redis {
+    background: #f4f6f8;
+}
+
+.ops-explorer__azure-mark {
+    position: relative;
+    display: block;
+    width: 29px;
+    height: 29px;
+}
+
+.ops-explorer__azure-mark img {
+    position: absolute;
+    top: 1px;
+    left: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.ops-explorer__azure-mark b {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    min-width: 14px;
+    padding: 1px 2px;
+    border-radius: 3px;
+    background: #fbbf24;
+    color: #171305;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.42rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.ops-explorer__monogram {
+    color: #ffe4a3;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    font-weight: 800;
+}
+
+.ops-skills-panel .genai-explorer__capabilities svg {
+    color: #fbbf24;
+}
+
+@media (max-width: 767px) {
+    #stage-cloud { padding: 0 0.1rem 0 0; overflow: auto; }
+    .ops-skills-panel .genai-explorer__heading { font-size: 1.34rem; }
+    .ops-skills-panel .genai-explorer__capabilities-divider,
+    .ops-skills-panel .genai-explorer__capabilities-label { display: block; }
+    .ops-skills-panel .genai-explorer__capabilities { display: grid; }
+}

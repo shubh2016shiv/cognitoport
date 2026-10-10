@@ -43,13 +43,14 @@ const ARSENAL_DATA = [
     },
     {
         id: 'cloud',
-        label: 'Engineering & Deployment',
+        label: 'AI Deployment & Operations',
         tagline: 'Scalable · Reliable · Production',
         accentColor: '#FBBF24',
-        gridId: 'cloud-chip-grid',
-        chipClass: 'chip-cloud',
-        animIn: 'cloud-in',
-        skills: ['AWS', 'Azure', 'Docker', 'FastAPI', 'PostgreSQL', 'GitHub Actions']
+        useStaticPanel: true,
+        gridId: null,
+        chipClass: null,
+        animIn: null,
+        skills: []
     }
 ];
 
@@ -237,16 +238,6 @@ function stopConnectors() {
     }
 }
 
-let cloudHeartbeatTimeout = null;
-let cloudSyncTimeout    = null;
-
-function retriggerAnimationClass(chip, className) {
-    chip.classList.remove(className);
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => chip.classList.add(className));
-    });
-}
-
 // ── Animate Chips In ─────────────────────────
 function animateChipsIn(stageData, onDone) {
     if (stageData.useStaticPanel) {
@@ -273,28 +264,6 @@ function animateChipsIn(stageData, onDone) {
         });
     }
 
-    // ── Cloud: sequential boot-flicker, opacity locked by animationend ──
-    else if (stageData.id === 'cloud') {
-        let booted = 0;
-        chips.forEach((chip, i) => {
-            setTimeout(() => {
-                chip.classList.add('cloud-booting');
-                chip.addEventListener('animationend', () => {
-                    chip.style.opacity = '1';
-                    chip.classList.remove('cloud-booting');
-                    booted++;
-                    if (booted === chips.length) {
-                        cloudHeartbeatTimeout = setTimeout(() => {
-                            chips.forEach(c => c.classList.add('cloud-idle'));
-                            startCloudSync(chips);
-                        }, 600);
-                        if (onDone) onDone();
-                    }
-                }, { once: true });
-            }, 80 + i * 180);
-        });
-    }
-
     else {
         chips.forEach((chip, i) => {
             setTimeout(() => chip.classList.add(stageData.animIn), 60 + i * 80);
@@ -304,26 +273,6 @@ function animateChipsIn(stageData, onDone) {
 }
 
 
-let cloudSyncStopped = false;
-function startCloudSync(chips) {
-    if (cloudSyncTimeout) return;
-    cloudSyncStopped = false;
-    let idx = 0;
-    function triggerSync() {
-        if (cloudSyncStopped) return;
-        const chip = chips[idx % chips.length];
-        retriggerAnimationClass(chip, 'cloud-sync');
-        idx++;
-        cloudSyncTimeout = setTimeout(triggerSync, 430);
-    }
-    cloudSyncTimeout = setTimeout(triggerSync, 320);
-}
-
-function stopCloudSync() {
-    cloudSyncStopped = true;
-    if (cloudSyncTimeout) { clearTimeout(cloudSyncTimeout); cloudSyncTimeout = null; }
-}
-
 // ── Animation Cleanup ─────────────────────────
 function animateChipsOut(stageData) {
     if (stageData.useStaticPanel) return;
@@ -331,14 +280,9 @@ function animateChipsOut(stageData) {
         document.querySelectorAll(`#${stageData.id}-chip-grid .${stageData.chipClass}`)
     );
     chips.forEach(chip => {
-        chip.classList.remove(stageData.animIn, 'genai-glow',
-                              'cloud-booting', 'cloud-idle', 'cloud-sync');
-        if (stageData.id === 'cloud') chip.style.opacity = '';
+        chip.classList.remove(stageData.animIn, 'genai-glow');
     });
-    if (stageData.id === 'cloud') {
-        if (cloudHeartbeatTimeout) { clearTimeout(cloudHeartbeatTimeout); cloudHeartbeatTimeout = null; }
-        stopCloudSync();
-    }
+
 }
 
 // ── Scroll Engine ─────────────────────────────
@@ -572,7 +516,9 @@ function navigateByDelta(delta, source) {
 function canScrollArsenalPanel(target, delta) {
     const panel = target instanceof Element ? target.closest('.genai-explorer') : null;
     if (!panel) return false;
-    if (panel.matches('.nlp-skills-panel')) {
+    if (panel.matches('.ops-skills-panel')) {
+        if (currentStage !== 3) return false;
+    } else if (panel.matches('.nlp-skills-panel')) {
         if (currentStage !== 2) return false;
     } else if (panel.matches('.ml-skills-panel')) {
         if (currentStage !== 1) return false;

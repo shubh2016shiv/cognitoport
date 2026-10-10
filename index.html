@@ -665,51 +665,6 @@
             opacity: 1;
         }
 
-        /* ============================================
-           CLOUD — BOOT SEQUENCE
-           Each chip flickers on like a server booting.
-           IMPORTANT: opacity is controlled by JS inline
-           style after animation ends — NOT by CSS fill.
-           This prevents the 'text disappear' bug.
-        ============================================ */
-        .chip-cloud {
-            opacity: 0; /* JS sets opacity:1 after animation */
-        }
-        @keyframes cloud-boot {
-            0%   { opacity: 0;   filter: brightness(0);   transform: scale(1.05); border-color: rgba(251,191,36,0);    box-shadow: none; }
-            10%  { opacity: 1;   filter: brightness(4.5); transform: scale(1.1);  border-color: rgba(251,191,36,0.95); box-shadow: 0 0 40px -2px rgba(251,191,36,0.95); color: #FBBF24; }
-            28%  { opacity: 0.3; filter: brightness(0.2); transform: scale(0.97); }
-            48%  { opacity: 1;   filter: brightness(3);   border-color: rgba(251,191,36,0.75); color: #FBBF24; }
-            70%  { opacity: 1;   filter: brightness(0.5); border-color: rgba(255,255,255,0.15); color: #fff; }
-            88%  { opacity: 1;   filter: brightness(1.4); }
-            100% { opacity: 1;   filter: brightness(1);   transform: scale(1);    border-color: rgba(255,255,255,0.12); box-shadow: none; color: #fff; }
-        }
-        /* cloud-booting: animation only — JS sets opacity:1 on animationend */
-        .chip-cloud.cloud-booting {
-            animation: cloud-boot 1.2s ease-out;
-        }
-        /* Gentle amber heartbeat after boot: opacity explicitly 1 */
-        @keyframes cloud-pulse {
-            0%,100% { box-shadow: none;                              border-color: rgba(255,255,255,0.12); }
-            50%     { box-shadow: 0 0 18px -5px rgba(251,191,36,0.55); border-color: rgba(251,191,36,0.35); }
-        }
-        .chip-cloud.cloud-idle {
-            opacity: 1; /* Always keep visible */
-            animation: cloud-pulse 3.5s ease-in-out infinite;
-        }
-        @keyframes cloud-sync {
-            0%   { transform: translateY(0) scale(1); box-shadow: none; border-color: rgba(255,255,255,0.12); color: #fff; }
-            30%  { transform: translateY(-1px) scale(1.01); box-shadow: 0 0 22px -5px rgba(251,191,36,0.85); border-color: rgba(251,191,36,0.75); color: #fde68a; }
-            100% { transform: translateY(0) scale(1); box-shadow: none; border-color: rgba(255,255,255,0.12); color: #fff; }
-        }
-        .chip-cloud.cloud-sync {
-            animation: cloud-sync 0.78s ease-out;
-        }
-        .chip-cloud:hover {
-            border-color: rgba(251, 191, 36, 0.55);
-            box-shadow: 0 0 24px -4px rgba(251, 191, 36, 0.6);
-        }
-
         /* Accent color CSS var */
         :root { --arsenal-accent: #00F0FF; }
 
@@ -867,6 +822,7 @@
     <link rel="stylesheet" href="genai_explorer.css">
     <link rel="stylesheet" href="ml_skills.css">
     <link rel="stylesheet" href="nlp_skills.css">
+    <link rel="stylesheet" href="ops_skills.css">
 </head>
 
 <body class="relative">
@@ -1164,10 +1120,18 @@
                         </div>
                     </div>
 
-                    <!-- Stage 4: Engineering & Deployment -->
+                    <!-- Stage 4: AI Deployment & Operations -->
                     <div class="arsenal-stage" id="stage-cloud">
-                        <p class="stage-label">Engineering &amp; Deployment</p>
-                        <div class="chip-grid" id="cloud-chip-grid"></div>
+                        <div class="genai-explorer ops-skills-panel" aria-label="AI Deployment and Operations skills">
+                            <div class="genai-explorer__header">
+                                <h3 class="genai-explorer__heading">AI Deployment &amp; Operations</h3>
+                                <span class="genai-explorer__count" id="ops-explorer-count" aria-live="polite">1 / 6</span>
+                            </div>
+                            <div class="genai-explorer__body">
+                                <div class="genai-explorer__nav" id="ops-explorer-tabs" role="tablist" aria-label="AI deployment and operations categories"></div>
+                                <div class="genai-explorer__detail" id="ops-explorer-panel" role="tabpanel" tabindex="0"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="arsenal-scroll-hint" class="arsenal-scroll-hint hint-down is-hidden" aria-hidden="true" data-direction="down">
@@ -1258,6 +1222,7 @@
     <script src="genai_explorer.js"></script>
     <script src="ml_explorer.js"></script>
     <script src="nlp_explorer.js"></script>
+    <script src="ops_explorer.js"></script>
     <script src="career_journey.js"></script>
     <script src="contact.js"></script>
 
