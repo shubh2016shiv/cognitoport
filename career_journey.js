@@ -4,18 +4,44 @@ function renderCareerSkillChips(skills) {
 
 const CAREER_JOURNEY = [
     {
-        id: 'dataconsol-lead-ml-engineer',
-        period: 'January 2026 - Present',
-        role: 'Lead Machine Learning Engineer',
+        id: 'dataconsol-senior-ml-engineer',
+        period: 'January 2026 – Present',
+        role: 'Senior Machine Learning Engineer, Healthcare',
         company: 'DataConsol',
+        drawerCompany: 'DataConsol, Noida',
+        drawerClient: 'Optum (a UnitedHealth Group company)',
         companyUrl: 'https://dataconsol.com/',
-        location: 'India',
-        drawerHeading: 'Lead Machine Learning Engineer at DataConsol',
-        drawerText: [
-            'Detailed professional experience content will be added here.',
-            'This section will include project highlights, business impact, and team contributions.',
-            'Technologies used and architecture details will also be listed here.'
-        ]
+        location: 'Noida, India',
+        drawerHeading: 'Senior Machine Learning Engineer, Healthcare',
+        drawerHtml: `
+            <div class="space-y-6">
+                <p>I build an AI system that turns plain-English data-quality rules into tested PySpark validation scripts for a healthcare data platform running on Azure Databricks.</p>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Multi-Agent Validation Script Generator</p>
+                    <ul class="space-y-4">
+                        <li><strong class="text-white">Problem:</strong> QA analysts write data-quality rules as sentences, such as “this column must match the reference table, and nulls are allowed”. Turning each sentence into a correct PySpark test was slow, and the earlier single-script generator produced scripts that passed only 40% of the time.</li>
+                        <li>
+                            <strong class="text-white">What I built:</strong> I re-architected it into a multi-agent RAG pipeline:
+                            <ul class="mt-3 list-disc pl-5 space-y-2 marker:text-cyan-neon">
+                                <li><strong class="text-white">Knowledge retrieval:</strong> The pipeline uses an existing knowledge base of schema and methodology documents and production ETL code, searched by exact lookup and by meaning (ChromaDB in development, Azure AI Search in production).</li>
+                                <li><strong class="text-white">Planning agents:</strong> Determine which tables and joins the rule touches and define pass and fail precisely. A feasibility gate skips a test when a required table schema is missing instead of guessing.</li>
+                                <li><strong class="text-white">Script generation:</strong> The model writes one function body inside a fixed script template, keeping the rest of the script identical every time.</li>
+                                <li><strong class="text-white">Review loop:</strong> Six specialised AI agents work with deterministic checks: three reviewers, a fix planner, a patch generator and a requirement verifier. They apply small diff-based patches under a regression guard. The loop is capped at five rounds, and a stalled quality score triggers regeneration.</li>
+                            </ul>
+                        </li>
+                        <li><strong class="text-white">Result:</strong> Pass rate rose from 40% to 84% on production-scale data, above the 80% acceptance bar. Correction cycles fell from 15 to under 4.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Skills</p>
+                    <table class="w-full text-left text-sm border-collapse">
+                        <tbody class="divide-y divide-white/10">
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold w-2/5">GenAI</th><td class="py-3">${renderCareerSkillChips(['Multi-agent orchestration', 'RAG', 'Hybrid search', 'LLM code generation'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Data</th><td class="py-3">${renderCareerSkillChips(['PySpark', 'Azure Databricks', 'Azure Data Factory', 'Azure AI Search', 'ChromaDB'])}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>`
     },
     {
         id: 'nitor-generative-ai-developer',
