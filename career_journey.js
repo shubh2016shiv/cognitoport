@@ -1,3 +1,7 @@
+function renderCareerSkillChips(skills) {
+    return `<ul class="flex flex-wrap gap-2">${skills.map((skill) => `<li class="rounded-full border border-cyan-500/25 bg-cyan-500/[0.06] px-3 py-1 text-xs text-gray-200">${skill}</li>`).join('')}</ul>`;
+}
+
 const CAREER_JOURNEY = [
     {
         id: 'dataconsol-lead-ml-engineer',
@@ -45,17 +49,71 @@ const CAREER_JOURNEY = [
     },
     {
         id: 'bcu-msc-ai',
-        period: 'September 2022 - August 2023',
-        role: 'M.Sc in Artificial Intelligence',
+        period: '2022-2023',
+        role: 'MSc Artificial Intelligence (Distinction)',
         company: 'Birmingham City University',
+        organizationLabel: 'University',
         companyUrl: 'https://www.bcu.ac.uk/',
         location: 'Birmingham, UK',
-        blurb: 'Completed postgraduate specialization in AI with focus on machine learning and applied intelligent systems.',
-        drawerHeading: 'M.Sc in Artificial Intelligence',
-        drawerText: [
-            'Detailed professional experience content will be added here.',
-            'Academic focus areas, projects, and research contributions will be included.'
-        ]
+        blurb: 'One-year full-time MSc covering Machine Learning, Deep Learning, NLP and Applied AI.',
+        drawerHeading: 'MSc Artificial Intelligence (Distinction)',
+        drawerHtml: `
+            <div class="space-y-6">
+                <p>One-year full-time MSc covering Machine Learning, Deep Learning, NLP and Applied AI.</p>
+                <div>
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Modules · 180 credits</p>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2" aria-label="MSc modules">
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3"><span class="text-white">Computing for AI</span><span class="block text-xs text-gray-500">CMP6221 · 20 credits</span></li>
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3"><span class="text-white">Deep Learning</span><span class="block text-xs text-gray-500">CMP7225 · 20 credits</span></li>
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3"><span class="text-white">Impact of AI</span><span class="block text-xs text-gray-500">CMP7226 · 20 credits</span></li>
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3"><span class="text-white">Data Visualisation</span><span class="block text-xs text-gray-500">CMP7227 · 20 credits</span></li>
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3"><span class="text-white">Machine Learning</span><span class="block text-xs text-gray-500">CMP7228 · 20 credits</span></li>
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3"><span class="text-white">Applied AI</span><span class="block text-xs text-gray-500">CMP7229 · 20 credits</span></li>
+                        <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3 sm:col-span-2"><span class="text-white">Individual Master’s Project (thesis)</span><span class="block text-xs text-gray-500">CMP7200 · 60 credits</span></li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Skills</p>
+                    <table class="w-full text-left text-sm border-collapse">
+                        <tbody class="divide-y divide-white/10">
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold w-2/5">NLP and embeddings</th><td class="py-3">${renderCareerSkillChips(['SentenceTransformers', 'Hugging Face', 'BERT', 'spaCy', 'NLTK', 'Gensim'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Machine learning</th><td class="py-3">${renderCareerSkillChips(['Scikit-learn', 'CatBoost', 'Random Forest', 'AdaBoost', 'K-Means', 'HDBSCAN', 'UMAP'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Deep learning</th><td class="py-3">${renderCareerSkillChips(['TensorFlow', 'LSTM'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Languages and data</th><td class="py-3">${renderCareerSkillChips(['Python', 'MongoDB'])}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-2">Master’s thesis</p>
+                    <h5 class="text-white text-base font-semibold leading-snug">Context-Aware Three-Stage Approach for Matching Resume to Job Descriptions</h5>
+                    <ul class="mt-4 space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Keyword-based job matching misses meaning, so a good candidate can be overlooked because of different wording.</li>
+                        <li><strong class="text-white">What I built:</strong> A three-stage NLP pipeline. Sentence-BERT clusters 3,500+ job descriptions by role, then the resume is scored against jobs in its cluster at document level and at skill level (skills found by an LSTM classifier). The two scores are averaged and the top 10 jobs are returned.</li>
+                        <li><strong class="text-white">Result:</strong> Sentence-BERT beat Doc2Vec on job-category classification, 98% vs 69% accuracy.</li>
+                    </ul>
+                    <p class="mt-4 text-xs text-gray-400">Supervised by <a href="https://www.linkedin.com/in/amna-dridi-467a71113/" target="_blank" rel="noopener noreferrer" class="text-cyan-neon hover:underline">Dr. Amna Dridi ↗</a> and Dr. Edlira Vakaj · Submitted 18 September 2023</p>
+                    <div class="flex flex-wrap gap-3 mt-4">
+                        <a href="https://drive.google.com/file/d/19r7tuCMTJaKk2jnG16dnkROrRtwkUz3Y/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 rounded-lg border border-cyan-500/40 bg-cyan-500/10 text-cyan-neon font-semibold hover:bg-cyan-500/20 transition-colors">Read the Thesis ↗</a>
+                        <a href="https://github.com/shubh2016shiv/thesis-resume-to-job-description-matching/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 rounded-lg border border-cyan-500/40 bg-cyan-500/10 text-cyan-neon font-semibold hover:bg-cyan-500/20 transition-colors">View Code on GitHub ↗</a>
+                    </div>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-2">Machine Learning Project</p>
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h5 class="text-white text-base font-semibold leading-snug">Loan Risk Analysis on 1M Lending Club Records</h5>
+                        <a href="https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data" target="_blank" rel="noopener noreferrer" class="text-cyan-neon text-xs whitespace-nowrap hover:underline">Dataset ↗</a>
+                    </div>
+                    <ul class="mt-4 space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Lenders need to know who is likely to default, and how much of the loan they would lose if it happens.</li>
+                        <li><strong class="text-white">What I built:</strong> Three models: a Random Forest that flags likely defaults, an AdaBoost regressor that predicts how much of a defaulted loan stays unpaid, and K-Means that groups borrowers into four risk segments.</li>
+                        <li><strong class="text-white">Result:</strong> The classifier caught about two-thirds of high-risk loans, and the regressor reached R² of 0.82 on unseen data.</li>
+                    </ul>
+                    <div class="flex flex-wrap gap-3 mt-4">
+                        <a href="https://drive.google.com/file/d/1e9T2J1wKpk8e6HJoO2MtCYFH7NQ3bZVu/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 rounded-lg border border-cyan-500/40 bg-cyan-500/10 text-cyan-neon font-semibold hover:bg-cyan-500/20 transition-colors">Read the Report ↗</a>
+                        <a href="https://github.com/shubh2016shiv/Machine-Learning-Project-in-Finance-Domain" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 rounded-lg border border-cyan-500/40 bg-cyan-500/10 text-cyan-neon font-semibold hover:bg-cyan-500/20 transition-colors">View Code on GitHub ↗</a>
+                    </div>
+                </div>
+            </div>`
     },
     {
         id: 'citibank-software-developer',
@@ -303,12 +361,12 @@ function openCareerDrawer(career) {
     titleEl.textContent = career.drawerHeading;
 
     if (career.companyUrl) {
-        companyEl.innerHTML = `Company: <a href="${career.companyUrl}" target="_blank" rel="noopener noreferrer" class="text-cyan-neon hover:underline">${career.company}</a>`;
+        companyEl.innerHTML = `${career.organizationLabel || 'Company'}: <a href="${career.companyUrl}" target="_blank" rel="noopener noreferrer" class="text-cyan-neon hover:underline">${career.company}</a>`;
     } else {
-        companyEl.textContent = `Company: ${career.company}`;
+        companyEl.textContent = `${career.organizationLabel || 'Company'}: ${career.company}`;
     }
 
-    contentEl.innerHTML = career.drawerText
+    contentEl.innerHTML = career.drawerHtml || career.drawerText
         .map((line) => `<p>${line}</p>`)
         .join('');
 
