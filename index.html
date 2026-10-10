@@ -352,6 +352,8 @@
         #cli-output {
             opacity: 0;
             animation: cli-fadein 0.4s ease 0.8s forwards;
+            transition: opacity 0.28s ease;
+            min-height: clamp(280px, 42vh, 370px);
         }
         .cli-line {
             margin-bottom: 4px;
@@ -360,6 +362,7 @@
             line-height: 1.75;
             min-height: 1.75em;
             word-break: break-word;
+            white-space: pre-wrap;
         }
         .cli-prompt-glyph {
             color: #00c8b4;
@@ -387,6 +390,7 @@
         /* Reduced motion: skip animation, show immediately */
         @media (prefers-reduced-motion: reduce) {
             .cli-chrome, #cli-output { animation: none; opacity: 1; }
+            #cli-output { transition: none; }
             .cli-cursor { animation: none; opacity: 1; }
             .arsenal-scroll-hint__glyph { animation: none !important; opacity: 0.9; }
             #carouselTrack { scroll-behavior: auto !important; }
@@ -975,36 +979,6 @@
                     <div id="cli-output"></div>
                 </div>
             </div>
-            <!-- Reduced-motion static fallback -->
-            <template id="cli-static-fallback">
-                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude inspect ./shubham-singh --depth=production --honest</span></div>
-                <div class="cli-gap-sm"></div>
-                <div class="cli-line cli-resp">Alright. Honest mode.</div>
-                <div class="cli-gap-sm"></div>
-                <div class="cli-line cli-resp">He builds AI systems — LangChain, LangGraph, agentic RAG, the full stack.</div>
-                <div class="cli-line cli-resp cli-resp--bright">Not the kind that get demoed once and archived. The kind that ship and stay running.</div>
-                <div class="cli-line cli-resp">Thinks about latency, fallbacks, cost, trust. The unglamorous parts.</div>
-                <div class="cli-gap"></div>
-                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude --skeptic "every AI engineer says production-grade"</span></div>
-                <div class="cli-gap-sm"></div>
-                <div class="cli-line cli-resp">Fair. Most stop at the API call.</div>
-                <div class="cli-line cli-resp cli-resp--bright">He wires the retrieval pipeline, structured output layer, multi-agent fallback.</div>
-                <div class="cli-line cli-resp">Pydantic contracts, vector stores that actually get reindexed, evals before deploy.</div>
-                <div class="cli-line cli-resp">The difference between a demo and a system is about 40 decisions nobody sees.</div>
-                <div class="cli-gap"></div>
-                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude --flag weakness --no-sugar</span></div>
-                <div class="cli-gap-sm"></div>
-                <div class="cli-line cli-resp">He goes too deep. Rabbit holes are a documented hazard.</div>
-                <div class="cli-line cli-resp cli-resp--bright">Spends a day on a retrieval edge case most people would ship around.</div>
-                <div class="cli-line cli-resp">Upside: he comes back with things others miss. Downside: deadlines notice.</div>
-                <div class="cli-gap"></div>
-                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cmd">claude --summarize --format=brief</span></div>
-                <div class="cli-gap-sm"></div>
-                <div class="cli-line cli-resp cli-resp--bright">I could keep going but the work says it better.</div>
-                <div class="cli-line cli-resp">Scroll down. That's the actual argument.</div>
-                <div class="cli-gap"></div>
-                <div class="cli-line"><span class="cli-prompt-glyph">❯ </span><span class="cli-cursor"></span></div>
-            </template>
         </section>
 
         <!-- About Me Section -->
@@ -1537,114 +1511,155 @@
             const cliOutput = document.getElementById('cli-output');
             if (!cliOutput) return;
 
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            // Reduced motion: render static fallback immediately
-            if (prefersReducedMotion) {
-                const tmpl = document.getElementById('cli-static-fallback');
-                if (tmpl) cliOutput.appendChild(tmpl.content.cloneNode(true));
-                return;
-            }
-
-            // Session script
-            const CLI_SCRIPT = [
-                { type: 'gap' },
-                { type: 'cmd',  text: 'claude inspect ./shubham-singh --depth=production --honest' },
-                { type: 'gap-sm' },
-                { type: 'resp', text: 'Alright. Honest mode.' },
-                { type: 'gap-sm' },
-                { type: 'resp', text: 'He builds AI systems — LangChain, LangGraph, agentic RAG, the full stack.' },
-                { type: 'resp', text: 'Not the kind that get demoed once and archived. The kind that ship and stay running.', bright: true },
-                { type: 'resp', text: 'Thinks about latency, fallbacks, cost, trust. The unglamorous parts.' },
-                { type: 'gap' },
-                { type: 'cmd',  text: 'claude --skeptic "every AI engineer says production-grade"' },
-                { type: 'gap-sm' },
-                { type: 'resp', text: 'Fair. Most stop at the API call.' },
-                { type: 'resp', text: 'He wires the retrieval pipeline, structured output layer, multi-agent fallback.', bright: true },
-                { type: 'resp', text: 'Pydantic contracts, vector stores that actually get reindexed, evals before deploy.' },
-                { type: 'resp', text: 'The difference between a demo and a system is about 40 decisions nobody sees.' },
-                { type: 'gap' },
-                { type: 'cmd',  text: 'claude --flag weakness --no-sugar' },
-                { type: 'gap-sm' },
-                { type: 'resp', text: 'He goes too deep. Rabbit holes are a documented hazard.' },
-                { type: 'resp', text: 'Spends a day on a retrieval edge case most people would ship around.', bright: true },
-                { type: 'resp', text: 'Upside: he comes back with things others miss. Downside: deadlines notice.' },
-                { type: 'gap' },
-                { type: 'cmd',  text: 'claude --summarize --format=brief' },
-                { type: 'gap-sm' },
-                { type: 'resp', text: 'I could keep going but the work says it better.', bright: true },
-                { type: 'resp', text: "Scroll down. That's the actual argument." },
-                { type: 'gap' },
-                { type: 'cursor-final' },
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const CLI_SCENES = [
+                {
+                    command: 'claude inspect ./shubham-singh --depth=production --honest',
+                    brightLine: 2,
+                    lines: [
+                        'Alright. Honest mode.',
+                        'He builds AI systems — LangChain, LangGraph, agentic RAG, the full stack.',
+                        'Not the kind that get demoed once and archived. The kind that ship and stay running.',
+                        'Thinks about latency, fallbacks, cost, trust. The unglamorous parts.'
+                    ]
+                },
+                {
+                    command: 'claude --skeptic "every AI engineer says production-grade"',
+                    brightLine: 1,
+                    lines: [
+                        'Fair. Most stop at the API call.',
+                        'He wires the retrieval pipeline, structured output layer, multi-agent fallback.',
+                        'Pydantic contracts, vector stores that actually get reindexed, evals before deploy.',
+                        'The difference between a demo and a system is about 40 decisions nobody sees.'
+                    ]
+                },
+                {
+                    command: 'claude --flag weakness --no-sugar',
+                    brightLine: 1,
+                    lines: [
+                        'He goes too deep. Rabbit holes are a documented hazard.',
+                        'Spends a day on a retrieval edge case most people would ship around.',
+                        'Upside: he comes back with things others miss. Downside: deadlines notice.'
+                    ]
+                },
+                {
+                    command: 'claude --summarize --format=brief',
+                    lines: [
+                        'I could keep going but the work says it better.',
+                        "Scroll down. That's the actual argument."
+                    ]
+                },
+                {
+                    command: 'claude audit "how does he know the output is right"',
+                    lines: [
+                        "He doesn't trust the model. He bounds it.",
+                        'The model writes one function. Everything around it is a fixed template.',
+                        'Gates check structure before any model call is spent on quality.',
+                        'Loops have a cap, so cost is known in advance.',
+                        'Honest gap: no labelled ground-truth set, so he reports run outcomes, not accuracy.'
+                    ]
+                },
+                {
+                    command: 'claude trace --incident "LLM requests failing at peak"',
+                    lines: [
+                        'Cause: Azure OpenAI tokens-per-minute limits.',
+                        'Fix: a central token-allocation service.',
+                        'Reserve tokens, route to least-loaded deployment, fail over across regions, queue the overflow.',
+                        "The fix wasn't a prompt. It was infrastructure."
+                    ]
+                },
+                {
+                    command: 'claude trace --career',
+                    lines: [
+                        '2016–22   Citi         backend, CI/CD, credential security',
+                        '2022–23   BCU          MSc Artificial Intelligence, Distinction',
+                        '2023–24   Faraday      ML pipelines on AWS',
+                        '2024–26   Nitor        clinical GenAI for healthcare',
+                        '2026–     DataConsol   multi-agent systems on Databricks',
+                        '',
+                        'He started as the engineer who ships. The AI came on top of that.'
+                    ]
+                },
+                {
+                    command: 'claude --hire "what does he want"',
+                    lines: [
+                        'ML · NLP · Generative AI · Agentic AI developer roles.',
+                        'Systems that stay up, and teams that ask about the failure case.',
+                        'Contact below.'
+                    ]
+                }
             ];
 
-            function cliSleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-            function cliJitter(base, v) { return base + (Math.random() * v) - (v * 0.3); }
+            const cliSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const cliJitter = (base) => base + Math.random() * 10;
 
-            function cliEl(tag, cls) {
+            function cliEl(tag, className) {
                 const el = document.createElement(tag);
-                if (cls) el.className = cls;
+                el.className = className;
                 cliOutput.appendChild(el);
                 return el;
             }
 
-            async function cliTypeCmd(text) {
-                await cliSleep(cliJitter(460, 120));
+            function cliCommandLine(command) {
                 const line = cliEl('div', 'cli-line');
                 const glyph = document.createElement('span');
                 glyph.className = 'cli-prompt-glyph';
                 glyph.textContent = '\u276F ';
                 line.appendChild(glyph);
-                const cmd = document.createElement('span');
-                cmd.className = 'cli-cmd';
-                line.appendChild(cmd);
-                const cur = document.createElement('span');
-                cur.className = 'cli-cursor';
-                line.appendChild(cur);
-                for (let i = 0; i < text.length; i++) {
-                    cmd.textContent += text[i];
-                    let d = cliJitter(43, 16);
-                    if (text[i] === ' ') d += Math.random() * 28;
-                    if (text[i] === '-') d += Math.random() * 10;
-                    await cliSleep(d);
-                }
-                await cliSleep(cliJitter(190, 70));
-                cur.remove();
-                await cliSleep(cliJitter(300, 90));
+                const text = document.createElement('span');
+                text.className = 'cli-cmd';
+                line.appendChild(text);
+                return text;
             }
 
-            async function cliStreamResp(text, bright) {
-                await cliSleep(cliJitter(88, 28));
-                const line = cliEl('div', 'cli-line cli-resp' + (bright ? ' cli-resp--bright' : ''));
-                const words = text.split(' ');
-                for (let i = 0; i < words.length; i++) {
-                    line.textContent += (i === 0 ? '' : ' ') + words[i];
-                    let d = cliJitter(22, 18);
-                    const w = words[i];
-                    if (w.endsWith('.') || w.endsWith(',') || w.endsWith('\u2014')) d += Math.random() * 32;
-                    await cliSleep(d);
+            async function cliType(text, element, delay) {
+                for (const character of text) {
+                    element.textContent += character;
+                    await cliSleep(cliJitter(delay) + ('.!,'.includes(character) ? 65 : 0));
                 }
             }
 
-            function cliFinalCursor() {
-                const line = cliEl('div', 'cli-line');
-                const glyph = document.createElement('span');
-                glyph.className = 'cli-prompt-glyph';
-                glyph.textContent = '\u276F ';
-                line.appendChild(glyph);
-                const cur = document.createElement('span');
-                cur.className = 'cli-cursor';
-                line.appendChild(cur);
+            function cliRenderInstant(scene) {
+                const command = cliCommandLine();
+                command.textContent = scene.command;
+                cliEl('div', 'cli-gap-sm');
+                scene.lines.forEach((text, index) => {
+                    cliEl('div', 'cli-line cli-resp' + (index === (scene.brightLine ?? 0) ? ' cli-resp--bright' : '')).textContent = text;
+                });
+            }
+
+            async function cliRenderAnimated(scene) {
+                const command = cliCommandLine();
+                await cliSleep(300);
+                await cliType(scene.command, command, 55);
+                await cliSleep(300);
+                cliEl('div', 'cli-gap-sm');
+                for (const [index, text] of scene.lines.entries()) {
+                    const line = cliEl('div', 'cli-line cli-resp' + (index === (scene.brightLine ?? 0) ? ' cli-resp--bright' : ''));
+                    await cliType(text, line, 39);
+                    await cliSleep(160);
+                }
             }
 
             async function cliRun() {
-                await cliSleep(1000);
-                for (const item of CLI_SCRIPT) {
-                    if (item.type === 'gap')           { cliEl('div', 'cli-gap'); await cliSleep(70); }
-                    else if (item.type === 'gap-sm')   { cliEl('div', 'cli-gap-sm'); }
-                    else if (item.type === 'cmd')      { await cliTypeCmd(item.text); }
-                    else if (item.type === 'resp')     { await cliStreamResp(item.text, item.bright); }
-                    else if (item.type === 'cursor-final') { await cliSleep(280); cliFinalCursor(); }
+                await cliSleep(900);
+                for (let index = 0; ; index = (index + 2) % CLI_SCENES.length) {
+                    cliOutput.replaceChildren();
+                    const pair = [CLI_SCENES[index], CLI_SCENES[(index + 1) % CLI_SCENES.length]];
+                    if (reducedMotion.matches) {
+                        cliRenderInstant(pair[0]);
+                        cliEl('div', 'cli-gap');
+                        cliRenderInstant(pair[1]);
+                        await cliSleep(14000);
+                    } else {
+                        await cliRenderAnimated(pair[0]);
+                        cliEl('div', 'cli-gap');
+                        await cliRenderAnimated(pair[1]);
+                        await cliSleep(8000);
+                        cliOutput.style.opacity = '0';
+                        await cliSleep(280);
+                        cliOutput.style.opacity = '1';
+                    }
                 }
             }
 
