@@ -669,6 +669,88 @@
         :root { --arsenal-accent: #00F0FF; }
 
         /* Career Journey timeline and drawer */
+        @keyframes career-timeline-shift-left {
+            from { transform: translateX(35vw); }
+            to { transform: translateX(0); }
+        }
+        @keyframes career-timeline-shift-right {
+            from { transform: translateX(0); }
+            to { transform: translateX(35vw); }
+        }
+        @media (min-width: 1024px) {
+            body.career-drawer-open #experience {
+                position: fixed;
+                inset: var(--career-header-height, 72px) auto 0 0;
+                width: 100vw;
+                height: calc(100vh - var(--career-header-height, 72px));
+                height: calc(100dvh - var(--career-header-height, 72px));
+                overflow-y: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                z-index: 75;
+                padding: 2.5rem 0;
+                background: #080808;
+            }
+            body.career-drawer-open #experience::-webkit-scrollbar {
+                display: none;
+            }
+            body.career-drawer-open #experience > .container {
+                width: 30vw;
+                max-width: none;
+                margin-left: 0;
+                margin-right: 0;
+                padding-inline: clamp(1rem, 2vw, 2.5rem);
+                animation: career-timeline-shift-left 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+            }
+            body.career-drawer-closing #experience > .container {
+                animation: career-timeline-shift-right 300ms ease-in both;
+            }
+            body.career-drawer-open #experience .text-center {
+                margin-bottom: 2rem;
+            }
+            body.career-drawer-open #career-drawer {
+                top: var(--career-header-height, 72px);
+                height: calc(100vh - var(--career-header-height, 72px));
+                height: calc(100dvh - var(--career-header-height, 72px));
+                width: 70vw;
+                max-width: none;
+                border-left: 0;
+                border-radius: 1.25rem 0 0 1.25rem;
+                overflow: hidden;
+                background: linear-gradient(110deg, #0b1012, #080808 32%);
+                box-shadow: -24px 0 48px rgba(0, 0, 0, 0.58);
+            }
+            body.career-drawer-open #career-drawer-backdrop {
+                opacity: 0;
+                pointer-events: none;
+            }
+            #career-timeline .career-item.is-selected {
+                background: rgba(0, 240, 255, 0.06);
+                border-color: rgba(0, 240, 255, 0.28);
+            }
+        }
+        #career-drawer-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 240, 255, 0.72) transparent;
+        }
+        #career-drawer-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        #career-drawer-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #career-drawer-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.72);
+            border-radius: 999px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body.career-drawer-open #experience > .container {
+                animation: none;
+            }
+            body.career-drawer-closing #experience > .container {
+                animation: none;
+            }
+        }
         @keyframes career-latest-strobe {
             0%, 100% {
                 background: #22c55e;
@@ -1165,7 +1247,7 @@
                         Close
                     </button>
                 </div>
-                <div class="px-6 py-6 overflow-y-auto">
+                <div id="career-drawer-scroll" class="px-6 py-6 overflow-y-auto">
                     <p id="career-drawer-period" class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-2"></p>
                     <h4 id="career-drawer-title" class="text-white text-2xl font-bold mb-2"></h4>
                     <p id="career-drawer-company" class="text-gray-300 text-sm mb-5"></p>

@@ -10,7 +10,6 @@ const CAREER_JOURNEY = [
         company: 'DataConsol',
         companyUrl: 'https://dataconsol.com/',
         location: 'India',
-        blurb: 'Leading end-to-end machine learning initiatives and production-ready AI delivery for enterprise use cases.',
         drawerHeading: 'Lead Machine Learning Engineer at DataConsol',
         drawerText: [
             'Detailed professional experience content will be added here.',
@@ -20,18 +19,52 @@ const CAREER_JOURNEY = [
     },
     {
         id: 'nitor-generative-ai-developer',
-        period: 'August 2024 - January 2026',
-        role: 'Generative AI Developer',
+        period: 'August 2024 – January 2026',
+        role: 'Generative AI Engineer, Healthcare',
         company: 'Nitor Infotech',
+        drawerCompany: 'Nitor Infotech, Pune',
+        drawerClient: 'RhythmX (now GW RhythmX)',
         companyUrl: 'https://www.nitorinfotech.com/',
         location: 'Pune, India',
-        blurb: 'Built and delivered applied GenAI solutions, including enterprise-focused LLM workflows and retrieval systems.',
-        drawerHeading: 'Generative AI Developer at Nitor Infotech',
-        drawerText: [
-            'Detailed professional experience content will be added here.',
-            'This panel will capture responsibilities, solution scope, and measurable outcomes.',
-            'The complete technology stack and toolchain will be documented here.'
-        ]
+        drawerHeading: 'Generative AI Engineer, Healthcare',
+        drawerHtml: `
+            <div class="space-y-6">
+                <p>I built a clinical AI assistant for RhythmX, a healthcare AI company whose platform helps physicians decide next steps during a patient visit using patient history, guidelines, payer rules and formulary data. I worked on retrieval, tool use, LLM reasoning and production reliability.</p>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Skills</p>
+                    <table class="w-full text-left text-sm border-collapse">
+                        <tbody class="divide-y divide-white/10">
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold w-2/5">GenAI</th><td class="py-3">${renderCareerSkillChips(['RAG', 'Hybrid search', 'Tool calling', 'Streaming responses', 'Azure OpenAI', 'OpenAI o1'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Data</th><td class="py-3">${renderCareerSkillChips(['Milvus (vector search)', 'MongoDB', 'Redis', 'FHIR'])}</td></tr>
+                            <tr><th scope="row" class="py-3 pr-4 align-top text-white font-semibold">Backend</th><td class="py-3">${renderCareerSkillChips(['Async pipelines', 'Microservices', 'Load balancing and failover'])}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Clinical AI Assistant</p>
+                    <ul class="space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Physicians need answers that reflect the individual patient and current guidelines, and need them within seconds during a visit.</li>
+                        <li><strong class="text-white">What I built:</strong> An assistant that streams cited, personalised answers by combining the patient’s FHIR record, conversation history in Redis, retrieval over 60+ US comorbidity guidelines in Milvus, and tool calls for real-time drug and insurance coverage.</li>
+                        <li><strong class="text-white">Result:</strong> I cut p99 response latency from 20s to under 5s under concurrent load by fetching patient data in parallel from MongoDB and running hybrid vector search asynchronously.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">Medication and Formulary Recommendations</p>
+                    <ul class="space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Prescribers have to weigh a patient’s insurance coverage (drug tiers and restrictions) against thousands of drug options.</li>
+                        <li><strong class="text-white">What I built:</strong> A RAG workflow that recommends patient-specific formulary options, and an o1-based reasoning step that filters 2,000+ drugs down to the physician’s own preferred list.</li>
+                        <li><strong class="text-white">Result:</strong> 94.7% therapeutic-class accuracy and 86% precision. Clinicians prescribe from a short, relevant list instead of the full formulary.</li>
+                    </ul>
+                </div>
+                <div class="border-t border-white/10 pt-5">
+                    <p class="text-xs font-mono-tech tracking-wider uppercase text-cyan-neon mb-3">LLM Reliability</p>
+                    <ul class="space-y-3">
+                        <li><strong class="text-white">Problem:</strong> Azure OpenAI sets a tokens-per-minute quota, and peak usage hit it, failing requests with 429 errors.</li>
+                        <li><strong class="text-white">What I built:</strong> A central token-allocation microservice that reserves tokens before each request, routes to the least-loaded deployment, fails over automatically across regions, and queues overflow requests.</li>
+                        <li><strong class="text-white">Result:</strong> No request failures from token-limit breaches during peak usage.</li>
+                    </ul>
+                </div>
+            </div>`
     },
     {
         id: 'faraday-ml-engineer',
@@ -41,7 +74,6 @@ const CAREER_JOURNEY = [
         drawerCompany: 'Faraday Battery, Birmingham, UK',
         companyUrl: 'https://www.faradaybattery.in/',
         location: 'Birmingham, UK',
-        blurb: 'Built cloud ML pipelines for battery health, charge, remaining life, and maintenance alerts.',
         drawerHeading: 'Machine Learning Engineer',
         drawerHtml: `
             <div class="space-y-6">
@@ -106,7 +138,6 @@ const CAREER_JOURNEY = [
         organizationLabel: 'University',
         companyUrl: 'https://www.bcu.ac.uk/',
         location: 'Birmingham, UK',
-        blurb: 'One-year full-time MSc covering Machine Learning, Deep Learning, NLP and Applied AI.',
         drawerHeading: 'MSc Artificial Intelligence (Distinction)',
         drawerHtml: `
             <div class="space-y-6">
@@ -174,7 +205,6 @@ const CAREER_JOURNEY = [
         drawerCompany: 'Citi, Treasury and Trade Solutions (TTS), via CitiCorp Services India Private Limited, Pune',
         companyUrl: 'https://www.citigroup.com/global/about-us/global-presence/india',
         location: 'Pune, India',
-        blurb: 'Built and secured trade and treasury software, from backend services to machine learning and deployment automation.',
         drawerHeading: 'Software Developer',
         drawerHtml: `
             <div class="space-y-6">
@@ -208,6 +238,7 @@ const CAREER_JOURNEY = [
 ];
 
 const CAREER_MOBILE_BREAKPOINT = 768;
+const CAREER_SPLIT_BREAKPOINT = 1024;
 let mobileCareerFocusRaf = null;
 let mobileCareerObserver = null;
 let mobileCareerVisibility = new Map();
@@ -217,6 +248,7 @@ let mobileCareerManualItem = null;
 let mobileCareerLongPressTimer = null;
 let mobileCareerTouchStart = null;
 let suppressCareerClick = false;
+let careerDrawerCloseTimer = null;
 
 const CAREER_LONG_PRESS_MS = 420;
 const CAREER_TOUCH_MOVE_CANCEL_PX = 10;
@@ -411,8 +443,7 @@ function renderCareerTimeline() {
                 <span class="career-checkpoint ${checkpointClass}"></span>
                 <p class="text-xs text-gray-500 font-mono-tech tracking-wider uppercase mb-1">${career.period}</p>
                 <h4 class="font-bold text-xl text-white mb-1">${career.role}${latestTag}</h4>
-                <p class="text-gray-400 text-sm mb-2">${career.company} - ${career.location}</p>
-                <p class="text-[#AAAAAA] text-sm leading-relaxed">${career.blurb}</p>
+                <p class="text-gray-400 text-sm">${career.company} - ${career.location}</p>
                 <span class="career-hover-cue" aria-hidden="true">
                     <span class="career-hover-arrow ${cueColorClass} delay-1">&gt;</span>
                     <span class="career-hover-arrow ${cueColorClass} delay-2">&gt;</span>
@@ -433,6 +464,9 @@ function openCareerDrawer(career) {
 
     if (!drawer || !backdrop || !periodEl || !titleEl || !companyEl || !contentEl) return;
 
+    const headerHeight = document.getElementById('header')?.getBoundingClientRect().height || 72;
+    document.body.style.setProperty('--career-header-height', `${Math.ceil(headerHeight)}px`);
+
     periodEl.textContent = career.period;
     titleEl.textContent = career.drawerHeading;
 
@@ -441,26 +475,70 @@ function openCareerDrawer(career) {
     } else {
         companyEl.textContent = `${career.organizationLabel || 'Company'}: ${career.drawerCompany || career.company}`;
     }
+    if (career.drawerClient) {
+        companyEl.insertAdjacentHTML('beforeend', ` <span class="text-gray-500">·</span> Client: ${career.drawerClient}`);
+    }
 
     contentEl.innerHTML = career.drawerHtml || career.drawerText
         .map((line) => `<p>${line}</p>`)
         .join('');
 
+    if (careerDrawerCloseTimer) {
+        clearTimeout(careerDrawerCloseTimer);
+        careerDrawerCloseTimer = null;
+    }
+    document.body.classList.remove('career-drawer-closing');
     drawer.classList.remove('translate-x-full');
     backdrop.classList.remove('opacity-0', 'pointer-events-none');
     backdrop.classList.add('opacity-100');
-    document.body.classList.add('overflow-hidden');
+    document.body.classList.add('overflow-hidden', 'career-drawer-open');
+
+    const selectedItem = document.querySelector(`#career-timeline [data-career-id="${career.id}"]`);
+    document.querySelectorAll('#career-timeline .career-item').forEach((item) => {
+        item.classList.toggle('is-selected', item === selectedItem);
+    });
+    if (window.innerWidth >= CAREER_SPLIT_BREAKPOINT && selectedItem) {
+        requestAnimationFrame(() => {
+            const experience = document.getElementById('experience');
+            if (!experience) return;
+            const itemRect = selectedItem.getBoundingClientRect();
+            const paneRect = experience.getBoundingClientRect();
+            experience.scrollBy({ top: itemRect.top + itemRect.height / 2 - paneRect.height / 2, behavior: 'smooth' });
+        });
+    }
 }
 
 function closeCareerDrawer() {
     const drawer = document.getElementById('career-drawer');
     const backdrop = document.getElementById('career-drawer-backdrop');
-    if (!drawer || !backdrop) return;
+    if (!drawer || !backdrop || !document.body.classList.contains('career-drawer-open') || careerDrawerCloseTimer) return;
 
     drawer.classList.add('translate-x-full');
     backdrop.classList.remove('opacity-100');
     backdrop.classList.add('opacity-0', 'pointer-events-none');
-    document.body.classList.remove('overflow-hidden');
+    const wasSplitView = window.innerWidth >= CAREER_SPLIT_BREAKPOINT;
+    const finishClose = () => {
+        document.body.classList.remove('overflow-hidden', 'career-drawer-open', 'career-drawer-closing');
+        document.body.style.removeProperty('--career-header-height');
+        if (wasSplitView) {
+            const title = document.querySelector('#experience .section-title');
+            const headerHeight = document.getElementById('header')?.getBoundingClientRect().height || 0;
+            if (title) {
+                const titleTop = title.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({ top: Math.max(0, titleTop - headerHeight - 24), behavior: 'instant' });
+            }
+        }
+        document.querySelectorAll('#career-timeline .career-item.is-selected').forEach((item) => {
+            item.classList.remove('is-selected');
+        });
+        careerDrawerCloseTimer = null;
+    };
+    if (wasSplitView) {
+        document.body.classList.add('career-drawer-closing');
+        careerDrawerCloseTimer = setTimeout(finishClose, 350);
+    } else {
+        finishClose();
+    }
 }
 
 function bindCareerEvents() {
@@ -542,6 +620,10 @@ function bindCareerEvents() {
         scheduleMobileCareerActiveStateUpdate();
     }, { passive: true });
     window.addEventListener('resize', () => {
+        if (document.body.classList.contains('career-drawer-open')) {
+            const headerHeight = document.getElementById('header')?.getBoundingClientRect().height || 72;
+            document.body.style.setProperty('--career-header-height', `${Math.ceil(headerHeight)}px`);
+        }
         if (!isCareerMobileMode()) {
             clearMobileCareerManualMode();
         }
